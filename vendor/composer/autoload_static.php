@@ -15,10 +15,14 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '6a47392539ca2329373e0d33e1dba053' => __DIR__ . '/..' . '/symfony/polyfill-intl-icu/bootstrap.php',
         '32dcc8afd4335739640db7d200c1971d' => __DIR__ . '/..' . '/symfony/polyfill-apcu/bootstrap.php',
-        '719971e375036615a0685b6fb054583d' => __DIR__ . '/..' . '/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php',
+        'a5e51e7d7531022fe054e951fd2b6d7f' => __DIR__ . '/..' . '/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'n' => 
+        array (
+            'nullx27\\ESI\\' => 12,
+        ),
         'T' => 
         array (
             'Twig\\' => 5,
@@ -82,6 +86,10 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
     );
 
     public static $prefixDirsPsr4 = array (
+        'nullx27\\ESI\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nullx27/esi-php/src',
+        ),
         'Twig\\' => 
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
