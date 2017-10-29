@@ -31,8 +31,6 @@ class MainController extends Controller
 
         $parameters = ControllerUtil::beforeRequest($this, $request);
 
-
-
         return $this->render('default/index.html.twig', $parameters);
         //
     }

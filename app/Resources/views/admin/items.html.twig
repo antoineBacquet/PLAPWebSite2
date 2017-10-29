@@ -1,0 +1,40 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block css %}
+    <link rel="stylesheet" href="{{ asset('plugin/treejs/dist/themes/default/style.min.css') }}" />
+
+
+{% endblock %}
+
+{% block js %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+
+    <script src="{{ asset('plugin/treejs/dist/jstree.min.js') }}"></script>
+
+{% endblock %}
+
+
+
+{% block body %}
+    <div id="jstree_item">
+    </div>
+
+
+
+
+
+
+
+
+
+    <script >
+        $('#jstree_item').jstree({ 'core' : {
+            'data' : [   {% autoescape %} {{ groups|raw }} {% endautoescape %}  ]
+        } }).bind("select_node.jstree", function (e, data) {
+            var href = data.node.a_attr.href;
+            document.location.href = href;
+        });
+    </script>
+{% endblock %}

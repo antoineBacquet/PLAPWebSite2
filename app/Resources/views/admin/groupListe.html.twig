@@ -1,0 +1,22 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+
+
+
+<h1> Groupe liste</h1>
+
+
+{% for group in groups %}
+    * {{ group.name }} <a href="{{ path('groupRemove', { 'id' : group.id } ) }}">Supprimer</a> <br>
+{% else %}
+    Pas de groupe.
+{% endfor %}
+
+{{ form_start(form) }}
+{{ form_widget(form) }}
+{{ form_end(form) }}
+
+
+{% endblock %}

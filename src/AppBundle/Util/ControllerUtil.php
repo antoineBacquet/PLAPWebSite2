@@ -19,6 +19,8 @@ class ControllerUtil extends Controller
     public static function beforeRequest(Controller $c, Request $r, Array $groups = null){
 
 
+
+
         $parameters = Core::getDefaultParameter($c->getDoctrine(), $r);
         $parameters['base_dir'] = realpath($c->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR;
 

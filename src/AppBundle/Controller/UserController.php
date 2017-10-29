@@ -38,6 +38,7 @@ class UserController extends Controller
     {
 
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
 
         if(UserUtil::getUser($this->getDoctrine(), $request) == null)
             return $this->redirect('/');
@@ -67,6 +68,8 @@ class UserController extends Controller
 
 
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
 
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
 
@@ -134,6 +137,7 @@ class UserController extends Controller
     {
 
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
 
 
         $userAgent = 'PLAP';
@@ -221,9 +225,9 @@ class UserController extends Controller
     public function removeApiAction(Request $request, $id)
     {
 
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
         $user = UserUtil::getUser($this->getDoctrine(), $request);
-        if($user == null) return $this->redirect('/');
-
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
         $api = $rep->find($id);
         if( $api == null)  return $this->redirect('/profile/api');
@@ -233,7 +237,6 @@ class UserController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->remove($api);
         $em->flush();
-
         return $this->redirect('/profile/api');
 
 
@@ -247,12 +250,9 @@ class UserController extends Controller
     public function myOrderAction(Request $request)
     {
 
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
         $user = UserUtil::getUser($this->getDoctrine(), $request);
-        if(!$user) return $this->redirect('/');
-
-        $parameters = Core::getDefaultParameter($this->getDoctrine(), $request);
-        $parameters['base_dir'] = realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR;
-
 
         $apis = $user->getApis();
 
@@ -288,10 +288,8 @@ class UserController extends Controller
      */
     public function serviceAction(Request $request)
     {
-        $parameters = Core::getDefaultParameter($this->getDoctrine(), $request);
-        $parameters['base_dir'] = realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR;
-        $user = UserUtil::getUser($this->getDoctrine(), $request);
-        if(!$user) return $this->redirect($this->generateUrl('homepage'));
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
 
 
         return $this->render('profile/service.html.twig', $parameters);
