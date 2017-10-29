@@ -182,15 +182,6 @@ class User
     }
 
     /**
-     * @param $groupes
-     * @return User
-     */
-    public function setGroupe($groupes)
-    {
-        return $this->setGroupes($groupes);
-    }
-
-    /**
      * Get groupe
      *
      * @return integer
@@ -198,16 +189,6 @@ class User
     public function getGroupes()
     {
         return $this->groupes;
-    }
-
-    /**
-     * Get groupe
-     *
-     * @return integer
-     */
-    public function getGroupe()
-    {
-        return $this->getGroupes();
     }
 
     public function __toString() {

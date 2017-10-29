@@ -1,0 +1,34 @@
+
+
+<br>
+
+
+
+
+        <a class="navbar-brand" href="{{ path('homepage') }}"> Accueil </a>
+
+    {% if user is defined %}
+    <a href="{{ path('logout') }}" >Logout</a> <br>
+    <a href="{{ path('profile') }}" >Profile</a> <br>
+
+
+    {% if user.isMember is defined %}
+        <h1> Menu plap (et alliance?)</h1>
+
+        <a href="{{ path('myapis') }}" >Mes Api</a> <br>
+        <a href="{{ path('services') }}" >Les services</a> <br>
+    {% endif %}
+
+    {% if user.isAdmin is defined %}
+        <h1> Menu admin</h1>
+        <a href="{{ path('group') }}" >Groupe liste</a> <br>
+        <a href="{{ path('members') }}" >Membres liste</a> <br>
+
+
+
+    {% endif %}
+
+
+    {% else %}
+    <a href="{{ path('login') }}" >Login</a>
+{% endif %}
