@@ -2435,17 +2435,17 @@
     },
     {
         "name": "nullx27/esi-php",
-        "version": "1.1",
-        "version_normalized": "1.1.0.0",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/nullx27/esi-php.git",
-            "reference": "894e256b67272817ad5efbaa21c69cf0a28c2d70"
+            "reference": "95e84fb389b546c9c38da08550a398b873014b7c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/nullx27/esi-php/zipball/894e256b67272817ad5efbaa21c69cf0a28c2d70",
-            "reference": "894e256b67272817ad5efbaa21c69cf0a28c2d70",
+            "url": "https://api.github.com/repos/nullx27/esi-php/zipball/95e84fb389b546c9c38da08550a398b873014b7c",
+            "reference": "95e84fb389b546c9c38da08550a398b873014b7c",
             "shasum": ""
         },
         "require": {
@@ -2460,9 +2460,9 @@
             "satooshi/php-coveralls": "~1.0",
             "squizlabs/php_codesniffer": "~2.6"
         },
-        "time": "2017-03-27T13:05:55+00:00",
+        "time": "2017-06-07T08:36:09+00:00",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "psr-4": {
                 "nullx27\\ESI\\": "src/"
@@ -2478,7 +2478,7 @@
                 "homepage": "https://github.com/swagger-api/swagger-codegen"
             }
         ],
-        "description": "EVE Online ESI Api Client for PHP",
+        "homepage": "http://swagger.io",
         "keywords": [
             "api",
             "php",

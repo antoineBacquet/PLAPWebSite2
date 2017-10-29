@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "03f9886ca3238800fab9771eb9a3f184",
+    "content-hash": "4b8050701bf16974827146a2352d47a0",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -1068,16 +1068,16 @@
         },
         {
             "name": "nullx27/esi-php",
-            "version": "1.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nullx27/esi-php.git",
-                "reference": "894e256b67272817ad5efbaa21c69cf0a28c2d70"
+                "reference": "95e84fb389b546c9c38da08550a398b873014b7c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nullx27/esi-php/zipball/894e256b67272817ad5efbaa21c69cf0a28c2d70",
-                "reference": "894e256b67272817ad5efbaa21c69cf0a28c2d70",
+                "url": "https://api.github.com/repos/nullx27/esi-php/zipball/95e84fb389b546c9c38da08550a398b873014b7c",
+                "reference": "95e84fb389b546c9c38da08550a398b873014b7c",
                 "shasum": ""
             },
             "require": {
@@ -1108,14 +1108,14 @@
                     "homepage": "https://github.com/swagger-api/swagger-codegen"
                 }
             ],
-            "description": "EVE Online ESI Api Client for PHP",
+            "homepage": "http://swagger.io",
             "keywords": [
                 "api",
                 "php",
                 "sdk",
                 "swagger"
             ],
-            "time": "2017-03-27T13:05:55+00:00"
+            "time": "2017-06-07T08:36:09+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -2420,7 +2420,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "nullx27/esi-php": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

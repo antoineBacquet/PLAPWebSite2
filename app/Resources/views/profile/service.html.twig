@@ -1,0 +1,15 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+
+    <h1> Liste des service</h1>
+
+
+    discord : <a href="{{ path('discordjoin') }}" >Rejoindre le serveur</a> <br><br>
+
+
+    Focntionnement: tu clic sur l'invitation discord puis tu mp un message au bot avec ca : {{ user.discordRandomString }}
+
+
+{% endblock %}

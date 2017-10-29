@@ -54,11 +54,11 @@ class UserUtil
         if(UserUtil::$user == null) return null;
 
         foreach (  UserUtil::$user->getGroupes() as $group){
-            if($group->getId() == GroupUtil::$corpGroupId){
+            if($group->getId() == GroupUtil::$GROUP_LISTE['Membre']){
                 UserUtil::$user->isMember = true;
             }
 
-            if($group->getId() == GroupUtil::$adminGroupId){
+            if($group->getId() == GroupUtil::$GROUP_LISTE['Admin']){
                 UserUtil::$user->isAdmin = true;
             }
         }
