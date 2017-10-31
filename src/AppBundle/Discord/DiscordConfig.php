@@ -12,7 +12,7 @@ namespace AppBundle\Discord;
 
 class DiscordConfig
 {
-    public static $cliendId = '355730171489157133';
+    public static $cliendId = '361951222988668929';
 
     public static $cliendSecret = 'unTgDpJ5rtlYw60MfxhfvssNwRmlSHCy';
 
