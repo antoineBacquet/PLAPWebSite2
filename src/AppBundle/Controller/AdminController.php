@@ -39,6 +39,8 @@ class AdminController extends Controller
     {
 
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        if(!is_array($parameters)) return $parameters;
+
 
         //TODO some group should not be removed (user, admin, etc);
 
@@ -66,7 +68,7 @@ class AdminController extends Controller
     {
 
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
-
+        if(!is_array($parameters)) return $parameters;
 
         $doctrine = $this->getDoctrine();
         $repository = $doctrine->getRepository(Groupe::class);
@@ -105,7 +107,7 @@ class AdminController extends Controller
     {
 
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
-
+        if(!is_array($parameters)) return $parameters;
 
         $doctrine = $this->getDoctrine();
         $rep = $doctrine->getRepository(User::class);
@@ -156,6 +158,8 @@ class AdminController extends Controller
     public function adminMemberEmailsAction(Request $request, $id)
     {
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        if(!is_array($parameters)) return $parameters;
+
 
         $api = new MailApi();
 
@@ -171,6 +175,8 @@ class AdminController extends Controller
     {
 
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        if(!is_array($parameters)) return $parameters;
+
 
         $corpAPI = new CorporationApi();
 
