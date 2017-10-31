@@ -92,7 +92,7 @@ class DiscordController  extends Controller
              * @var Invite $invite
              */
             // Accept an invite
-            $invite = $user->acceptInvite('https://discord.gg/rpkBFyT');
+            $invite = $user->acceptInvite('https://discord.gg/Q682jHS');
 
         }
 
