@@ -14,7 +14,7 @@ class DiscordConfig
 {
     public static $cliendId = '361951222988668929';
 
-    public static $cliendSecret = 'unTgDpJ5rtlYw60MfxhfvssNwRmlSHCy';
+    public static $cliendSecret = 'vC1nVx-h938V4Txzspd56RvvIrUdu8dw';
 
     public static $redirectURI = "http://87.88.123.72/discord/redirect/";
 
