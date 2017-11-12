@@ -1,0 +1,27 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+
+
+
+    <h1> Liste de tes commandes</h1>
+
+
+    <table>
+
+        <tr> <th> Issuer </th> <th> Contractor </th>  <th> State </th> <th> Info </th> <th> Evepraisal </th>  <th> Action </th> </tr>
+        {% for command in commands %}
+
+            <tr>
+                <td> {{ command.issuer.name }} </td>
+                <td> {% if command.contractor is null %} - {% else %} {{ command.contractor.name  }} {% endif %}</td>
+                <td> {{ command.state }} </td>
+                <td> <a href="{{ path('commandinfo', { 'id' : command.getId() } ) }}"> view info </a> </td>
+                <td> <a href="{{command.evepraisal }}"> Lien Evepraisal </a> </td>
+                <td> <a href="{{ path('removemycommand', { 'id' : command.getId() } ) }}"> Supprimer la commande </a> </td>
+            </tr>
+
+        {% endfor %}
+    </table>
+{% endblock %}

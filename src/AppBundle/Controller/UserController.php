@@ -13,6 +13,9 @@ use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\CCPUtil;
 use AppBundle\CCP\TokenData;
 use AppBundle\Entity\CharApi;
+use AppBundle\Entity\Command;
+use AppBundle\Entity\CommandItem;
+use AppBundle\Entity\Item;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
@@ -21,10 +24,12 @@ use nullx27\ESI\Api\MarketApi;
 use nullx27\ESI\Models\GetCharactersCharacterIdOrders200Ok;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
-use AppBundle\Util\Core;
-
 class UserController extends Controller
 {
 
@@ -274,10 +279,6 @@ class UserController extends Controller
             echo 'Type : ' . $order->getTypeId() . ', price : ' . $order->getPrice();
         }
 
-
-
-
-
     }
 
 
@@ -293,6 +294,147 @@ class UserController extends Controller
 
 
         return $this->render('profile/service.html.twig', $parameters);
+
+    }
+
+
+    /**
+     *
+     *
+     * @Route("/test/searchitem", name="searchitem")
+     */
+    /*
+    public function searchItemAction(Request $request)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+
+        return $this->render('admin/itemsearch.html.twig', $parameters);
+    }*/
+
+
+
+    /**
+     * Add a command
+     *
+     * @Route("/commands", name="commandlist")
+     */
+    public function commandListAction(Request $request)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+        $doctrine = $this->getDoctrine();
+        $commandRep = $doctrine->getRepository(Command::class);
+
+        $commands = $commandRep->findAll();
+        $parameters['commands'] = $commands;
+
+        return $this->render('command/liste.html.twig', $parameters);
+
+    }
+
+    /**
+     * Add a command
+     *
+     * @Route("/commands/{id}", name="commandinfo")
+     */
+    public function commandAction(Request $request, $id)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+        $doctrine = $this->getDoctrine();
+        $commandRep = $doctrine->getRepository(Command::class);
+
+        $command = $commandRep->find($id);
+        $parameters['command'] = $command;
+
+        return $this->render('command/command.html.twig', $parameters);
+
+    }
+
+    /**
+     * Add a command
+     *
+     * @Route("/command/accept/{id}", name="commandaccept")
+     */
+    public function commandAcceptAction(Request $request, $id)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+        $doctrine = $this->getDoctrine();
+        $commandRep = $doctrine->getRepository(Command::class);
+
+        /**
+         * @var $command Command
+         */
+        $command = $commandRep->find($id);
+
+        if($command!= null){
+
+            $command->setContractor($parameters['user']);
+            $command->setState('accepted');
+
+            $doctrine->getManager()->persist($command);
+            $doctrine->getManager()->flush();
+        }
+
+        return $this->redirect($this->generateUrl('commandinfo', array('id' => $id)));
+
+    }
+
+    /**
+     * Add a command
+     *
+     * @Route("/profile/commands", name="mycommands")
+     */
+    public function myCommandAction(Request $request)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+        $doctrine = $this->getDoctrine();
+        $commandRep = $doctrine->getRepository(Command::class);
+
+        $commands = $commandRep->findByIssuer($parameters['user']);
+
+        $parameters['commands'] = $commands;
+
+        return $this->render('profile/commands.html.twig', $parameters);
+
+    }
+
+    /**
+     * Add a command
+     *
+     * @Route("/profile/commands/remove/{id}", name="removemycommand")
+     */
+    public function removeMyCommandAction(Request $request, $id)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+        $doctrine = $this->getDoctrine();
+        $commandRep = $doctrine->getRepository(Command::class);
+
+        /**
+         * @var Command $commands
+         */
+        $command = $commandRep->find($id);
+
+        if($command!= null){
+            if($command->getIssuer()->getId() != $parameters['user']->getId())
+                die("You cn remove only your command"); //TODO better
+
+
+            $doctrine->getManager()->remove($command);
+            $doctrine->getManager()->flush();
+        }
+
+        return $this->redirect($this->generateUrl('mycommands'));
 
     }
 }

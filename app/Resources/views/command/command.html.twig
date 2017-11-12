@@ -1,0 +1,27 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+
+
+
+    <h1> Detail de la commande</h1>
+
+
+    Issuer : {{ command.issuer.name }} <br>
+    Contractor : {% if command.contractor is null %} - {% else %} {{ command.contractor.name }} {% endif %} <br>
+    state : {{ command.state }} <br>
+    liste des items : <br>
+    <table>
+
+    <tr> <th> Item </th>  <th> quantity </th> <th> est. price </th> </tr>
+    {% for item in command.items %}
+        <tr> <td> {{ item.item.name }} </td>  <td> {{ item.quantity }} </td> <td> TODO </td> </tr>
+    {% endfor %}
+    </table>
+    {% if command.contractor is null %}
+    <a href="{{ path('commandaccept', { 'id' : command.getId() } ) }}"> Accepter la commande</a>
+    {% endif %}
+
+
+{% endblock %}

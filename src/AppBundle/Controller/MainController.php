@@ -180,4 +180,29 @@ class MainController extends Controller
         return $this->redirect('profile');
     }
 
+    /**
+     * Test stuff here
+     *
+     * @Route("/test", name="test")
+     */
+    public function testAction(Request $request)
+    {
+
+
+        $ch = curl_init();
+        $data = "avatar%2010%0Aerebus";
+
+        curl_setopt($ch, CURLOPT_URL, "https://evepraisal.com/appraisal.json?market=jita&raw_textarea=" . $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close ($ch);
+
+        die($result);
+    }
+
 }

@@ -9,7 +9,11 @@
 namespace AppBundle\Util;
 
 
+use AppBundle\Entity\Item;
+use AppBundle\Repository\ItemRepository;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Cache\Adapter\DoctrineAdapter;
 use Symfony\Component\HttpFoundation\Request;
 
 class ControllerUtil extends Controller
@@ -53,6 +57,8 @@ class ControllerUtil extends Controller
         return $parameters;
 
     }
+
+
 
 
 

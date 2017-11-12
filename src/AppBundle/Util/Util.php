@@ -11,6 +11,7 @@ namespace AppBundle\Util;
 
 use AppBundle\Entity\Item;
 use AppBundle\Entity\ItemGroup;
+use AppBundle\Repository\ItemRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class Util
@@ -73,7 +74,39 @@ class Util
         }
 
         return $json;
+    }
+
+    public static function getEvePraisal($data, ItemRepository $itemRep){
+
+        $string = "";
+
+        for ( $i=0 ; $i<count($data['items']) ; $i++) {
+
+            /**
+             * @var Item $item
+             */
+            $item = $itemRep->find($data['items'][$i]);
+            $string = $string . rawurlencode($item->getName()) . "%20".$data['quantity'][$i]."%0A";
+
+        }
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, "https://evepraisal.com/appraisal.json?market=jita&raw_textarea=" . $string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            die( 'Error:' . curl_error($ch));
+        }
+        curl_close ($ch);
+
+        return $result;
 
 
     }
+
+
+
 }

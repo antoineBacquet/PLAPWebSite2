@@ -11,6 +11,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\Entity\Groupe;
+use AppBundle\Entity\Item;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
@@ -25,6 +26,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class AdminController extends Controller
@@ -197,6 +199,75 @@ class AdminController extends Controller
 
         $parameters['members'] = $users;
         return $this->render('admin/members.html.twig', $parameters);
+
+    }
+
+
+    /**
+     * Get item information
+     *
+     * @Route("/ccpdata/item/search", name="searchitemajax")
+     */
+    public function ccpdataSearchItemAction(Request $request)
+    {
+
+        $text = $request->request->get('text');
+        $response = "aze";
+
+
+        if (strlen($text) > 0) {
+
+            $words = explode(' ', $text);
+
+            $whereSql = "";
+
+            for ($i = 0; $i < count($words); $i++) {
+                $whereSql = $whereSql . " upper(i.name) LIKE upper('%" . $words[$i] . "%') ";
+                if ($i != (count($words) - 1))
+                    $whereSql = $whereSql . " AND ";
+            }
+
+            //$response = $whereSql;
+            $em = $this->getDoctrine()->getRepository(Item::class);
+
+            $query = $em->createQueryBuilder('i')
+                ->where($whereSql)->setMaxResults(10)->getQuery();
+            $results = $query->getResult();
+
+            $response = array('results' => array());
+
+
+            foreach ($results as $result){
+                $response['results'][] = array('id' =>$result->getId(),  'name' =>$result->getName());
+            }
+        }
+
+
+
+
+
+
+
+
+            /*foreach ($results as $result) {
+                echo 'test';
+                $hint = $hint . "<br /><a href='" .
+                    $result->getId() .
+                    "' target='_blank'>" .
+                    $result->getName() . "</a>";
+
+            }
+
+
+            if ($hint == "") {
+                $response = "no suggestion";
+            } else {
+                $response = $hint;
+            }
+            echo $response;
+        }*/
+
+        return $this->json($response);
 
     }
 

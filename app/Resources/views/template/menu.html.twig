@@ -17,6 +17,11 @@
 
         <a href="{{ path('myapis') }}" >Mes Api</a> <br>
         <a href="{{ path('services') }}" >Les services</a> <br>
+
+        <h2> Menu des commandes</h2>
+        <a href="{{ path('commandlist') }}" >Liste des commandes</a> <br>
+        <a href="{{ path('commandadd') }}" >Ajouter une commande</a> <br>
+        <a href="{{ path('mycommands') }}" >Mes commands</a> <br>
     {% endif %}
 
     {% if user.isAdmin is defined %}
