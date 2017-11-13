@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 
 
     {% block css %}{% endblock %}
 
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/starter-template.css') }}" />
 
 
 
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -21,14 +22,24 @@
 
 </head>
 <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
 
-{{ include('template/menu.html.twig') }}
+            {{ include('template/menutmp.html.twig') }}
 
-<div id="container">
-    {% block body %}{% endblock %}
-</div>
+        </div>
+    </nav>
 
 
-{{ include('template/_footer.html.twig') }}
+    <div class="container">
+        <div class="starter-template">
+        {% block body %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="{{ asset('js/bootstrap.js') }}"></script>
+
+    {{ include('template/_footer.html.twig') }}
 </body>
 </html>

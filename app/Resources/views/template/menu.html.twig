@@ -1,39 +1,60 @@
 
 
-<br>
+<div id="menunavbar" class="collapse navbar-collapse">
+
+
+    <ul class="nav navbar-nav">
+
+        <li class="active">
+            <a href="{{ path('homepage') }}"> Accueil </a>
+        </li>
+        {% if user is defined %}
+<!--
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('profile') }}" >Profile</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('logout') }}" >Logout</a>
+            </li>
+            -->
+        {% if user.isMember is defined %}
+            <!--<h1> Menu plap (et alliance?)</h1>
+            <li class="nav-item">
+                <a  class="nav-link" href="{{ path('myapis') }}" >Mes Api</a>
+            </li>
+
+            <li class="nav-item">
+                <a  class="nav-link" href="{{ path('services') }}" >Les services</a>
+            </li>
+-->
+            <!-- Menu des commandes -->
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Commandes<span class="caret"></span></button>
+            <ul class="dropdown-menu">
+
+                <li><a class="dropdown-item" href="{{ path('commandlist') }}" >Liste des commandes</a></li>
+                <li><a class="dropdown-item" href="{{ path('commandadd') }}" >Ajouter une commande</a></li>
+                <li><a class="dropdown-item" href="{{ path('mycommands') }}" >Mes commands</a></li>
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if user.isAdmin is defined %}
+            <h1> Menu admin</h1>
+            <a class="nav-link" href="{{ path('group') }}" >Groupe liste</a>
+            <a class="nav-link" href="{{ path('members') }}" >Membres liste</a>
 
 
 
-
-        <a class="navbar-brand" href="{{ path('homepage') }}"> Accueil </a>
-
-    {% if user is defined %}
-    <a href="{{ path('logout') }}" >Logout</a> <br>
-    <a href="{{ path('profile') }}" >Profile</a> <br>
+        {% endif %}
 
 
-    {% if user.isMember is defined %}
-        <h1> Menu plap (et alliance?)</h1>
+        {% else %}
 
-        <a href="{{ path('myapis') }}" >Mes Api</a> <br>
-        <a href="{{ path('services') }}" >Les services</a> <br>
-
-        <h2> Menu des commandes</h2>
-        <a href="{{ path('commandlist') }}" >Liste des commandes</a> <br>
-        <a href="{{ path('commandadd') }}" >Ajouter une commande</a> <br>
-        <a href="{{ path('mycommands') }}" >Mes commands</a> <br>
-    {% endif %}
-
-    {% if user.isAdmin is defined %}
-        <h1> Menu admin</h1>
-        <a href="{{ path('group') }}" >Groupe liste</a> <br>
-        <a href="{{ path('members') }}" >Membres liste</a> <br>
+        <a class="nav-link" href="{{ path('login') }}" >Login</a>
 
 
-
-    {% endif %}
-
-
-    {% else %}
-    <a href="{{ path('login') }}" >Login</a>
-{% endif %}
+        {% endif %}
+    </ul>
+</div>
