@@ -7,20 +7,23 @@
 
 <h1> Liste des commandes</h1>
 
-
-    <table>
-
-        <tr> <th> Issuer </th> <th> Contractor </th>  <th> State </th> <th> Info </th> <th> Evepraisal </th> </tr>
+    <div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr> <th> Issuer </th> <th> Contractor </th>  <th> State </th> <th> Info </th> <th> Evepraisal </th> </tr>
+        </thead>
     {% for command in commands %}
-
-        <tr>
-            <td> {{ command.issuer.name }} </td>
-            <td> {% if command.contractor is null %} - {% else %} {{ command.contractor.name }} {% endif %}</td>
-            <td> {{ command.state }} </td>
-            <td> <a href="{{ path('commandinfo', { 'id' : command.getId() } ) }}"> view info </a> </td>
-            <td> <a href="{{command.evepraisal }}"> Lien Evepraisal </a> </td>
-        </tr>
+        <tbody>
+            <tr>
+                <td> {{ command.issuer.name }} </td>
+                <td> {% if command.contractor is null %} - {% else %} {{ command.contractor.name }} {% endif %}</td>
+                <td> {{ command.state }} </td>
+                <td> <a href="{{ path('commandinfo', { 'id' : command.getId() } ) }}"> view info </a> </td>
+                <td> <a href="{{command.evepraisal }}"> Lien Evepraisal </a> </td>
+            </tr>
+        </tbody>
 
     {% endfor %}
     </table>
+    </div>
 {% endblock %}

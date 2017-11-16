@@ -1,0 +1,13 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+
+    <h1> Emails </h1>
+
+    {% for api in apis %}
+        <li><a href="{{ path('myemails1', { 'id' : api.getId() } ) }}">{{ api.charName }}({{ api.unread }})</a></li>
+    {%  endfor %}
+
+
+{% endblock %}

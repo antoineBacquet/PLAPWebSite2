@@ -184,7 +184,7 @@ class User
     /**
      * Get groupe
      *
-     * @return integer
+     * @return array(Groupe)
      */
     public function getGroupes()
     {

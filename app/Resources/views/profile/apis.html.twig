@@ -4,30 +4,33 @@
 {% block body %}
 
     <h1> Tes API</h1>
-
-    <table border="1">
-        <tr>
-            <td>Nom du perso</td>
-            <td>Toujour valable?</td>
-            <td>Action</td>
-        </tr>
-
-
-    {% for api in apis %}
-        <tr>
-            <td> {{ api.charName }} </td>
-
-            <td>  {% if api.isValid %} oui {% else %} non {% endif %}  </td>
-
-            <td> <a href="{{ path('removeapi', { 'id' : api.id } ) }}"> Supprimer </a> </td>
-        </tr>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <td>Portrait</td>
+                <td>Nom du perso</td>
+                <td>Toujour valable?</td>
+                <td>Action</td>
+            </tr>
 
 
-    {% else %}
-        Pas d'API
-    {% endfor %}
+        {% for api in apis %}
+            <tr>
+                <td> <img src="{{ api.portrait }}"> </td>
+                <td> <a href="{{ path('myapi', { 'id' : api.id } ) }} ">{{ api.charName }} </a> </td>
 
-    </table>
+                <td>  {% if api.isValid %} oui {% else %} non {% endif %}  </td>
+
+                <td> <a href="{{ path('removeapi', { 'id' : api.id } ) }}"> Supprimer </a> </td>
+            </tr>
+
+
+        {% else %}
+            Pas d'API
+        {% endfor %}
+
+        </table>
+    </div>
 
     <a href="{{ path('addapi') }}" > Ajouter un compte </a><br>
     <a href="https://login.eveonline.com/Account/LogOff" target="_blank">Logout from eve</a>

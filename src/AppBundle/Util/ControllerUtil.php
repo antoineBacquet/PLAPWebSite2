@@ -37,16 +37,8 @@ class ControllerUtil extends Controller
                 return $c->redirect('/');
             else{
 
-                $userGroups = $user->getGroupes();
 
-                $hasGroup = false;
-                foreach ($userGroups as $g){
-                    if(in_array ($g ->getId(), $groups)){
-                        $hasGroup = true;
-
-                    }
-                }
-                if(!$hasGroup)
+                if(!UserUtil::hasGroups($user, $groups))
                     return $c->redirect('/');
 
             }

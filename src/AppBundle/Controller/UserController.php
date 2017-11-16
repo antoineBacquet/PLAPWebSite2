@@ -21,15 +21,19 @@ use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use nullx27\ESI\Api\CharacterApi;
 use nullx27\ESI\Api\MarketApi;
+use nullx27\ESI\Api\WalletApi;
 use nullx27\ESI\Models\GetCharactersCharacterIdOrders200Ok;
+use Seat\Eseye\Cache\NullCache;
+use Seat\Eseye\Configuration;
+use Seat\Eseye\Containers\EsiAuthentication;
+use Seat\Eseye\Eseye;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Validator\Constraints\Date;
+
 class UserController extends Controller
 {
 
@@ -67,9 +71,9 @@ class UserController extends Controller
     /**
      * List every api of a user. One api per character
      *
-     * @Route("/profile/api", name="myapis")
+     * @Route("/profile/apis", name="myapis")
      */
-    public function myApiAction(Request $request){
+    public function myApisAction(Request $request){
 
 
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
@@ -83,8 +87,14 @@ class UserController extends Controller
          */
         $apis = $rep->findByUser($parameters['user']->getId());
 
+        $charEsi = new CharacterApi();
+
 
         foreach($apis as $api){
+
+            /**
+             * @var CharApi $api
+             */
 
             $tokenData = new TokenData($api->getToken(), $api->getRefreshToken());
             if(CCPUtil::isTokenValid($tokenData)){
@@ -93,7 +103,7 @@ class UserController extends Controller
             else{
                 $tokenData = CCPUtil::updateToken($tokenData);
                 if( $tokenData == false){
-
+                    $api->isValid = false;
                 }
                 else{
                     $api->isValid = true;
@@ -104,12 +114,108 @@ class UserController extends Controller
 
                 }
             }
+
+            $api->portrait = $charEsi->getCharactersCharacterIdPortrait($api->getCharId())->getPx64x64();
+
+
+
         }
 
 
         $parameters['apis'] = $apis;
 
         return $this->render('profile/apis.html.twig', $parameters);
+
+    }
+
+
+    /**
+     * Show information from an api
+     *
+     * @Route("/profile/api/{id}", name="myapi")
+     */
+    public function myApiAction(Request $request, $id){
+
+
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+
+        $rep = $this->getDoctrine()->getRepository(CharApi::class);
+
+        /**
+         * @var $apis array(CharApi)
+         */
+        $parameters['user']->getId();
+        /**
+         * @var CharApi $api
+         */
+        $api = $rep->find($id);
+        if($api->getUser() != $parameters['user']){
+            die('you can\'t see that'); //TODO better
+        }
+
+        $charEsi = new CharacterApi();
+
+            /**
+             * @var CharApi $api
+             */
+        $tokenData = new TokenData($api->getToken(), $api->getRefreshToken());
+
+        if(CCPUtil::isTokenValid($tokenData)){
+            $api->isValid = true;
+        }
+        else{
+            $tokenData = CCPUtil::updateToken($tokenData);
+            if( $tokenData == false){
+                $api->isValid = false;
+            }
+            else{
+                $api->isValid = true;
+
+                $api->setToken($tokenData->token);
+                $api->setRefreshToken($tokenData->refreshToken);
+                $this->getDoctrine()->getManager()->flush();
+
+            }
+        }
+
+        $api->portrait = $charEsi->getCharactersCharacterIdPortrait($api->getCharId())->getPx64x64();
+
+        /*$configuration = Configuration::getInstance();
+        $configuration->cache = NullCache::class;*/
+
+        $authentication = new EsiAuthentication([
+            'client_id'     => CCPConfig::$clientIDAPI,
+            'secret'        => CCPConfig::$secretKEYAPI,
+            'refresh_token' => $api->getRefreshToken()
+        ]);
+
+        $esi = new Eseye($authentication);
+        $wallet = $esi->invoke('get', '/characters/{character_id}/wallet/', [
+            'character_id' => $api->getCharId(),
+        ]);
+
+        $parameters['api'] = $api;
+
+        $parameters['wallet'] = $wallet->getArrayCopy()['scalar'];
+
+        $fatigueData = $esi->invoke('get', '/characters/{character_id}/fatigue/', [
+            'character_id' => $api->getCharId(),
+        ]);
+
+        $fatigueDate = new \DateTime($fatigueData->jump_fatigue_expire_date);
+        if($fatigueDate < (new \DateTime())){
+            $fatigueDate = "Pret a jump";
+        }
+        else{
+            $fatigueDate = $fatigueDate->format('Y-m-d H:i:s');
+        }
+
+
+        $parameters['fatigue'] = $fatigueDate;
+
+        return $this->render('profile/api.html.twig', $parameters);
 
     }
 
@@ -218,7 +324,7 @@ class UserController extends Controller
         $doctrine->getManager()->persist($api);
         $doctrine->getManager()->flush();
 
-        return $this->redirect('/profile/api');
+        return $this->redirect('/profile/apis');
 
     }
 
@@ -242,7 +348,7 @@ class UserController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->remove($api);
         $em->flush();
-        return $this->redirect('/profile/api');
+        return $this->redirect('/profile/apis');
 
 
     }
@@ -437,4 +543,8 @@ class UserController extends Controller
         return $this->redirect($this->generateUrl('mycommands'));
 
     }
+
+
+
+
 }

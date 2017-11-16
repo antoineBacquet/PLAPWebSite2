@@ -135,4 +135,18 @@ class UserUtil
         }
     }
 
+    public static function hasGroups(User $user, array $groups){
+        $userGroups = $user->getGroupes();
+
+        $hasGroup = false;
+        foreach ($userGroups as $g){
+            if(in_array ($g ->getId(), $groups)){
+                $hasGroup = true;
+
+            }
+        }
+
+        return $hasGroup;
+    }
+
 }

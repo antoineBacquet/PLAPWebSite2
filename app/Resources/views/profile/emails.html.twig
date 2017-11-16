@@ -1,0 +1,55 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+
+    <h1> Emails</h1>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+                <ul class="nav nav-sidebar">
+                    {% for label in labels.labels %}
+                        <li>
+                            {%  if label.unread_count is defined and label.unread_count>0 %} <strong> {% endif %}
+                                <a href="{{ path('myemails', { 'id' : api.getId(), 'label_id' : label.label_id } ) }}">{{ label.name }}</a>
+                                {%  if label.unread_count  is defined and label.unread_count>0  %} ({{ label.unread_count  }}) </strong> {% endif %}
+                        </li>
+                    {%  endfor %}
+                </ul>
+
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Objet</th>
+                        <th>Envoyeur</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for email in emails %}
+
+                        <tr>
+                            <td>{{ email.timestamp|date }}</td>
+                            <td>
+                                {%  if not email.is_read is defined %} <strong> {% endif %}
+                                    <a href="{{ path('email', { 'id_api' : api.getId(), 'id_email' : email.mail_id } ) }}">{{ email.subject }}</a>
+                                    {%  if not email.is_read is defined %} </strong> {% endif %}
+                            </td>
+                            <td>{{ email.from }}</td>
+                        </tr>
+                    {%  endfor %}
+                    </tbody>
+
+
+        </div>
+
+
+    </div>
+
+
+{% endblock %}

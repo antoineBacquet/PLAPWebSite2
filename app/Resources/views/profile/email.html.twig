@@ -1,0 +1,18 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+
+    <h1> Email</h1>
+
+
+    <div class="jumbotron">
+        <h2> {{ email.subject }}</h2>
+        <p>
+            {{ email.body|raw  }}
+        </p>
+
+    </div>
+
+
+{% endblock %}

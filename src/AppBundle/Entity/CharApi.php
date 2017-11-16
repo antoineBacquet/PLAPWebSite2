@@ -31,14 +31,14 @@ class CharApi
     /**
      * @var string
      *
-     * @ORM\Column(name="token", type="string", length=255)
+     * @ORM\Column(name="token", type="string", length=1024)
      */
     private $token;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="refreshToken", type="string", length=255)
+     * @ORM\Column(name="refreshToken", type="string", length=1024)
      */
     private $refreshToken;
 
@@ -62,6 +62,12 @@ class CharApi
      *
      */
     public $isValid = false;
+
+    /**
+     * @var string
+     *
+     */
+    public $portrait = null;
 
 
     /**

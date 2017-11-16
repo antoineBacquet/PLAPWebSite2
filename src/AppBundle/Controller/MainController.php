@@ -100,20 +100,29 @@ class MainController extends Controller
             $fields_string .= $key . '=' . $value . '&';
         }
         rtrim($fields_string, '&');
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, CCPConfig::$tokenURL);
-        curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array($header));
-        curl_setopt($ch, CURLOPT_POST, count($fields));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        $result = curl_exec($ch);
+        $result = false;
+            $ch = curl_init();
+            if ($ch === false) {
+                throw $this->createNotFoundException('Can\'t initialize curl');
+            }
+            curl_setopt($ch, CURLOPT_URL, CCPConfig::$tokenURL);
+            curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array($header));
+            curl_setopt($ch, CURLOPT_POST, count($fields));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+            $result = curl_exec($ch);
+
+        //echo curl_getinfo($ch) . '<br/>';
+        //echo curl_errno($ch) . '<br/>';
+        //echo curl_error($ch) . '<br/>';
+
+            curl_close($ch);
         if ($result === false) {
             throw $this->createNotFoundException('Error from ccp.');
         }
-        curl_close($ch);
 
         $response = json_decode($result, true);
         if (isset($response['error'])) {
