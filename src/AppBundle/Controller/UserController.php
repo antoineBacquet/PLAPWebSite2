@@ -143,10 +143,7 @@ class UserController extends Controller
 
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
 
-        /**
-         * @var $apis array(CharApi)
-         */
-        $parameters['user']->getId();
+
         /**
          * @var CharApi $api
          */

@@ -5,7 +5,8 @@
 
 {% block body %}
 
-<table border="1">
+    <div class="table-responsive">
+    <table class="table table-striped">
     <tr> <td> Nom </td> <td> Groupe </td> <td> Corporation </td> </tr>
     {% for member in members %}
     <tr>
@@ -20,6 +21,7 @@
         Pas de membres.
     {% endfor %}
 </table>
+    </div>
 
 
 {% endblock %}

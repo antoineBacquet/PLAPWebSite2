@@ -10,6 +10,8 @@ namespace AppBundle\Controller;
 
 
 use AppBundle\CCP\CCPConfig;
+use AppBundle\CCP\CCPUtil;
+use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Groupe;
 use AppBundle\Entity\Item;
 use AppBundle\Entity\User;
@@ -20,6 +22,8 @@ use AppBundle\Util\UserUtil;
 use nullx27\ESI\Api\CharacterApi;
 use nullx27\ESI\Api\CorporationApi;
 use nullx27\ESI\Api\MailApi;
+use Seat\Eseye\Containers\EsiAuthentication;
+use Seat\Eseye\Eseye;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -111,20 +115,39 @@ class AdminController extends Controller
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
         if(!is_array($parameters)) return $parameters;
 
+
         $doctrine = $this->getDoctrine();
-        $rep = $doctrine->getRepository(User::class);
-
-        $user = $rep->find($id);
-
-        $rep = $this->getDoctrine()->getRepository(Groupe::class);
-
-        $groups = $rep->findAll();
+        $userRep = $doctrine->getRepository(User::class);
+        $groupeRep = $this->getDoctrine()->getRepository(Groupe::class);
+        $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
 
 
-        //TODO set the selected group (select="selected")
+        $user = $userRep->find($id);
+        $groups = $groupeRep->findAll();
 
-        $userForm = new User();
-        $groupForm = $this->createFormBuilder($userForm)
+
+        $apis = $apiRep->findByUser($user);
+
+        foreach($apis as $api){
+            CCPUtil::isApiValid($api, $doctrine->getManager());
+            $api->isValid = true;
+
+            $authentication = new EsiAuthentication([
+                'client_id'     => CCPConfig::$clientIDAPI,
+                'secret'        => CCPConfig::$secretKEYAPI,
+                'refresh_token' => $api->getRefreshToken()
+            ]);
+
+            $esi = new Eseye($authentication);
+            $portraits = $esi->invoke('get', '/characters/{character_id}/portrait/', [
+                'character_id' => $api->getCharId()
+            ]);
+
+            $api->portrait = $portraits->px64x64;
+        }
+
+
+        $groupForm = $this->createFormBuilder($user)
             ->add('groupes', EntityType::class, array(
                 'class' => 'AppBundle:Groupe',
                 'expanded'  => true,
@@ -147,6 +170,7 @@ class AdminController extends Controller
 
 
         $parameters['member'] = $user;
+        $parameters['apis'] = $apis;
         $parameters['group_form']  = $groupForm->createView();
 
         return $this->render('admin/member.html.twig', $parameters);
@@ -203,73 +227,6 @@ class AdminController extends Controller
     }
 
 
-    /**
-     * Get item information
-     *
-     * @Route("/ccpdata/item/search", name="searchitemajax")
-     */
-    public function ccpdataSearchItemAction(Request $request)
-    {
-
-        $text = $request->request->get('text');
-        $response = "aze";
-
-
-        if (strlen($text) > 0) {
-
-            $words = explode(' ', $text);
-
-            $whereSql = "";
-
-            for ($i = 0; $i < count($words); $i++) {
-                $whereSql = $whereSql . " upper(i.name) LIKE upper('%" . $words[$i] . "%') ";
-                if ($i != (count($words) - 1))
-                    $whereSql = $whereSql . " AND ";
-            }
-
-            //$response = $whereSql;
-            $em = $this->getDoctrine()->getRepository(Item::class);
-
-            $query = $em->createQueryBuilder('i')
-                ->where($whereSql)->setMaxResults(10)->getQuery();
-            $results = $query->getResult();
-
-            $response = array('results' => array());
-
-
-            foreach ($results as $result){
-                $response['results'][] = array('id' =>$result->getId(),  'name' =>$result->getName());
-            }
-        }
-
-
-
-
-
-
-
-
-            /*foreach ($results as $result) {
-                echo 'test';
-                $hint = $hint . "<br /><a href='" .
-                    $result->getId() .
-                    "' target='_blank'>" .
-                    $result->getName() . "</a>";
-
-            }
-
-
-            if ($hint == "") {
-                $response = "no suggestion";
-            } else {
-                $response = $hint;
-            }
-            echo $response;
-        }*/
-
-        return $this->json($response);
-
-    }
 
 
 

@@ -9,12 +9,35 @@
 namespace AppBundle\CCP;
 
 
+use AppBundle\Entity\CharApi;
+use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CCPUtil
 {
 
+    public static function isApiValid(CharApi $api, ObjectManager $manager) {
 
+        $tokenData = new TokenData($api->getToken(), $api->getRefreshToken());
+
+        if(CCPUtil::isTokenValid($tokenData)){
+            return true;
+        }
+        else{
+            $tokenData = CCPUtil::updateToken($tokenData);
+            if( $tokenData == false){
+                return false;
+            }
+            else{
+                $api->isValid = true;
+
+                $api->setToken($tokenData->token);
+                $api->setRefreshToken($tokenData->refreshToken);
+                $manager->flush();
+
+            }
+        }
+    }
 
 
     public static function isTokenValid(TokenData $tokenData) {

@@ -1,17 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-{{ member.getName()  }} <br>
-
-{{ form_start(group_form) }}
-{{ form_widget(group_form) }}
-{{ form_end(group_form) }}
+{% extends 'template/base.html.twig' %}
 
 
-</body>
-</html>
+{% block body %}
+
+    <h1>{{ member.getName()  }} </h1> <br>
+
+    {{ form_start(group_form) }}
+    {{ form_widget(group_form) }}
+    {{ form_end(group_form) }}
+
+
+    <h2>Liste des APIs</h2>
+
+    {% include('template/api_list.html.twig') %}
+
+
+
+{% endblock %}

@@ -10,7 +10,7 @@ use nullx27\ESI\Models\GetCorporationsCorporationIdOk;
  * user
  *
  * @ORM\Table(name="user")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\userRepository")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  */
 class User
 {
