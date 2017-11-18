@@ -49,22 +49,10 @@ class UserController extends Controller
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
         if(!is_array($parameters)) return $parameters;
 
-        if(UserUtil::getUser($this->getDoctrine(), $request) == null)
-            return $this->redirect('/');
-
-        $session = $request->getSession();
-
-        if(!$session)
-            return $this->redirect('/');
-
-        if ($session->get('token')){
-            return $this->render('profile/index.html.twig', $parameters);
-        }
 
 
-        else {
-            return $this->redirect('/');
-        }
+        return $this->render('profile/index.html.twig', $parameters);
+
     }
 
 

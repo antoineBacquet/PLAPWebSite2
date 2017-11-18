@@ -10,6 +10,7 @@ namespace AppBundle\Util;
 
 
 use AppBundle\CCP\CCPConfig;
+use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Groupe;
 use AppBundle\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Registry;
@@ -30,13 +31,21 @@ class UserUtil
     private static $user = null;
 
     public static function userExist(SessionInterface $session, Registry $doctrine){
+
+        $apiRep = $doctrine->getRepository(CharApi::class);
+
         $repository = $doctrine->getRepository(User::class);
 
         $user = $repository->findOneBy(array('charId' => $session->get('char_id')));
 
-        if ($user) return true;
+        if (!$user){
+            $api = $apiRep->findOneByCharId($session->get('char_id'));
+            if(!$api) return false;
+            $session->set('char_id', $api->getUser()->getCharId() );
+            return true;
+        }
 
-        return false;
+        return true;
 
 
     }
@@ -113,27 +122,12 @@ class UserUtil
 
 
         //Si il n'y a pas de token et de refresh token, l'utilisateur est deconnecter
-        if(!($session->has('token') and $session->has('refresh_token'))){
-            return false;
-        }
-
-        if(CCPUtil::isSessionTokenValid($session)){
+        if($session->has('char_id')){
             return true;
         }
-        else{
-            if(CCPUtil::updateSessionToken($session)){
-                return true;
-            }
-
-
-            else{
-                $request->getSession()->clear();
-                $request->getSession()->invalidate(0);
-                return false;
-
-            }
-        }
+        return false;
     }
+
 
     public static function hasGroups(User $user, array $groups){
         $userGroups = $user->getGroupes();

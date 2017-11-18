@@ -167,10 +167,6 @@ class MainController extends Controller
             $session->start();
         }
 
-
-        //TODO char name
-        $session->set('token', $access_token);
-        $session->set('refresh_token', $refresh_token);
         $session->set('char_id', $charID);
 
 
