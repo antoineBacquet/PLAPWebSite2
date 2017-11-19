@@ -5,22 +5,34 @@
 
 
 
-    <h1> Detail de la commande</h1>
+    <h1> Detail de la commande n°{{ command.id }}</h1>
 
 
     Issuer : {{ command.issuer.name }} <br>
     Contractor : {% if command.contractor is null %} - {% else %} {{ command.contractor.name }} {% endif %} <br>
-    state : {{ command.state }} <br>
-    liste des items : <br>
-    <table>
 
-    <tr> <th> Item </th>  <th> quantity </th> <th> est. price </th> </tr>
-    {% for item in command.items %}
-        <tr> <td> {{ item.item.name }} </td>  <td> {{ item.quantity }} </td> <td> TODO </td> </tr>
-    {% endfor %}
+    Prix estimé : {{ command.estimatedPrice|number_format(2, '.', ',')}} isk <br>
+
+    Etat : {{ command.state }} <br>
+
+    <a target="_blank" href="{{command.evepraisal }}"> Lien Evepraisal </a><br>
+
+
+
+
+    <div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr> <th> Item </th> <th> Quantité </th> <th> Prix estimé </th> </tr>
+        </thead>
+        {% for item in command.items %}
+            <tr> <td> {{ item.item.name }} </td>  <td> {{ item.quantity }} </td> <td> TODO </td> </tr>
+        {% endfor %}
     </table>
+    </div>
+
     {% if command.contractor is null %}
-    <a href="{{ path('commandaccept', { 'id' : command.getId() } ) }}"> Accepter la commande</a>
+        <a href="{{ path('commandaccept', { 'id' : command.getId() } ) }}"> Accepter la commande</a>
     {% endif %}
 
 

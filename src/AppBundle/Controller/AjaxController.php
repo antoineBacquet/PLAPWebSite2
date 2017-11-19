@@ -39,7 +39,10 @@ class AjaxController extends Controller
             //$response = $whereSql;
             $em = $this->getDoctrine()->getRepository(Item::class);
             $query = $em->createQueryBuilder('i')
-                ->where($whereSql)->setMaxResults(10)->getQuery();
+                ->where($whereSql)
+                ->orderBy('i.itemGroup', 'ASC')
+                ->setMaxResults(10)
+                ->getQuery();
             $results = $query->getResult();
             $response = array('results' => array());
             foreach ($results as $result){

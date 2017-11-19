@@ -62,12 +62,28 @@ class Command
     private $date;
 
     /**
-     * @var
+     * @var string
      *
      * @ORM\Column(name="evepraisal", type="string", length=255, nullable=true)
      *
      */
     private $evepraisal;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="estimated_price", type="float", nullable=false)
+     *
+     */
+    private $estimatedPrice;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="suggested_price", type="float", nullable=true)
+     *
+     */
+    private $suggestedPrice;
 
     public function __construct()
     {
@@ -251,5 +267,53 @@ class Command
     public function getEvepraisal()
     {
         return $this->evepraisal;
+    }
+
+    /**
+     * Set estimatedPrice
+     *
+     * @param float $estimatedPrice
+     *
+     * @return Command
+     */
+    public function setEstimatedPrice($estimatedPrice)
+    {
+        $this->estimatedPrice = $estimatedPrice;
+    
+        return $this;
+    }
+
+    /**
+     * Get estimatedPrice
+     *
+     * @return float
+     */
+    public function getEstimatedPrice()
+    {
+        return $this->estimatedPrice;
+    }
+
+    /**
+     * Set suggestedPrice
+     *
+     * @param float $suggestedPrice
+     *
+     * @return Command
+     */
+    public function setSuggestedPrice($suggestedPrice)
+    {
+        $this->suggestedPrice = $suggestedPrice;
+    
+        return $this;
+    }
+
+    /**
+     * Get suggestedPrice
+     *
+     * @return float
+     */
+    public function getSuggestedPrice()
+    {
+        return $this->suggestedPrice;
     }
 }

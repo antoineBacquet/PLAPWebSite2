@@ -3,18 +3,33 @@
 
 {% block body %}
 
-
+    {% block css %}
+        <link rel="stylesheet" href="{{ asset('css/auto-suggest.css') }}" />
+    {%  endblock %}
 
     <h1> Ajouter une commande</h1>
 
-    <input id="search" type="text" name="search" placeholder="Search.." onkeyup="search(this)">
-    <ul id="searchresultlist" class="suggestions"></ul>
+    <input id="search" type="text" name="search" placeholder="Search.." autocomplete="off" onkeyup="search(this)" class="auto-suggest"
+           onfocus="document.getElementById('searchresultlist').style.cssText = 'display:block;'"
+           onblur="document.getElementById('searchresultlist').style.cssText = 'display:none;'">
+    <ul style="display: none" id="searchresultlist" class="suggestions"></ul>
 
 
     {{ form_start(form) }}
 
-    <ul id="item-fields-list">
-    </ul>
+
+    <h2> Liste des items de la commande</h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped" id="items-table">
+            <thead>
+            <tr> <th> Item </th> <th> Quantité </th>  <th> Action </th> </tr>
+            </thead>
+                <tbody>
+
+                </tbody>
+        </table>
+    </div>
     {{ form_end(form) }}
 
 
@@ -29,31 +44,37 @@
 
         function search(input) {
             //alert(input.value);
-            $.ajax({
-                url: '{{ (path('searchitemajax')) }}',
-                type: "POST",
-                dataType: "json",
-                data: {
-                    text : input.value
-                },
-                //async: true,
-                success: function (data) {
-                    //alert(JSON.stringify(data));
-                    dataSave = data;
-                    var list = document.getElementById('searchresultlist');
+            if(input.value === "" || input.value === undefined){
+                var list = document.getElementById('searchresultlist');
+                list.innerHTML = '';
+            }
+            else{
+                $.ajax({
+                    url: '{{ (path('searchitemajax')) }}',
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        text : input.value
+                    },
+                    //async: true,
+                    success: function (data) {
+                        //alert(JSON.stringify(data));
+                        dataSave = data;
+                        var list = document.getElementById('searchresultlist');
 
-                    var option = '';
-                    for (var i = 0; i < data.results.length; i++) {
-                        option += '<li onmousedown=addItem(' + i + ')>' + data.results[i].name + '</li>';
+                        var option = '';
+                        for (var i = 0; i < data.results.length; i++) {
+                            option += '<li onmousedown=addItem(' + i + ')>' + data.results[i].name + '</li>';
+
+                        }
+                        list.innerHTML = option;
+                        //alert(option);
 
                     }
-                    list.innerHTML = option;
-                    //alert(option);
-
-                }
-            }).fail(function (msg) {
-                alert('error');
-            });
+                }).fail(function (msg) {
+                    alert('error');
+                });
+            }
 
         }
 
@@ -64,6 +85,13 @@
 
                 itemAdded[dataSave.results[i].id]['data'] = dataSave.results[i];
                 itemAdded[dataSave.results[i].id]['quantity'] = 1;
+
+                var list = document.getElementById('searchresultlist');
+                list.innerHTML = '';
+
+                var search = document.getElementById('search');
+                search.value = '';
+
                 //alert('lel');
             }
             updateItemAddedList();
@@ -78,7 +106,7 @@
         }
 
         function updateItemAddedList(){
-            var list = document.getElementById('item-fields-list');
+           /* var list = document.getElementById('item-fields-list');
             //list.innerHTML = "";
 
             var option = '';
@@ -90,7 +118,29 @@
 
             }
 
-            list.innerHTML = option;
+            list.innerHTML = option;*/
+
+
+            //---------------------------------------------
+            var table = document.getElementById("items-table");
+            while(table.rows.length > 0) {
+                table.deleteRow(0);
+            }
+
+            for (var id in itemAdded) {
+                var row = table.insertRow(0);
+
+                var cellItem = row.insertCell(0);
+                var cellQuantity = row.insertCell(1);
+                var cellAction = row.insertCell(2);
+
+                cellItem.innerHTML = itemAdded[id]['data'].name +  '<input type="hidden" id="form_items_' + id + '" name="form[items][]" value="' + id + '" >';
+                cellQuantity.innerHTML =  '<input type="number" id="form_quantity_' + id + '" name="form[quantity][]" value="' + itemAdded[id]['quantity'] + '" onkeyup="changeItemQuantitySaved(' + id + ')" onmouseup="changeItemQuantitySaved(' + id + ')">';
+                cellAction.innerHTML = ' <a href="javascript:removeItem(' + id + ')"> remove </a>'
+
+
+
+            }
         }
 
         function changeItemQuantitySaved(id){

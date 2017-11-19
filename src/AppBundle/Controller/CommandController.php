@@ -66,7 +66,11 @@ class CommandController extends Controller
 
             $command->setIssuer($parameters['user'])->setState('pending')->setDate(new \DateTime());
 
+
+
             $evePraisalData = json_decode(Util::getEvePraisal($data, $this->getDoctrine()->getRepository(Item::class)), true);
+
+            $command->setEstimatedPrice($evePraisalData['appraisal']['totals']['sell']);
 
             //die($evePraisalData['appraisal']['id']);
 
