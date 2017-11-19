@@ -136,7 +136,7 @@ class UserController extends Controller
          * @var CharApi $api
          */
         $api = $rep->find($id);
-        if($api->getUser() != $parameters['user']){
+        if($api->getUser() != $parameters['user'] and !$parameters['user']->isAdmin){
             die('you can\'t see that'); //TODO better
         }
 
@@ -304,6 +304,8 @@ class UserController extends Controller
 
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
         if(!is_array($parameters)) return $parameters;
+
+
         $user = UserUtil::getUser($this->getDoctrine(), $request);
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
         $api = $rep->find($id);
