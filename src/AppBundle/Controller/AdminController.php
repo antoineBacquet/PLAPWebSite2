@@ -161,7 +161,7 @@ class AdminController extends Controller
         $groupForm->handleRequest($request);
 
         if ($groupForm->isSubmitted() && $groupForm->isValid()) {
-            $user->setGroupe( $groupForm->getData()->getGroupe());
+            //$user->setGroupes( $groupForm->getData()->getGroupe());
 
             $doctrine->getManager()->persist($user);
             $doctrine->getManager()->flush();

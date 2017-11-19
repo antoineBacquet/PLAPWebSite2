@@ -10,16 +10,27 @@
     <div class="table-responsive">
     <table class="table table-striped">
         <thead>
-            <tr> <th> Issuer </th> <th> Contractor </th>  <th> State </th> <th> Info </th> <th> Evepraisal </th> </tr>
+            <tr> <th> N° </th ><th> Date </th> <th> Issuer </th> <th> Prix estimé </th> <th> Contractor </th>  <th> State </th> <th> Info </th> <th> Evepraisal </th><th> Action </th> </tr>
         </thead>
     {% for command in commands %}
         <tbody>
             <tr>
+                <td> {{ command.id }} </td>
+                <td> {{ command.date|date("d/m/Y") }} </td>
                 <td> {{ command.issuer.name }} </td>
+                <td> {{ command.estimatedPrice|number_format(2, '.', ',') }} </td>
                 <td> {% if command.contractor is null %} - {% else %} {{ command.contractor.name }} {% endif %}</td>
                 <td> {{ command.state }} </td>
                 <td> <a href="{{ path('commandinfo', { 'id' : command.getId() } ) }}"> view info </a> </td>
                 <td> <a href="{{command.evepraisal }}"> Lien Evepraisal </a> </td>
+
+                <td>
+                    {% if (user.isAdmin or user == command.issuer) and command.state != "accepted" %}
+                    <a href="{{ path('removecommand', {'id' : command.id } ) }}"> Supprimer la commande </a> </td>
+                    {% else %}
+                        -
+                    {% endif %}
+
             </tr>
         </tbody>
 

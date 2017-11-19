@@ -142,28 +142,9 @@ class UserController extends Controller
 
         $charEsi = new CharacterApi();
 
-            /**
-             * @var CharApi $api
-             */
-        $tokenData = new TokenData($api->getToken(), $api->getRefreshToken());
 
-        if(CCPUtil::isTokenValid($tokenData)){
-            $api->isValid = true;
-        }
-        else{
-            $tokenData = CCPUtil::updateToken($tokenData);
-            if( $tokenData == false){
-                $api->isValid = false;
-            }
-            else{
-                $api->isValid = true;
+        $api->isValid = CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
 
-                $api->setToken($tokenData->token);
-                $api->setRefreshToken($tokenData->refreshToken);
-                $this->getDoctrine()->getManager()->flush();
-
-            }
-        }
 
         $api->portrait = $charEsi->getCharactersCharacterIdPortrait($api->getCharId())->getPx64x64();
 
@@ -389,93 +370,11 @@ class UserController extends Controller
     }
 
 
-    /**
-     *
-     *
-     * @Route("/test/searchitem", name="searchitem")
-     */
-    /*
-    public function searchItemAction(Request $request)
-    {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
-
-
-        return $this->render('admin/itemsearch.html.twig', $parameters);
-    }*/
 
 
 
-    /**
-     * Add a command
-     *
-     * @Route("/commands", name="commandlist")
-     */
-    public function commandListAction(Request $request)
-    {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
 
-        $doctrine = $this->getDoctrine();
-        $commandRep = $doctrine->getRepository(Command::class);
 
-        $commands = $commandRep->findAll();
-        $parameters['commands'] = $commands;
-
-        return $this->render('command/liste.html.twig', $parameters);
-
-    }
-
-    /**
-     * Add a command
-     *
-     * @Route("/commands/{id}", name="commandinfo")
-     */
-    public function commandAction(Request $request, $id)
-    {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
-
-        $doctrine = $this->getDoctrine();
-        $commandRep = $doctrine->getRepository(Command::class);
-
-        $command = $commandRep->find($id);
-        $parameters['command'] = $command;
-
-        return $this->render('command/command.html.twig', $parameters);
-
-    }
-
-    /**
-     * Add a command
-     *
-     * @Route("/command/accept/{id}", name="commandaccept")
-     */
-    public function commandAcceptAction(Request $request, $id)
-    {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
-
-        $doctrine = $this->getDoctrine();
-        $commandRep = $doctrine->getRepository(Command::class);
-
-        /**
-         * @var $command Command
-         */
-        $command = $commandRep->find($id);
-
-        if($command!= null){
-
-            $command->setContractor($parameters['user']);
-            $command->setState('accepted');
-
-            $doctrine->getManager()->persist($command);
-            $doctrine->getManager()->flush();
-        }
-
-        return $this->redirect($this->generateUrl('commandinfo', array('id' => $id)));
-
-    }
 
     /**
      * Add a command
@@ -498,36 +397,7 @@ class UserController extends Controller
 
     }
 
-    /**
-     * Add a command
-     *
-     * @Route("/profile/commands/remove/{id}", name="removemycommand")
-     */
-    public function removeMyCommandAction(Request $request, $id)
-    {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
 
-        $doctrine = $this->getDoctrine();
-        $commandRep = $doctrine->getRepository(Command::class);
-
-        /**
-         * @var Command $commands
-         */
-        $command = $commandRep->find($id);
-
-        if($command!= null){
-            if($command->getIssuer()->getId() != $parameters['user']->getId())
-                die("You cn remove only your command"); //TODO better
-
-
-            $doctrine->getManager()->remove($command);
-            $doctrine->getManager()->flush();
-        }
-
-        return $this->redirect($this->generateUrl('mycommands'));
-
-    }
 
 
 

@@ -17,7 +17,7 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ path('commandlist') }}" >Liste des commandes</a></li>
                         <li><a class="dropdown-item" href="{{ path('commandadd') }}" >Ajouter une commande</a></li>
-                        <li><a class="dropdown-item" href="{{ path('mycommands') }}" >Mes commands</a></li>
+                        <li><a class="dropdown-item" href="{{ path('usercommandlist', { 'id' : user.id } ) }}" >Mes commands</a></li>
                     </ul>
                 </li>
             {% endif %}

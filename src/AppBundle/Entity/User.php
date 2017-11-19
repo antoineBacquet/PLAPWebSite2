@@ -171,7 +171,7 @@ class User
     /**
      * Set groupe
      *
-     * @param integer $groupe
+     * @param ArrayCollection $groupes
      * @return User
      */
     public function setGroupes($groupes)

@@ -12,6 +12,10 @@
     Contractor : {% if command.contractor is null %} - {% else %} {{ command.contractor.name }} {% endif %} <br>
 
     Prix estimé : {{ command.estimatedPrice|number_format(2, '.', ',')}} isk <br>
+    {% if command.state == 'proposed' %}
+        Prix proposé : {{ command.suggestedPrice|number_format(2, '.', ',')}} isk <br>
+
+    {% endif %}
 
     Etat : {{ command.state }} <br>
 
@@ -32,7 +36,15 @@
     </div>
 
     {% if command.contractor is null %}
-        <a href="{{ path('commandaccept', { 'id' : command.getId() } ) }}"> Accepter la commande</a>
+        {{ form_start(proposed_form) }}
+        {{ form_end(proposed_form) }}
+
+    {% endif %}
+
+    {% if command.state == 'proposed' and command.issuer == user %}
+        <a  href="{{path('commandaccept', {'id' : command.id}) }}"> Accepter le prix proposé </a><br>
+        <a  href="{{path('commandrefuse', {'id' : command.id}) }}"> Refusé le prix proposé </a>
+
     {% endif %}
 
 
