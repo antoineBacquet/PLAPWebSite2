@@ -48,6 +48,7 @@ return array(
     'Doctrine\\Bundle\\DoctrineCacheBundle\\' => array($vendorDir . '/doctrine/doctrine-cache-bundle'),
     'Doctrine\\Bundle\\DoctrineBundle\\' => array($vendorDir . '/doctrine/doctrine-bundle'),
     'Discord\\OAuth\\' => array($vendorDir . '/team-reflex/oauth2-discord/src/Discord'),
+    'DiscordWebhooks\\' => array($vendorDir . '/nopjmp/discord-webhooks/DiscordWebhooks'),
     'Composer\\CaBundle\\' => array($vendorDir . '/composer/ca-bundle/src'),
     'Carbon\\' => array($vendorDir . '/nesbot/carbon/src/Carbon'),
     'AppBundle\\' => array($baseDir . '/src/AppBundle'),

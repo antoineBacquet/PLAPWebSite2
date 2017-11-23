@@ -12,6 +12,8 @@ use AppBundle\CCP\CCPConfig;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
 use AppBundle\Util\UserUtil;
+use DiscordWebhooks\Client;
+use DiscordWebhooks\Embed;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -193,21 +195,15 @@ class MainController extends Controller
     public function testAction(Request $request)
     {
 
+        $webhook = new Client('https://discordapp.com/api/webhooks/383371839298207765/MvOKVEt8VpBRxpJOxb9jxW3gP5OKMrjOHSPfkPWbQeIw9eUCuPzX9YmuMsozJ-K1vlKK');
+        $embed = new Embed();
 
-        $ch = curl_init();
-        $data = "avatar%2010%0Aerebus";
+        $embed->description('This is an embed');
 
-        curl_setopt($ch, CURLOPT_URL, "https://evepraisal.com/appraisal.json?market=jita&raw_textarea=" . $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
+        $webhook->username('Bot')->message('!ur <@' . UserUtil::getUser($this->getDoctrine(),$request)->getDiscordId() .'>')->embed($embed)->send();
 
-        $result = curl_exec($ch);
-        if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
-        }
-        curl_close ($ch);
+        die('test page');
 
-        die($result);
     }
 
 }

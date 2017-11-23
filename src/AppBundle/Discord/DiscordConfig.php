@@ -23,4 +23,6 @@ class DiscordConfig
     public static $tokenURI = "https://discordapp.com/api/v6/oauth2/token";
 
     public static $token = 'MzU1NzMwMTcxNDg5MTU3MTMz.DJ7s-g.QEdQwTgGqZMabJ72Q3BYjOim5zQ';
+
+    public static $webhook_url = 'https://discordapp.com/api/webhooks/383371839298207765/MvOKVEt8VpBRxpJOxb9jxW3gP5OKMrjOHSPfkPWbQeIw9eUCuPzX9YmuMsozJ-K1vlKK';
 }

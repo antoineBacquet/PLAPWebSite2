@@ -95,6 +95,7 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
             'Doctrine\\Bundle\\DoctrineCacheBundle\\' => 36,
             'Doctrine\\Bundle\\DoctrineBundle\\' => 31,
             'Discord\\OAuth\\' => 14,
+            'DiscordWebhooks\\' => 16,
         ),
         'C' => 
         array (
@@ -275,6 +276,10 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
         'Discord\\OAuth\\' => 
         array (
             0 => __DIR__ . '/..' . '/team-reflex/oauth2-discord/src/Discord',
+        ),
+        'DiscordWebhooks\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nopjmp/discord-webhooks/DiscordWebhooks',
         ),
         'Composer\\CaBundle\\' => 
         array (

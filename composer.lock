@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d60420e0e255f0c5edc01e8b31f5e75",
+    "content-hash": "dfab6493b9762429bacfb5d8fb9f1c3b",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -1615,6 +1615,43 @@
             "time": "2017-01-16T07:55:07+00:00"
         },
         {
+            "name": "nopjmp/discord-webhooks",
+            "version": "0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nopjmp/discord-webhooks.git",
+                "reference": "3d7db13d7def2f3386399d8e14070f62513a0db1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nopjmp/discord-webhooks/zipball/3d7db13d7def2f3386399d8e14070f62513a0db1",
+                "reference": "3d7db13d7def2f3386399d8e14070f62513a0db1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DiscordWebhooks\\": "DiscordWebhooks/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kyle Thompson",
+                    "email": "jmp@const.ninja"
+                }
+            ],
+            "description": "A simple Discord webhook client library.",
+            "time": "2017-06-27T02:51:47+00:00"
+        },
+        {
             "name": "nullx27/esi-php",
             "version": "dev-master",
             "source": {
@@ -3117,7 +3154,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.5.9"
+        "php": ">=7.0.0"
     },
     "platform-dev": []
 }

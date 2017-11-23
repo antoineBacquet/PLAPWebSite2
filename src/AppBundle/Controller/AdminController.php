@@ -11,6 +11,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\CCPUtil;
+use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Groupe;
 use AppBundle\Entity\Item;
@@ -19,6 +20,8 @@ use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
+use DiscordWebhooks\Client;
+use DiscordWebhooks\Embed;
 use nullx27\ESI\Api\CharacterApi;
 use nullx27\ESI\Api\CorporationApi;
 use nullx27\ESI\Api\MailApi;
@@ -122,6 +125,9 @@ class AdminController extends Controller
         $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
 
 
+        /**
+         * @var User $user
+         */
         $user = $userRep->find($id);
         $groups = $groupeRep->findAll();
 
@@ -165,6 +171,19 @@ class AdminController extends Controller
 
             $doctrine->getManager()->persist($user);
             $doctrine->getManager()->flush();
+
+            if($user->getDiscordId() != null){
+                $webhook = new Client(DiscordConfig::$webhook_url);
+                $embed = new Embed();
+
+                $embed->description('Demande de mise a jour des roles');
+
+                $webhook->username('Bot')->message('!ur <@' . $user->getDiscordId() .'>')->embed($embed)->send();
+
+                //TODO message de feedback
+            }
+
+
         }
 
 
