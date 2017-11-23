@@ -72,7 +72,7 @@ class Command
     /**
      * @var float
      *
-     * @ORM\Column(name="estimated_price", type="float", nullable=false)
+     * @ORM\Column(name="estimated_price", type="bigint", nullable=false)
      *
      */
     private $estimatedPrice;
@@ -80,10 +80,19 @@ class Command
     /**
      * @var float
      *
-     * @ORM\Column(name="suggested_price", type="float", nullable=true)
+     * @ORM\Column(name="suggested_price", type="bigint", nullable=true)
      *
      */
     private $suggestedPrice;
+
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="important", type="boolean", nullable=false, options={"default":false})
+     *
+     */
+    private $important;
 
     public function __construct()
     {
@@ -315,5 +324,29 @@ class Command
     public function getSuggestedPrice()
     {
         return $this->suggestedPrice;
+    }
+
+    /**
+     * Set important
+     *
+     * @param boolean $important
+     *
+     * @return Command
+     */
+    public function setImportant($important)
+    {
+        $this->important = $important;
+    
+        return $this;
+    }
+
+    /**
+     * Get important
+     *
+     * @return boolean
+     */
+    public function getImportant()
+    {
+        return $this->important;
     }
 }

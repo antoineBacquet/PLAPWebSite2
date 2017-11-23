@@ -17,11 +17,13 @@ use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\Util;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -52,6 +54,7 @@ class CommandController extends Controller
             ->add('quantity', CollectionType::class, array('entry_type'   => NumberType::class,
                 'allow_add' => true,))
             ->add('save', SubmitType::class, array('label' => 'Ajouter commande'))
+            ->add('important', CheckboxType::class, array('label' => 'Reservé au responsable de production?'))
             ->getForm();
 
         $form->handleRequest($request);
@@ -67,7 +70,7 @@ class CommandController extends Controller
             $command = new Command();
 
             $command->setIssuer($parameters['user'])->setState('pending')->setDate(new \DateTime());
-
+            $command->setImportant($data['important']);
 
 
             $evePraisalData = json_decode(Util::getEvePraisal($data, $this->getDoctrine()->getRepository(Item::class)), true);
@@ -90,6 +93,7 @@ class CommandController extends Controller
                 $commandItem = new CommandItem();
                 $commandItem->setItem($em->find($data['items'][$i]));
                 $commandItem->setQuantity($data['quantity'][$i]);
+
                 $commandItem->setCommand($command);
                 $doctrine->getManager()->persist($commandItem);
                 $doctrine->getManager()->flush();
@@ -162,15 +166,16 @@ class CommandController extends Controller
         $parameters['command'] = $command;
 
         $proposedForm = $this->createFormBuilder()
-            ->add('prix_propose', NumberType::class, array('data' => $command->getEstimatedPrice()))
+            ->add('prix_propose', IntegerType::class, array('data' => $command->getEstimatedPrice()))
             ->add('save', SubmitType::class, array('label' => 'Proposer un prix'))
             ->getForm();
 
         $proposedForm->handleRequest($request);
-
+        //die(var_dump($proposedForm->));
         if ($proposedForm->isSubmitted() && $proposedForm->isValid()) {
             $doctrine = $this->getDoctrine();
             $commandRep = $doctrine->getRepository(Command::class);
+
 
             /**
              * @var $command Command

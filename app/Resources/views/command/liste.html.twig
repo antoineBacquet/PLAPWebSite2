@@ -18,7 +18,7 @@
                 <td> {{ command.id }} </td>
                 <td> {{ command.date|date("d/m/Y") }} </td>
                 <td> {{ command.issuer.name }} </td>
-                <td> {{ command.estimatedPrice|number_format(2, '.', ',') }} </td>
+                <td> {{ command.estimatedPrice|number_format(0, '.', ',') }} </td>
                 <td> {% if command.contractor is null %} - {% else %} {{ command.contractor.name }} {% endif %}</td>
                 <td> {{ command.state }} </td>
                 <td> <a href="{{ path('commandinfo', { 'id' : command.getId() } ) }}"> view info </a> </td>
