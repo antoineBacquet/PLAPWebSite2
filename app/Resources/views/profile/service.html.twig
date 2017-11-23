@@ -9,7 +9,13 @@
     discord : <a href="{{ path('discordjoin') }}" >Rejoindre le serveur</a> <br><br>
 
 
-    Focntionnement: tu clic sur l'invitation discord puis tu mp un message au bot avec ca : {{ user.discordRandomString }}
+    {%  if user.discordId == null %}
+        Focntionnement: tu clic sur l'invitation discord puis tu mp un message au bot avec ca : {{ user.discordRandomString }}
+    {% else %}
+        Liaison avec le discord effectuer <br>
+
+        <a href="{{ path('updatemyroles') }}" > Mettre a jour mes roles discord</a>
+    {% endif %}
 
 
 {% endblock %}

@@ -17,6 +17,7 @@ use AppBundle\Entity\Command;
 use AppBundle\Entity\CommandItem;
 use AppBundle\Entity\Item;
 use AppBundle\Util\ControllerUtil;
+use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use nullx27\ESI\Api\CharacterApi;
@@ -359,7 +360,7 @@ class UserController extends Controller
     /**
      * Remove an api
      *
-     * @Route("/profile/service", name="services")
+     * @Route("/service/discord", name="discordservice")
      */
     public function serviceAction(Request $request)
     {
@@ -368,6 +369,23 @@ class UserController extends Controller
 
 
         return $this->render('profile/service.html.twig', $parameters);
+
+    }
+
+    /**
+     * Remove an api
+     *
+     * @Route("/service/discord/updateroles", name="updatemyroles")
+     */
+    public function updateMyRolesAction(Request $request)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+
+        DiscordUtil::updateRoles(UserUtil::getUser($this->getDoctrine(),$request)); //TODO error management
+
+        return $this->redirect($this->generateUrl('discordservice'));
 
     }
 
