@@ -70,6 +70,10 @@ class UserUtil
             if($group->getId() == GroupUtil::$GROUP_LISTE['Admin']){
                 UserUtil::$user->isAdmin = true;
             }
+
+            if($group->getId() == GroupUtil::$GROUP_LISTE['Responsable de production']){
+                UserUtil::$user->isProdResp = true;
+            }
         }
         return UserUtil::$user;
 

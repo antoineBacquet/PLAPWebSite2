@@ -82,6 +82,8 @@ class User
 
     public $isAdmin = false;
 
+    public $isProdResp = false;
+
 
     public function __construct()
     {
