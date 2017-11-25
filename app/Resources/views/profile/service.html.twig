@@ -14,8 +14,36 @@
     {% else %}
         Liaison avec le discord effectuer <br>
 
-        <a href="{{ path('updatemyroles') }}" > Mettre a jour mes roles discord</a>
-    {% endif %}
+        <a href="{{ path('updatemyroles') }}" > Mettre a jour mes roles discord</a> <br> <br>
 
+        <button class="btn btn-default" onclick="testDiscord()" > Tester le discord</button>
+    {% endif %}
+    <script>
+
+        function testDiscord() {
+
+            $.ajax({
+                url: '{{ (path('testdiscord')) }}',
+                type: "POST",
+                dataType: "json",
+                data: {
+                    test : true
+                },
+                //async: true,
+                success: function (data) {
+                    if(data['error']){
+                        alert(JSON.stringify(data));
+                    }
+
+
+
+                    }
+                }).fail(function (msg) {
+                    alert('error');
+                });
+            }
+
+
+</script>
 
 {% endblock %}

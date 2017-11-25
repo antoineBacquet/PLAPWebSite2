@@ -66,15 +66,9 @@ class UserUtil
             if($group->getId() == GroupUtil::$GROUP_LISTE['Membre']){
                 UserUtil::$user->isMember = true;
             }
-            else{
-                UserUtil::$user->isMember = false;
-            }
 
             if($group->getId() == GroupUtil::$GROUP_LISTE['Admin']){
                 UserUtil::$user->isAdmin = true;
-            }
-            else{
-                UserUtil::$user->isAdmin = false;
             }
         }
         return UserUtil::$user;

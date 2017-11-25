@@ -78,6 +78,10 @@ class User
      */
     private $discordId;
 
+    public $isMember = false;
+
+    public $isAdmin = false;
+
 
     public function __construct()
     {

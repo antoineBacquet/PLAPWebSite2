@@ -9,7 +9,11 @@
 namespace AppBundle\Controller;
 
 
+use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\Item;
+use AppBundle\Util\UserUtil;
+use DiscordWebhooks\Client;
+use DiscordWebhooks\Embed;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +22,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 class AjaxController extends Controller
 {
-
     /**
      * Get item information
      *
@@ -50,6 +53,51 @@ class AjaxController extends Controller
             }
         }
         return $this->json($response);
+    }
+
+    /**
+     * Get item information
+     *
+     * @Route("/service/discord/test", name="testdiscord")
+     */
+    public function discordTestAction(Request $request)
+    {
+        /*
+         *
+         */
+        $user = UserUtil::getUser($this->getDoctrine(), $request);
+
+        $response = [];
+
+        if($user == null){
+            $response['error'] = true;
+            $response['error_id'] = 1; // User not connected
+        }
+        else{
+            if($user->getDiscordId() != null){
+
+                $response['error'] = false;
+
+                $webhook = new Client(DiscordConfig::$webhook_url);
+                $embed = new Embed();
+
+                $embed->description('Demande de test du discord');
+
+                $webhook->username('Bot')->message('!test <@' . $user->getDiscordId() .'>')->embed($embed)->send();
+
+                //TODO message de feedback
+            }
+
+            else{
+                $response['error'] = true;
+                $response['error_id'] = 2; // Not linked to the discord
+            }
+        }
+
+
+        return $this->json($response);
+
+
     }
 
 

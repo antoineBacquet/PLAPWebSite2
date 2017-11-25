@@ -11,7 +11,7 @@
         </li>
 
         {% if user is defined %}
-            {% if user.isMember is defined %}
+            {% if user.isMember == true %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Commandes <span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -24,7 +24,7 @@
         {% endif %}
 
         {% if user is defined %}
-            {% if user.isMember is defined %}
+            {% if user.isMember == true %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Profil <span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -41,9 +41,22 @@
             {% endif %}
         {% endif %}
 
+        {% if user is defined %}
+            {% if user.isMember == true %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Services <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ path('discordservice') }}" >Discord</a></li>
+                    </ul>
+                </li>
+
+
+            {% endif %}
+        {% endif %}
+
 
         {% if user is defined %}
-            {% if user.isAdmin is defined %}
+            {% if user.isAdmin == true %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Administration <span class="caret"></span></a>
                     <ul class="dropdown-menu">
