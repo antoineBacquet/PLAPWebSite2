@@ -130,6 +130,12 @@ class AdminController extends Controller
          * @var User $user
          */
         $user = $userRep->find($id);
+
+        if($user == null){
+            $parameters['message'] = "L'utilisateur n'existe pas.";
+            return $this->render('template/error.html.twig', $parameters);
+        }
+
         $groups = $groupeRep->findAll();
 
 

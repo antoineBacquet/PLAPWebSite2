@@ -137,8 +137,18 @@ class UserController extends Controller
          * @var CharApi $api
          */
         $api = $rep->find($id);
+
+
+        //test if the API exist in the database, return an error page if not
+        if($api == null){
+            $parameters['message'] = "L'API n'existe pas.";
+            return $this->render('template/error.html.twig', $parameters);
+        }
+
+        //if this not the user api or the user is not an admin return an error page
         if($api->getUser() != $parameters['user'] and !$parameters['user']->isAdmin){
-            die('you can\'t see that'); //TODO better
+            $parameters['message'] = "Tu n'es pas autorisé a voir ca.";
+            return $this->render('template/error.html.twig', $parameters);
         }
 
         $charEsi = new CharacterApi();

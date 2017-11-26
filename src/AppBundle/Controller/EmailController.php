@@ -183,7 +183,58 @@ class EmailController extends Controller
             return $this->redirect($this->generateUrl('homepage')); //TODO error page
         }
 
-        $email->body = html_entity_decode($email->body);
+        $from = $esi->invoke('get', '/characters/{character_id}/', [
+            'character_id' => $email->from
+        ]);
+
+        $email->from = $from->name;
+        $matches = null;
+        //$systemPatern = '/<a href="showinfo:(\d{1})//(\d*)">(\w*)</a>/';
+
+        //Patern to be found
+        $corpPatern = "/<a href=\"showinfo:2\/\/(\d*)\">(.*)<\/a>/";
+        $systemPatern = "/<a href=\"showinfo:5\/\/(\d*)\">(.*)<\/a>/";
+        $charPatern = "/<a href=\"showinfo:1377\/\/(\d*)\">(.*)<\/a>/";
+
+        //preg_match( $systemPatern, $email->body,$matches);
+        //die(var_dump(preg_replace ($systemPatern,'<a href="showinfo:(\1,\2)> \3</a>', $email->body )));
+
+
+        //systems----------------------------------------------------------
+        $systemsFound = array();
+
+        preg_match_all($systemPatern, $email->body, $systemsFound);
+
+        for( $i = 0 ; $i < count($systemsFound[0]) ; $i++){
+
+            $systemName = $esi->invoke('get', '/universe/systems/{system_id}/', [ 'system_id' => $systemsFound[1][$i]])->name;
+
+            $replace = '<a href="http://evemaps.dotlan.net/system/' . $systemName . '">' . $systemsFound[2][$i] . '</a>';
+
+            $email->body = str_replace($systemsFound[0][$i],$replace , $email->body);
+        }
+        //-----------------------------------------------------------------------
+
+        //character----------------------------------------------------------
+        $charsFound = array();
+
+        preg_match_all($charPatern, $email->body, $charsFound);
+
+        for( $i = 0 ; $i < count($systemsFound[0]) ; $i++){
+
+            $charName = $esi->invoke('get', '/characters/{character_id}/', [ 'character_id' => $charsFound[1][$i]])->name;
+            $charName = str_replace(' ', '+', $charName);
+
+            $replace = '<a href="https://evewho.com/pilot/' . $charName . '">' . $charsFound[2][$i] . '</a>';
+
+            $email->body = str_replace($charsFound[0][$i],$replace , $email->body);
+        }
+        //-----------------------------------------------------------------------
+
+        //corporation
+        $email->body = preg_replace($corpPatern, '<a href="http://evemaps.dotlan.net/corp/\1">\2</a>', $email->body);
+
+
         $parameters['email'] = $email;
 
         return $this->render('profile/email.html.twig', $parameters);
