@@ -192,9 +192,13 @@ class EmailController extends Controller
         //$systemPatern = '/<a href="showinfo:(\d{1})//(\d*)">(\w*)</a>/';
 
         //Patern to be found
-        $corpPatern = "/<a href=\"showinfo:2\/\/(\d*)\">(.*)<\/a>/";
-        $systemPatern = "/<a href=\"showinfo:5\/\/(\d*)\">(.*)<\/a>/";
-        $charPatern = "/<a href=\"showinfo:1377\/\/(\d*)\">(.*)<\/a>/";
+        $charPatern = "/<a href=\"showinfo:1377\/\/(\d*)\">(.*)<\/a>/"; //1377
+        $corpPatern = "/<a href=\"showinfo:2\/\/(\d*)\">(.*)<\/a>/"; //2
+        $alliancePatern = "/<a href=\"showinfo:16159\/\/(\d*)\">(.*)<\/a>/"; //16159
+
+        $systemPatern = "/<a href=\"showinfo:5\/\/(\d*)\">(.*)<\/a>/"; //5
+        $stationPatern = "/<a href=\"showinfo:3869\/\/(\d*)\">(.*)<\/a>/"; //5
+
 
         //preg_match( $systemPatern, $email->body,$matches);
         //die(var_dump(preg_replace ($systemPatern,'<a href="showinfo:(\1,\2)> \3</a>', $email->body )));
@@ -220,7 +224,7 @@ class EmailController extends Controller
 
         preg_match_all($charPatern, $email->body, $charsFound);
 
-        for( $i = 0 ; $i < count($systemsFound[0]) ; $i++){
+        for( $i = 0 ; $i < count($charsFound[0]) ; $i++){
 
             $charName = $esi->invoke('get', '/characters/{character_id}/', [ 'character_id' => $charsFound[1][$i]])->name;
             $charName = str_replace(' ', '+', $charName);
@@ -233,6 +237,10 @@ class EmailController extends Controller
 
         //corporation
         $email->body = preg_replace($corpPatern, '<a href="http://evemaps.dotlan.net/corp/\1">\2</a>', $email->body);
+
+        $email->body = preg_replace($alliancePatern, '<a href="http://evemaps.dotlan.net/alliance/\1">\2</a>', $email->body);
+
+        $email->body = preg_replace($stationPatern, '<a href="http://evemaps.dotlan.net/station/\1">\2</a>', $email->body);
 
 
         $parameters['email'] = $email;
