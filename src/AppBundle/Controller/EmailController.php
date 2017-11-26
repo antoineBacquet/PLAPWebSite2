@@ -191,13 +191,19 @@ class EmailController extends Controller
         $matches = null;
         //$systemPatern = '/<a href="showinfo:(\d{1})//(\d*)">(\w*)</a>/';
 
-        //Patern to be found
-        $charPatern = "/<a href=\"showinfo:1377\/\/(\d*)\">(.*)<\/a>/"; //1377
-        $corpPatern = "/<a href=\"showinfo:2\/\/(\d*)\">(.*)<\/a>/"; //2
-        $alliancePatern = "/<a href=\"showinfo:16159\/\/(\d*)\">(.*)<\/a>/"; //16159
+        //die($email->body);
 
-        $systemPatern = "/<a href=\"showinfo:5\/\/(\d*)\">(.*)<\/a>/"; //5
-        $stationPatern = "/<a href=\"showinfo:3869\/\/(\d*)\">(.*)<\/a>/"; //5
+        //Patern to be found
+
+        $fontPatern = "/<font size=\"(\d*)\" color=\"#([abcdef0-9]*)\">/";
+        $email->body = preg_replace($fontPatern, '<font color="#\2">', $email->body);
+
+        $charPatern = "/<a href=\"showinfo:1377\/\/(\d*)\">([^<]*)<\/a>/"; //1377
+        $corpPatern = "/<a href=\"showinfo:2\/\/(\d*)\">([^<]*)<\/a>/"; //2
+        $alliancePatern = "/<a href=\"showinfo:16159\/\/(\d*)\">([^<]*)<\/a>/"; //16159
+
+        $systemPatern = "/<a href=\"showinfo:5\/\/(\d*)\">([^<]*)<\/a>/"; //5
+        $stationPatern = "/<a href=\"showinfo:3869\/\/(\d*)\">([^<]*)<\/a>/"; //5
 
 
         //preg_match( $systemPatern, $email->body,$matches);
