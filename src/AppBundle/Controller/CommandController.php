@@ -24,6 +24,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -59,6 +60,7 @@ class CommandController extends Controller
 
         $form->handleRequest($request);
         $form->getErrors();
+
         if ($form->isSubmitted() && $form->isValid()) {
             $em = $doctrine->getRepository(Item::class);
 
@@ -166,32 +168,40 @@ class CommandController extends Controller
         $parameters['command'] = $command;
 
         $proposedForm = $this->createFormBuilder()
-            ->add('prix_propose', IntegerType::class, array('data' => $command->getEstimatedPrice()))
+            ->add('prix_propose', TextType::class, array('data' => $command->getEstimatedPrice()))
             ->add('save', SubmitType::class, array('label' => 'Proposer un prix'))
             ->getForm();
 
         $proposedForm->handleRequest($request);
+
         //die(var_dump($proposedForm->));
-        if ($proposedForm->isSubmitted() && $proposedForm->isValid()) {
-            $doctrine = $this->getDoctrine();
-            $commandRep = $doctrine->getRepository(Command::class);
 
-
-            /**
-             * @var $command Command
-             */
-            $command = $commandRep->find($id);
-
-            if($command!= null){
-
-                $command->setContractor($parameters['user']);
-                $command->setState('proposed');
-
-                $command->setSuggestedPrice($proposedForm->getData()['prix_propose']);
-
-                $doctrine->getManager()->persist($command);
-                $doctrine->getManager()->flush();
+        if ($proposedForm->isSubmitted() && $proposedForm->isValid()){
+            if(!is_numeric($proposedForm->getData()['prix_propose'])){
+                $proposedForm->addError(new FormError('Le prix proposé doit étre un nombre'));
             }
+            else{
+                $doctrine = $this->getDoctrine();
+                $commandRep = $doctrine->getRepository(Command::class);
+
+
+                /**
+                 * @var $command Command
+                 */
+                $command = $commandRep->find($id);
+
+                if($command!= null){
+
+                    $command->setContractor($parameters['user']);
+                    $command->setState('proposed');
+
+                    $command->setSuggestedPrice($proposedForm->getData()['prix_propose']);
+
+                    $doctrine->getManager()->persist($command);
+                    $doctrine->getManager()->flush();
+                }
+            }
+
         }
         $parameters['proposed_form'] = $proposedForm->createView();
 

@@ -6,21 +6,33 @@
 {% block body %}
 
     <div class="table-responsive">
-    <table class="table table-striped">
-    <tr> <td> Nom </td> <td> Groupe </td> <td> Corporation </td> </tr>
-    {% for member in members %}
-    <tr>
-        <td><a href="{{ path('member', { 'id' : member.getId() } ) }}"> {{ member.getName()}} </a>  </td>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td> Nom </td>
+                    <td> Groupe </td>
+                    <td> Discord lié? </td>
+                    <td> Corporation </td>
+                </tr>
+            </thead>
 
-        <td> TODO </td>
+            <tbody>
+                {% for member in members %}
+                    <tr>
+                        <td><a href="{{ path('member', { 'id' : member.getId() } ) }}"> {{ member.getName()}} </a>  </td>
 
-        <td>{{ member.corp.getCorporationName()}}  </td>
+                        <td> TODO </td>
 
-    </tr>
-    {% else %}
-        Pas de membres.
-    {% endfor %}
-</table>
+                        <td> {% if member.discordId == null %} Non {% else %} Oui {% endif %} </td>
+
+                        <td>{{ member.corp.getCorporationName()}}  </td>
+
+                    </tr>
+                {% else %}
+                    Pas de membres.
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
 

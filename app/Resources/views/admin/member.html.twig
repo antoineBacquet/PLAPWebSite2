@@ -5,15 +5,25 @@
 
     <h1>{{ member.getName()  }} </h1> <br>
 
-    {{ form_start(group_form) }}
-    {{ form_widget(group_form) }}
-    {{ form_end(group_form) }}
+
+    {% if user.isAdmin %}
+        {{ form_start(group_form) }}
+        {{ form_widget(group_form) }}
+        {{ form_end(group_form) }}
 
 
-    <h2>Liste des APIs</h2>
 
-    {% include('template/api_list.html.twig') %}
+        <br>
+        {% if member.discordId == null %} Pas de liaison avec le discord {% else %} <button> Mettre a jour les roles sur discord</button> {% endif %}
 
 
+        <h2>Liste des APIs</h2>
+
+        {% include('template/api_list.html.twig') %}
+
+    {% endif %}
+
+    <h1>Liste de ses commandes</h1> <br>
+    {% include('template/command_list.html.twig') %}
 
 {% endblock %}

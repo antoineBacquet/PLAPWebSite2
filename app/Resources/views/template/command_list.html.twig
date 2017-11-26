@@ -1,0 +1,42 @@
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr> <th> N° </th ><th> Date </th> <th> Importante? </th> <th> Issuer </th> <th> Prix estimé </th> <th> Contractor </th>  <th> State </th> <th> Info </th> <th> Evepraisal </th><th> Action </th> </tr>
+        </thead>
+        <tbody>
+        {% for command in commands %}
+
+            {% if not command.important or user.isAdmin or user.isProdResp or user == command.issuer %}
+
+                <tr>
+                    <td> {{ command.id }} </td>
+                    <td> {{ command.date|date("d/m/Y") }} </td>
+                    <td> {% if command.important  %} Oui {% else %} Non {% endif %} </td>
+                    <td> <a href="{{ path('member', {id : command.issuer.id} ) }}">{{ command.issuer.name }} </a> </td>
+                    <td> {{ command.estimatedPrice|number_format(0, '.', ',') }} </td>
+                    <td> {% if command.contractor is null %} - {% else %} <a href="{{ path('member', {id : command.contractor.id} ) }}">{{ command.contractor.name }} </a> {% endif %}</td>
+                    <td> {{ command.state }} </td>
+                    <td> <a href="{{ path('commandinfo', { 'id' : command.getId() } ) }}"> view info </a> </td>
+                    <td> <a href="{{command.evepraisal }}"> Lien Evepraisal </a> </td>
+
+                    <td>
+                        {% if (user.isAdmin or user == command.issuer) and command.state != "accepted" %}
+                        <a href="{{ path('removecommand', {'id' : command.id } ) }}"> Supprimer la commande </a> </td>
+                    {% elseif command.state == "accepted" %}
+                        Commande fini
+                    {% else %}
+                        -
+                    {% endif %}
+
+                </tr>
+
+
+            {% endif %}
+
+
+
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>

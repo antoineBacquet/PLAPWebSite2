@@ -37,6 +37,7 @@
 
     {% if command.contractor is null %}
         {{ form_start(proposed_form) }}
+        {{ form_errors(proposed_form) }}
         {{ form_end(proposed_form) }}
 
     {% endif %}

@@ -13,6 +13,7 @@ use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\CCPUtil;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
+use AppBundle\Entity\Command;
 use AppBundle\Entity\Groupe;
 use AppBundle\Entity\Item;
 use AppBundle\Entity\User;
@@ -110,12 +111,12 @@ class AdminController extends Controller
     }
 
     /**
-     * @Route("/admin/member/{id}", name="member")
+     * @Route("/member/{id}", name="member")
      */
     public function adminMemberAction(Request $request, $id)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
         if(!is_array($parameters)) return $parameters;
 
 
@@ -182,12 +183,13 @@ class AdminController extends Controller
 
                 //TODO message de feedback
             }
-
-
         }
 
+        $commandRep = $doctrine->getRepository(Command::class);
+        $commands = $commandRep->findBy(array('issuer' => $user), array('id' => 'DESC'));
 
 
+        $parameters['commands'] = $commands;
         $parameters['member'] = $user;
         $parameters['apis'] = $apis;
         $parameters['group_form']  = $groupForm->createView();
@@ -214,12 +216,12 @@ class AdminController extends Controller
     }
 
     /**
-     * @Route("/admin/members", name="members")
+     * @Route("/members", name="members")
      */
     public function adminMemberListAction(Request $request)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
         if(!is_array($parameters)) return $parameters;
 
 
