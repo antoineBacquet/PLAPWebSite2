@@ -307,6 +307,7 @@ class UserController extends Controller
             ->setExpireOn($expireOn);
 
         $mailEsi = new MailApi();
+
         $mails = $mailEsi->getCharactersCharacterIdMail($charID, CCPConfig::$datasource, null, null, $access_token);
 
         $api->setLastEmail($mails[0]->getMailId());

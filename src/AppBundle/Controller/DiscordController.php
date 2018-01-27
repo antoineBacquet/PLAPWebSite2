@@ -80,6 +80,7 @@ class DiscordController  extends Controller
 
             // Get the user object.
 
+
             /**
              * @var  $discordUser
              */
