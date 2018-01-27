@@ -15,6 +15,8 @@ use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
+use DiscordWebhooks\Client;
+use DiscordWebhooks\Embed;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,21 +80,37 @@ class DiscordController  extends Controller
 
             // Get the user object.
 
+
             /**
-             * @var  $user
+             * @var  $discordUser
              */
-            $user = $provider->getResourceOwner($token);
+            $discordUser = $provider->getResourceOwner($token);
 
             // Get the guilds and connections.
-            $guilds = $user->guilds;
-            $connections = $user->connections;
+            $guilds = $discordUser->guilds;
+            $connections = $discordUser->connections;
 
 
             /**
              * @var Invite $invite
              */
             // Accept an invite
-            $invite = $user->acceptInvite('https://discord.gg/Q682jHS');
+            $invite = $discordUser->acceptInvite('https://discord.gg/Q682jHS');
+
+            $user->setDiscordId($discordUser->getId());
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+
+
+            $webhook = new Client(DiscordConfig::$webhook_url);
+            $embed = new Embed();
+
+
+            $embed->description('Demande de test du discord');
+
+
+
+            $webhook->username('Bot')->message('!test <@' . $user->getDiscordId() .'>')->embed($embed)->send();
 
         }
 

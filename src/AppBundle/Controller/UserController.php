@@ -297,7 +297,7 @@ class UserController extends Controller
         $charInfo = $esi->getCharactersCharacterId($charID);
 
         $api = new CharApi();
-	+        $expireOn = new \DateTime();
+	    $expireOn = new \DateTime();
         $expireOn->add(new \DateInterval('PT1000S'));
 
 
@@ -307,6 +307,7 @@ class UserController extends Controller
             ->setExpireOn($expireOn);
 
         $mailEsi = new MailApi();
+
         $mails = $mailEsi->getCharactersCharacterIdMail($charID, CCPConfig::$datasource, null, null, $access_token);
 
         $api->setLastEmail($mails[0]->getMailId());
