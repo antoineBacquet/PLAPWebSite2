@@ -111,8 +111,6 @@ class UserUtil
 
         $em->persist($user);
         $em->flush();
-
-
     }
 
 

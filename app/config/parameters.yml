@@ -1,0 +1,12 @@
+# This file is auto-generated during the composer install
+parameters:
+    database_host: 127.0.0.1
+    database_port: null
+    database_name: plap
+    database_user: plap-user
+    database_password: NeDxgWquhWxc9pw
+    mailer_transport: smtp
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
+    secret: 627Mi830lF85ombiPyRS5m5OQR6P9o

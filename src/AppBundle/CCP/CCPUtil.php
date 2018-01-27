@@ -33,6 +33,9 @@ class CCPUtil
 
                 $api->setToken($tokenData->token);
                 $api->setRefreshToken($tokenData->refreshToken);
+		$expireOn = new \DateTime();
+                $expireOn->add(new \DateInterval('PT1000S'));
+                $api->setExpireOn($expireOn);
                 $manager->flush();
 
             }

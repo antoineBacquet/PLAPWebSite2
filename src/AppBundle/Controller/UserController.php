@@ -22,6 +22,7 @@ use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use nullx27\ESI\Api\CharacterApi;
 use nullx27\ESI\Api\MarketApi;
+use nullx27\ESI\Api\MailApi;
 use nullx27\ESI\Api\WalletApi;
 use nullx27\ESI\Models\GetCharactersCharacterIdOrders200Ok;
 use Seat\Eseye\Cache\NullCache;
@@ -296,7 +297,19 @@ class UserController extends Controller
         $charInfo = $esi->getCharactersCharacterId($charID);
 
         $api = new CharApi();
-        $api->setCharId($charID)->setCharName($charInfo->getName())->setRefreshToken($refresh_token)->setToken($access_token)->setUser(UserUtil::getUser($this->getDoctrine(), $request));
+	+        $expireOn = new \DateTime();
+        $expireOn->add(new \DateInterval('PT1000S'));
+
+
+        $api->setCharId($charID)->setCharName($charInfo->getName())->setRefreshToken($refresh_token)
+            ->setToken($access_token)
+            ->setUser(UserUtil::getUser($this->getDoctrine(), $request))
+            ->setExpireOn($expireOn);
+
+        $mailEsi = new MailApi();
+        $mails = $mailEsi->getCharactersCharacterIdMail($charID, CCPConfig::$datasource, null, null, $access_token);
+
+        $api->setLastEmail($mails[0]->getMailId());
 
         $doctrine->getManager()->persist($api);
         $doctrine->getManager()->flush();

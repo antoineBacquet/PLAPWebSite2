@@ -49,11 +49,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
  */
 class Container implements ResettableContainerInterface
 {
-    /**
-     * @var ParameterBagInterface
-     */
     protected $parameterBag;
-
     protected $services = array();
     protected $methodMap = array();
     protected $aliases = array();
@@ -73,9 +69,6 @@ class Container implements ResettableContainerInterface
     private $envCache = array();
     private $compiled = false;
 
-    /**
-     * @param ParameterBagInterface $parameterBag A ParameterBagInterface instance
-     */
     public function __construct(ParameterBagInterface $parameterBag = null)
     {
         $this->parameterBag = $parameterBag ?: new EnvPlaceholderParameterBag();
@@ -117,7 +110,7 @@ class Container implements ResettableContainerInterface
      */
     public function isFrozen()
     {
-        @trigger_error(sprintf('The %s() method is deprecated since version 3.3 and will be removed in 4.0. Use the isCompiled() method instead.', __METHOD__), E_USER_DEPRECATED);
+        @trigger_error(sprintf('The %s() method is deprecated since Symfony 3.3 and will be removed in 4.0. Use the isCompiled() method instead.', __METHOD__), E_USER_DEPRECATED);
 
         return $this->parameterBag instanceof FrozenParameterBag;
     }
@@ -248,7 +241,7 @@ class Container implements ResettableContainerInterface
             // We only check the convention-based factory in a compiled container (i.e. a child class other than a ContainerBuilder,
             // and only when the dumper has not generated the method map (otherwise the method map is considered to be fully populated by the dumper)
             if (!$this->methodMap && !$this instanceof ContainerBuilder && __CLASS__ !== static::class && method_exists($this, 'get'.strtr($id, $this->underscoreMap).'Service')) {
-                @trigger_error('Generating a dumped container without populating the method map is deprecated since 3.2 and will be unsupported in 4.0. Update your dumper to generate the method map.', E_USER_DEPRECATED);
+                @trigger_error('Generating a dumped container without populating the method map is deprecated since Symfony 3.2 and will be unsupported in 4.0. Update your dumper to generate the method map.', E_USER_DEPRECATED);
 
                 return true;
             }
@@ -308,7 +301,7 @@ class Container implements ResettableContainerInterface
             } elseif (!$this->methodMap && !$this instanceof ContainerBuilder && __CLASS__ !== static::class && method_exists($this, $method = 'get'.strtr($id, $this->underscoreMap).'Service')) {
                 // We only check the convention-based factory in a compiled container (i.e. a child class other than a ContainerBuilder,
                 // and only when the dumper has not generated the method map (otherwise the method map is considered to be fully populated by the dumper)
-                @trigger_error('Generating a dumped container without populating the method map is deprecated since 3.2 and will be unsupported in 4.0. Update your dumper to generate the method map.', E_USER_DEPRECATED);
+                @trigger_error('Generating a dumped container without populating the method map is deprecated since Symfony 3.2 and will be unsupported in 4.0. Update your dumper to generate the method map.', E_USER_DEPRECATED);
                 // $method is set to the right value, proceed
             } else {
                 if (self::EXCEPTION_ON_INVALID_REFERENCE === $invalidBehavior) {
@@ -388,7 +381,7 @@ class Container implements ResettableContainerInterface
         if (!$this->methodMap && !$this instanceof ContainerBuilder && __CLASS__ !== static::class) {
             // We only check the convention-based factory in a compiled container (i.e. a child class other than a ContainerBuilder,
             // and only when the dumper has not generated the method map (otherwise the method map is considered to be fully populated by the dumper)
-            @trigger_error('Generating a dumped container without populating the method map is deprecated since 3.2 and will be unsupported in 4.0. Update your dumper to generate the method map.', E_USER_DEPRECATED);
+            @trigger_error('Generating a dumped container without populating the method map is deprecated since Symfony 3.2 and will be unsupported in 4.0. Update your dumper to generate the method map.', E_USER_DEPRECATED);
 
             foreach (get_class_methods($this) as $method) {
                 if (preg_match('/^get(.+)Service$/', $method, $match)) {
@@ -439,11 +432,11 @@ class Container implements ResettableContainerInterface
         if (isset($this->envCache[$name]) || array_key_exists($name, $this->envCache)) {
             return $this->envCache[$name];
         }
-        if (isset($_SERVER[$name]) && 0 !== strpos($name, 'HTTP_')) {
-            return $this->envCache[$name] = $_SERVER[$name];
-        }
         if (isset($_ENV[$name])) {
             return $this->envCache[$name] = $_ENV[$name];
+        }
+        if (isset($_SERVER[$name]) && 0 !== strpos($name, 'HTTP_')) {
+            return $this->envCache[$name] = $_SERVER[$name];
         }
         if (false !== ($env = getenv($name)) && null !== $env) { // null is a possible value because of thread safety issues
             return $this->envCache[$name] = $env;
@@ -472,7 +465,7 @@ class Container implements ResettableContainerInterface
         if (isset($this->normalizedIds[$normalizedId = strtolower($id)])) {
             $normalizedId = $this->normalizedIds[$normalizedId];
             if ($id !== $normalizedId) {
-                @trigger_error(sprintf('Service identifiers will be made case sensitive in Symfony 4.0. Using "%s" instead of "%s" is deprecated since version 3.3.', $id, $normalizedId), E_USER_DEPRECATED);
+                @trigger_error(sprintf('Service identifiers will be made case sensitive in Symfony 4.0. Using "%s" instead of "%s" is deprecated since Symfony 3.3.', $id, $normalizedId), E_USER_DEPRECATED);
             }
         } else {
             $normalizedId = $this->normalizedIds[$normalizedId] = $id;

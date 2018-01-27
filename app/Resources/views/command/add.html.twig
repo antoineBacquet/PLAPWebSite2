@@ -7,7 +7,8 @@
         <link rel="stylesheet" href="{{ asset('css/auto-suggest.css') }}" />
     {%  endblock %}
 
-    <h1> Ajouter une commande</h1>
+<div class="jumbotron main-w">
+    <h3> Ajouter une commande</h3>
 
     <input id="search" type="text" name="search" placeholder="Search.." autocomplete="off" onkeyup="search(this)" class="auto-suggest"
            onfocus="document.getElementById('searchresultlist').style.cssText = 'display:block;'"
@@ -148,5 +149,5 @@
 
     </script>
 
-
+</div>
 {% endblock %}

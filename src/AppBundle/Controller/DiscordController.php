@@ -99,7 +99,7 @@ class DiscordController  extends Controller
         //-----------------------------------------------------------------------------------------
 
 
-        return $this->redirect($this->generateUrl('services'));
+        return $this->redirect($this->generateUrl('discordservice'));
 
     }
 

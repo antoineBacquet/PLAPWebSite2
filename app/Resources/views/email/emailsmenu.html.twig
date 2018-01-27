@@ -3,7 +3,7 @@
 
 {% block body %}
 
-    <h1> Emails </h1>
+    <h1> Eve-Emails </h1>
 
     {% for api in apis %}
         <li><a href="{{ path('myemails1', { 'id' : api.getId() } ) }}">{{ api.charName }}({{ api.unread }})</a></li>

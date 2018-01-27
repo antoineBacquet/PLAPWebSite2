@@ -2,8 +2,8 @@
 
 
 {% block body %}
-
-    <h1>{{ member.getName()  }} </h1> <br>
+<div class="jumbotron main-w">
+    <h2>{{ member.getName()  }} </h2> <br>
 
 
     {% if user.isAdmin %}
@@ -14,7 +14,7 @@
 
 
         <br>
-        {% if member.discordId == null %} Pas de liaison avec le discord {% else %} <button> Mettre a jour les roles sur discord</button> {% endif %}
+        {% if member.discordId == null %} <span class="black">Pas de liaison avec le discord</span> {% else %} <button> Mettre a jour les roles sur discord</button> {% endif %}
 
 
         <h2>Liste des APIs</h2>
@@ -23,7 +23,7 @@
 
     {% endif %}
 
-    <h1>Liste de ses commandes</h1> <br>
+    <h3>Liste de ses commandes</h3> <br>
     {% include('template/command_list.html.twig') %}
-
+</div>
 {% endblock %}
