@@ -1,8 +1,11 @@
 app/config/config.yml
-/app/config/parameters.yml
+app/config/parameters.yml
 .idea/
 var/cache/dev/
 var/cache/prod/
-var/sessions/prod/sess_rso1qj0qs02gor5s7mceadflil
-/src/AppBundle/CCP/CCPConfig.php
-/src/AppBundle/Discord/DiscordConfig.php
+var/logs/
+src/AppBundle/CCP/CCPConfig.php
+src/AppBundle/Discord/DiscordConfig.php
+script
+var/sessions/
+web/cache/
