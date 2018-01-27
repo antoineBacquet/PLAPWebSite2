@@ -11,11 +11,11 @@
         {{ form_widget(group_form) }}
         {{ form_end(group_form) }}
 
-
+<div class="jumbotron bouton">
 
         <br>
-        {% if member.discordId == null %} <span class="black">Pas de liaison avec le discord</span> {% else %} <button> Mettre a jour les roles sur discord</button> {% endif %}
-
+        {% if member.discordId == null %} Pas de liaison avec le discord {% else %} <button> Mettre a jour les roles sur discord</button> {% endif %}
+</div>
 
         <h2>Liste des APIs</h2>
 
