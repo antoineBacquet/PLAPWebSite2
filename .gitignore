@@ -1,0 +1,6 @@
+app/config/config.yml
+/app/config/parameters.yml
+.idea/
+var/cache/dev/
+var/cache/prod/
+var/sessions/prod/sess_rso1qj0qs02gor5s7mceadflil
