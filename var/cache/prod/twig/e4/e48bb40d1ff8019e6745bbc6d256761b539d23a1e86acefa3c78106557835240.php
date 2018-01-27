@@ -21,20 +21,20 @@ class __TwigTemplate_720469c6b33701cb8348cf9e26438a590be49a213d6df1eb343fea342bf
 
     protected function doDisplay(array $context, array $blocks = array())
     {
-        $__internal_b0e177ec50779ef5b343d7492d01ef9c915f25555c04b99fe02c161d6769f090 = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
-        $__internal_b0e177ec50779ef5b343d7492d01ef9c915f25555c04b99fe02c161d6769f090->enter($__internal_b0e177ec50779ef5b343d7492d01ef9c915f25555c04b99fe02c161d6769f090_prof = new Twig_Profiler_Profile($this->getTemplateName(), "template", "admin/member.html.twig"));
+        $__internal_a200130cf630fa83ea20d1b5ec8406da2f68d88baeb1254e3d4dadc0a343f37e = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
+        $__internal_a200130cf630fa83ea20d1b5ec8406da2f68d88baeb1254e3d4dadc0a343f37e->enter($__internal_a200130cf630fa83ea20d1b5ec8406da2f68d88baeb1254e3d4dadc0a343f37e_prof = new Twig_Profiler_Profile($this->getTemplateName(), "template", "admin/member.html.twig"));
 
         $this->parent->display($context, array_merge($this->blocks, $blocks));
         
-        $__internal_b0e177ec50779ef5b343d7492d01ef9c915f25555c04b99fe02c161d6769f090->leave($__internal_b0e177ec50779ef5b343d7492d01ef9c915f25555c04b99fe02c161d6769f090_prof);
+        $__internal_a200130cf630fa83ea20d1b5ec8406da2f68d88baeb1254e3d4dadc0a343f37e->leave($__internal_a200130cf630fa83ea20d1b5ec8406da2f68d88baeb1254e3d4dadc0a343f37e_prof);
 
     }
 
     // line 4
     public function block_body($context, array $blocks = array())
     {
-        $__internal_bad2bf78efdeabb70d5f6ae10e7172b8c2a20ac77e07f604bfb69174c37258da = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
-        $__internal_bad2bf78efdeabb70d5f6ae10e7172b8c2a20ac77e07f604bfb69174c37258da->enter($__internal_bad2bf78efdeabb70d5f6ae10e7172b8c2a20ac77e07f604bfb69174c37258da_prof = new Twig_Profiler_Profile($this->getTemplateName(), "block", "body"));
+        $__internal_bcbf67240a0de94489694b602d1e9a236a2c2bc21038536d83c60ed80eaaab91 = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
+        $__internal_bcbf67240a0de94489694b602d1e9a236a2c2bc21038536d83c60ed80eaaab91->enter($__internal_bcbf67240a0de94489694b602d1e9a236a2c2bc21038536d83c60ed80eaaab91_prof = new Twig_Profiler_Profile($this->getTemplateName(), "block", "body"));
 
         // line 5
         echo "<div class=\"jumbotron main-w\">
@@ -60,18 +60,18 @@ class __TwigTemplate_720469c6b33701cb8348cf9e26438a590be49a213d6df1eb343fea342bf
             echo             $this->env->getRuntime('Symfony\Bridge\Twig\Form\TwigRenderer')->renderBlock((isset($context["group_form"]) || array_key_exists("group_form", $context) ? $context["group_form"] : (function () { throw new Twig_Error_Runtime('Variable "group_form" does not exist.', 12, $this->getSourceContext()); })()), 'form_end');
             echo "
 
-
+<div class=\"jumbotron bouton\">
 
         <br>
         ";
             // line 17
             if ((twig_get_attribute($this->env, $this->getSourceContext(), (isset($context["member"]) || array_key_exists("member", $context) ? $context["member"] : (function () { throw new Twig_Error_Runtime('Variable "member" does not exist.', 17, $this->getSourceContext()); })()), "discordId", array()) == null)) {
-                echo " <span class=\"black\">Pas de liaison avec le discord</span> ";
+                echo " Pas de liaison avec le discord ";
             } else {
                 echo " <button> Mettre a jour les roles sur discord</button> ";
             }
             // line 18
-            echo "
+            echo "</div>
 
         <h2>Liste des APIs</h2>
 
@@ -92,7 +92,7 @@ class __TwigTemplate_720469c6b33701cb8348cf9e26438a590be49a213d6df1eb343fea342bf
         echo "</div>
 ";
         
-        $__internal_bad2bf78efdeabb70d5f6ae10e7172b8c2a20ac77e07f604bfb69174c37258da->leave($__internal_bad2bf78efdeabb70d5f6ae10e7172b8c2a20ac77e07f604bfb69174c37258da_prof);
+        $__internal_bcbf67240a0de94489694b602d1e9a236a2c2bc21038536d83c60ed80eaaab91->leave($__internal_bcbf67240a0de94489694b602d1e9a236a2c2bc21038536d83c60ed80eaaab91_prof);
 
     }
 
@@ -126,11 +126,11 @@ class __TwigTemplate_720469c6b33701cb8348cf9e26438a590be49a213d6df1eb343fea342bf
         {{ form_widget(group_form) }}
         {{ form_end(group_form) }}
 
-
+<div class=\"jumbotron bouton\">
 
         <br>
-        {% if member.discordId == null %} <span class=\"black\">Pas de liaison avec le discord</span> {% else %} <button> Mettre a jour les roles sur discord</button> {% endif %}
-
+        {% if member.discordId == null %} Pas de liaison avec le discord {% else %} <button> Mettre a jour les roles sur discord</button> {% endif %}
+</div>
 
         <h2>Liste des APIs</h2>
 

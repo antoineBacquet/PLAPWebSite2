@@ -167,7 +167,8 @@ class AdminController extends Controller
                 'choice_label' => 'name',
                 'multiple' => true
             ))
-            ->add('save', SubmitType::class, array('label' => 'Changer groupe'))
+            ->add('save', SubmitType::class, array('label' => 'Changer groupe',  'attr' => array(
+          'class' => 'btn-admin')))
             ->getForm();
 
 

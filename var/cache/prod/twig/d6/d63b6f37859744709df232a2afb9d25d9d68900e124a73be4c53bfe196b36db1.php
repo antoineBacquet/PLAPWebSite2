@@ -21,24 +21,24 @@ class __TwigTemplate_cc21d7d59b6d34a28c6e144e61ee4e6a2ec6792fdbb5d1b7d2edb504f79
 
     protected function doDisplay(array $context, array $blocks = array())
     {
-        $__internal_0edd59f4d53c82db6ff5d443237ddedeba336f2d4b310ce0131490afd75ac691 = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
-        $__internal_0edd59f4d53c82db6ff5d443237ddedeba336f2d4b310ce0131490afd75ac691->enter($__internal_0edd59f4d53c82db6ff5d443237ddedeba336f2d4b310ce0131490afd75ac691_prof = new Twig_Profiler_Profile($this->getTemplateName(), "template", "email/emailsmenu.html.twig"));
+        $__internal_1e9fb53805823857e3c176a41b1f85b91e748051ca201f5d0765fb77e1603076 = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
+        $__internal_1e9fb53805823857e3c176a41b1f85b91e748051ca201f5d0765fb77e1603076->enter($__internal_1e9fb53805823857e3c176a41b1f85b91e748051ca201f5d0765fb77e1603076_prof = new Twig_Profiler_Profile($this->getTemplateName(), "template", "email/emailsmenu.html.twig"));
 
         $this->parent->display($context, array_merge($this->blocks, $blocks));
         
-        $__internal_0edd59f4d53c82db6ff5d443237ddedeba336f2d4b310ce0131490afd75ac691->leave($__internal_0edd59f4d53c82db6ff5d443237ddedeba336f2d4b310ce0131490afd75ac691_prof);
+        $__internal_1e9fb53805823857e3c176a41b1f85b91e748051ca201f5d0765fb77e1603076->leave($__internal_1e9fb53805823857e3c176a41b1f85b91e748051ca201f5d0765fb77e1603076_prof);
 
     }
 
     // line 4
     public function block_body($context, array $blocks = array())
     {
-        $__internal_282f08634e3a15bc29c138e54f71bbfd8dc83938657e85488537080783628011 = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
-        $__internal_282f08634e3a15bc29c138e54f71bbfd8dc83938657e85488537080783628011->enter($__internal_282f08634e3a15bc29c138e54f71bbfd8dc83938657e85488537080783628011_prof = new Twig_Profiler_Profile($this->getTemplateName(), "block", "body"));
+        $__internal_e6de130d7366cc40f1b979de13666f2f37d6925c949abbd43ffd325bcf077ab6 = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
+        $__internal_e6de130d7366cc40f1b979de13666f2f37d6925c949abbd43ffd325bcf077ab6->enter($__internal_e6de130d7366cc40f1b979de13666f2f37d6925c949abbd43ffd325bcf077ab6_prof = new Twig_Profiler_Profile($this->getTemplateName(), "block", "body"));
 
         // line 5
-        echo "
-    <h1> Eve-Emails </h1>
+        echo "<div class=\"jumbotron main-w\">
+    <h2> Eve-Emails </h2>
 
     ";
         // line 8
@@ -61,11 +61,11 @@ class __TwigTemplate_cc21d7d59b6d34a28c6e144e61ee4e6a2ec6792fdbb5d1b7d2edb504f79
         // line 11
         echo "
 
-
+</div>
 
 ";
         
-        $__internal_282f08634e3a15bc29c138e54f71bbfd8dc83938657e85488537080783628011->leave($__internal_282f08634e3a15bc29c138e54f71bbfd8dc83938657e85488537080783628011_prof);
+        $__internal_e6de130d7366cc40f1b979de13666f2f37d6925c949abbd43ffd325bcf077ab6->leave($__internal_e6de130d7366cc40f1b979de13666f2f37d6925c949abbd43ffd325bcf077ab6_prof);
 
     }
 
@@ -90,15 +90,15 @@ class __TwigTemplate_cc21d7d59b6d34a28c6e144e61ee4e6a2ec6792fdbb5d1b7d2edb504f79
 
 
 {% block body %}
-
-    <h1> Eve-Emails </h1>
+<div class=\"jumbotron main-w\">
+    <h2> Eve-Emails </h2>
 
     {% for api in apis %}
         <li><a href=\"{{ path('myemails1', { 'id' : api.getId() } ) }}\">{{ api.charName }}({{ api.unread }})</a></li>
     {%  endfor %}
 
 
-
+</div>
 
 {% endblock %}", "email/emailsmenu.html.twig", "/var/www/plap/app/Resources/views/email/emailsmenu.html.twig");
     }
