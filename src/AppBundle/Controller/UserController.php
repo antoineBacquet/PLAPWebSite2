@@ -297,7 +297,7 @@ class UserController extends Controller
         $charInfo = $esi->getCharactersCharacterId($charID);
 
         $api = new CharApi();
-	+        $expireOn = new \DateTime();
+	    $expireOn = new \DateTime();
         $expireOn->add(new \DateInterval('PT1000S'));
 
 
