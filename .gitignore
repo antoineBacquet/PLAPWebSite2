@@ -4,3 +4,5 @@ app/config/config.yml
 var/cache/dev/
 var/cache/prod/
 var/sessions/prod/sess_rso1qj0qs02gor5s7mceadflil
+/src/AppBundle/CCP/CCPConfig.php
+/src/AppBundle/Discord/DiscordConfig.php
