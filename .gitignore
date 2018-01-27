@@ -1,0 +1,5 @@
+app/config/config.yml
+/app/config/parameters.yml
+.idea/
+var/cache/dev/
+var/cache/prod/
