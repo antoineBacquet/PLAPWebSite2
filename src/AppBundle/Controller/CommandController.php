@@ -56,7 +56,7 @@ class CommandController extends Controller
                 'allow_add' => true,))
             ->add('save', SubmitType::class, array('label' => 'Ajouter commande',  'attr' => array(
           'class' => 'btn-admin')))
-            ->add('important', CheckboxType::class, array('label' => 'Reservé au responsable de production?'))
+            ->add('important', CheckboxType::class, array('label' => 'Reservé au responsable de production? ', 'required' => false,))
             ->getForm();
 
         $form->handleRequest($request);
