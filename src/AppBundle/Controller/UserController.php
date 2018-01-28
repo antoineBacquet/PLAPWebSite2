@@ -16,6 +16,7 @@ use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
 use AppBundle\Entity\CommandItem;
 use AppBundle\Entity\Item;
+use AppBundle\Entity\Notification;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\GroupUtil;
@@ -31,7 +32,9 @@ use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Validator\Constraints\Date;
@@ -381,40 +384,6 @@ class UserController extends Controller
     }
 
 
-    /**
-     * Remove an api
-     *
-     * @Route("/service/discord", name="discordservice")
-     */
-    public function serviceAction(Request $request)
-    {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
-
-
-        return $this->render('profile/service.html.twig', $parameters);
-
-    }
-
-    /**
-     * Remove an api
-     *
-     * @Route("/service/discord/updateroles", name="updatemyroles")
-     */
-    public function updateMyRolesAction(Request $request)
-    {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
-
-
-        DiscordUtil::updateRoles(UserUtil::getUser($this->getDoctrine(),$request)); //TODO error management
-
-        return $this->redirect($this->generateUrl('discordservice'));
-
-    }
-
-
-
 
 
 
@@ -438,6 +407,43 @@ class UserController extends Controller
         $parameters['commands'] = $commands;
 
         return $this->render('profile/commands.html.twig', $parameters);
+
+    }
+
+    /**
+     * Remove an api
+     *
+     * @Route("/service/notification", name="notification")
+     */
+    public function notificationAction(Request $request)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+        $notification = $parameters['user']->getNotification();
+
+        if($notification === null){
+            $notification = new Notification();
+            $notification->setUser($parameters['user']);
+        }
+
+        $form = $this->createFormBuilder($notification)
+            ->add('emailNotification', CheckboxType::class, array('required' => false, 'label' => 'Notification Eve-Mail '))
+            ->add('save', SubmitType::class, array('label' => 'Valider'))
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($notification);
+            $em->flush();
+        }
+
+        $parameters['form'] = $form->createView();
+
+
+        return $this->render('profile/notification.html.twig', $parameters);
 
     }
 

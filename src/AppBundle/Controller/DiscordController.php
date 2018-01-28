@@ -13,6 +13,7 @@ use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
+use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
@@ -26,9 +27,24 @@ class DiscordController  extends Controller
 {
 
 
+    /**
+     * Discord service
+     *
+     * @Route("/service/discord", name="discordservice")
+     */
+    public function serviceAction(Request $request)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+
+        return $this->render('profile/service.html.twig', $parameters);
+
+    }
+
 
     /**
-     *
+     * Join the discord
      *
      * @Route("/discord/join/", name="discordjoin")
      */
@@ -46,12 +62,10 @@ class DiscordController  extends Controller
         $url = $url . "&redirect_uri=" . DiscordConfig::$redirectURI;
         return $this->redirect($url);
 
-
-
     }
 
     /**
-     *
+     * discord call back
      *
      * @Route("/discord/redirect/", name="discordredirect")
      */
@@ -116,6 +130,23 @@ class DiscordController  extends Controller
 
         //-----------------------------------------------------------------------------------------
 
+
+        return $this->redirect($this->generateUrl('discordservice'));
+
+    }
+
+    /**
+     * Request to update roles on discord
+     *
+     * @Route("/service/discord/updateroles", name="updatemyroles")
+     */
+    public function updateMyRolesAction(Request $request)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+
+        DiscordUtil::updateRoles(UserUtil::getUser($this->getDoctrine(),$request)); //TODO error management
 
         return $this->redirect($this->generateUrl('discordservice'));
 

@@ -198,12 +198,14 @@ class EmailController extends Controller
         $fontPatern = "/<font size=\"(\d*)\" color=\"#([abcdef0-9]*)\">/";
         $email->body = preg_replace($fontPatern, '<font color="#\2">', $email->body);
 
-        $charPatern = "/<a href=\"showinfo:1377\/\/(\d*)\">([^<]*)<\/a>/"; //1377
+        $charPatern = "/<a href=\"showinfo:(1377|1386)\/\/(\d*)\">([^<]*)<\/a>/"; //1377
         $corpPatern = "/<a href=\"showinfo:2\/\/(\d*)\">([^<]*)<\/a>/"; //2
         $alliancePatern = "/<a href=\"showinfo:16159\/\/(\d*)\">([^<]*)<\/a>/"; //16159
 
         $systemPatern = "/<a href=\"showinfo:5\/\/(\d*)\">([^<]*)<\/a>/"; //5
         $stationPatern = "/<a href=\"showinfo:3869\/\/(\d*)\">([^<]*)<\/a>/"; //5
+
+        $killPatern = "/<a href=\"killReport:(\d*):([a-z0-9]*)\">([^<]*)<\/a>/";
 
 
         //preg_match( $systemPatern, $email->body,$matches);
@@ -230,12 +232,16 @@ class EmailController extends Controller
 
         preg_match_all($charPatern, $email->body, $charsFound);
 
+        //die(var_dump($charsFound));
+
         for( $i = 0 ; $i < count($charsFound[0]) ; $i++){
 
-            $charName = $esi->invoke('get', '/characters/{character_id}/', [ 'character_id' => $charsFound[1][$i]])->name;
+
+
+            $charName = $esi->invoke('get', '/characters/{character_id}/', [ 'character_id' => $charsFound[2][$i]])->name;
             $charName = str_replace(' ', '+', $charName);
 
-            $replace = '<a href="https://evewho.com/pilot/' . $charName . '">' . $charsFound[2][$i] . '</a>';
+            $replace = '<a href="https://evewho.com/pilot/' . $charName . '">' . $charsFound[3][$i] . '</a>';
 
             $email->body = str_replace($charsFound[0][$i],$replace , $email->body);
         }
@@ -247,6 +253,8 @@ class EmailController extends Controller
         $email->body = preg_replace($alliancePatern, '<a href="http://evemaps.dotlan.net/alliance/\1">\2</a>', $email->body);
 
         $email->body = preg_replace($stationPatern, '<a href="http://evemaps.dotlan.net/station/\1">\2</a>', $email->body);
+
+        $email->body = preg_replace($killPatern, '<a href="https://zkillboard.com/kill/\1">\3</a>', $email->body);
 
 
         $parameters['email'] = $email;
