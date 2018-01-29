@@ -152,6 +152,31 @@ class DiscordController  extends Controller
 
     }
 
+    /**
+     * Request to update roles on discord
+     *
+     * @Route("/service/discord/updateroles/{id}", name="updatediscordroles")
+     */
+    public function updateDiscordRolesAction(Request $request, $id)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        if(!is_array($parameters)) return $parameters;
+
+        $rep = $this->getDoctrine()->getRepository(User::class);
+        $user = $rep->find($id);
+
+        if($user == null){
+            //TODO error management
+        }
+        else{
+            DiscordUtil::updateRoles(UserUtil::getUser($user,$request)); //TODO error management
+        }
+
+
+        return $this->redirect($this->generateUrl('discordservice'));
+
+    }
+
 
 
 
