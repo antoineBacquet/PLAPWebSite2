@@ -16,6 +16,7 @@ use AppBundle\Util\Core;
 use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
+use Discord\OAuth\Parts\Invite;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -109,22 +110,21 @@ class DiscordController  extends Controller
              * @var Invite $invite
              */
             // Accept an invite
-            $invite = $discordUser->acceptInvite('https://discord.gg/Q682jHS');
+            $invite = $discordUser->acceptInvite('https://discord.gg/aBM2rwn'); //TODO Global variable
 
             $user->setDiscordId($discordUser->getId());
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
 
+
+            //TODO Static function
             $webhook = new Client(DiscordConfig::$webhook_url);
             $embed = new Embed();
-
-
             $embed->description('Demande de test du discord');
-
-
-
             $webhook->username('Bot')->message('!test <@' . $user->getDiscordId() .'>')->embed($embed)->send();
+
+            DiscordUtil::updateRoles($user);
 
         }
 
