@@ -311,9 +311,17 @@ class UserController extends Controller
 
         $mailEsi = new MailApi();
 
+
+
         $mails = $mailEsi->getCharactersCharacterIdMail($charID, CCPConfig::$datasource, null, null, $access_token);
 
-        $api->setLastEmail($mails[0]->getMailId());
+        if(count($mails)>0){
+            $api->setLastEmail($mails[0]->getMailId());
+        }
+        else{
+            $api->setLastEmail(0);
+        }
+
 
         $doctrine->getManager()->persist($api);
         $doctrine->getManager()->flush();
