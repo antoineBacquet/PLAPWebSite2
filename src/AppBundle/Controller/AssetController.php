@@ -10,8 +10,15 @@ namespace AppBundle\Controller;
 
 
 
+use AppBundle\CCP\CCPConfig;
+use AppBundle\CCP\CCPUtil;
+use AppBundle\Entity\CharApi;
 use AppBundle\Entity\User;
+use AppBundle\Util\ControllerUtil;
+use AppBundle\Util\GroupUtil;
 use nullx27\ESI\Api\AssetsApi;
+use Seat\Eseye\Containers\EsiAuthentication;
+use Seat\Eseye\Eseye;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,11 +45,31 @@ class AssetController extends Controller
          */
         $user = $parameters['user'];
 
+        /**
+         * @var CharApi $api
+         */
         $api = $user->getApis()[0];
 
-        $assetEsi = new AssetsApi();
-        $assetEsi->getCharactersCharacterIdAssets($apis[0]->get);
+        $authentication = new EsiAuthentication([
+            'client_id'     => CCPConfig::$clientIDAPI,
+            'secret'        => CCPConfig::$secretKEYAPI,
+            'refresh_token' => $api->getRefreshToken()
+        ]);
 
+        $esi = new Eseye($authentication);
+        $portraits = $esi->invoke('get', '/characters/{character_id}/assets/', [
+            'character_id' => $api->getCharId()
+        ]);
+
+
+
+        if(!CCPUtil::isApiValid($api, $this->getDoctrine()->getManager()))
+            die('Token non valid');  //TODO error management
+
+
+
+
+        die(var_dump($asset));
 
         die('asset test');
     }

@@ -108,7 +108,7 @@ class UserController extends Controller
                 }
             }
 
-            $api->portrait = $charEsi->getCharactersCharacterIdPortrait($api->getCharId())->getPx64x64();
+            $api->portrait = $charEsi->getCharactersCharacterIdPortrait($api->getCharId())->getPx64x64(); //TODO replace with new API
 
 
 
@@ -295,7 +295,7 @@ class UserController extends Controller
 
         $doctrine = $this->getDoctrine();
 
-        $esi = new CharacterApi();
+        $esi = new CharacterApi(); //TODO replace with new API
 
         $charInfo = $esi->getCharactersCharacterId($charID);
 
@@ -313,7 +313,7 @@ class UserController extends Controller
 
 
 
-        $mails = $mailEsi->getCharactersCharacterIdMail($charID, CCPConfig::$datasource, null, null, $access_token);
+        $mails = $mailEsi->getCharactersCharacterIdMail($charID, CCPConfig::$datasource, null, null, $access_token); //TODO replace with nex API
 
         if(count($mails)>0){
             $api->setLastEmail($mails[0]->getMailId());

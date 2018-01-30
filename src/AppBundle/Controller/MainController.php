@@ -10,7 +10,6 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\Util\ControllerUtil;
-use AppBundle\Util\Core;
 use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
