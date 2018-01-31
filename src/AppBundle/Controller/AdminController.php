@@ -11,21 +11,16 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\CCPUtil;
+use AppBundle\CCP\EsiUtil;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
 use AppBundle\Entity\Groupe;
-use AppBundle\Entity\Item;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
-use AppBundle\Util\Core;
 use AppBundle\Util\GroupUtil;
-use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
-use nullx27\ESI\Api\CharacterApi;
-use nullx27\ESI\Api\CorporationApi;
-use nullx27\ESI\Api\MailApi;
 use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -136,8 +131,6 @@ class AdminController extends Controller
             return $this->render('template/error.html.twig', $parameters);
         }
 
-        $groups = $groupeRep->findAll();
-
 
         $apis = $apiRep->findByUser($user);
 
@@ -209,10 +202,12 @@ class AdminController extends Controller
     /**
      * @Route("/admin/emails/{id}", name="emails")
      */
-    public function adminMemberEmailsAction(Request $request, $id)
+    /*public function adminMemberEmailsAction(Request $request, $id)
     {
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
         if(!is_array($parameters)) return $parameters;
+
+
 
 
         $api = new MailApi();
@@ -220,7 +215,7 @@ class AdminController extends Controller
         $api->getCharactersCharacterIdMail($user->getCharId(), CCPConfig::$datasource);
 
 
-    }
+    }*/
 
     /**
      * @Route("/members", name="members")
@@ -231,8 +226,9 @@ class AdminController extends Controller
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
         if(!is_array($parameters)) return $parameters;
 
+        $session = $request->getSession();
 
-        $corpAPI = new CorporationApi();
+
 
         $rep = $this->getDoctrine()->getRepository(User::class);
 
@@ -241,9 +237,17 @@ class AdminController extends Controller
         $users = null;
         $users = $rep->findAll();
 
+        $esi = new Eseye(EsiUtil::getDefaultUserAuthentication($session->get('refresh_token')));
+
+
+
         foreach ($users as $user){
 
-            $corp = $corpAPI->getCorporationsCorporationId($user->getCorpId(), CCPConfig::$datasource);
+            //$corp = $corpAPI->getCorporationsCorporationId($user->getCorpId(), CCPConfig::$datasource);
+            $corp = $esi->invoke('get', '/corporations/{corporation_id}/', [
+                'corporation_id' => $user->getCorpId(),
+            ]);
+
 
             $user->corp = $corp;
         }

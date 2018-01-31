@@ -14,11 +14,8 @@ use AppBundle\CCP\CCPUtil;
 use AppBundle\CCP\TokenData;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
-use AppBundle\Entity\CommandItem;
-use AppBundle\Entity\Item;
 use AppBundle\Entity\Notification;
 use AppBundle\Util\ControllerUtil;
-use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use nullx27\ESI\Api\CharacterApi;
@@ -155,22 +152,23 @@ class UserController extends Controller
             return $this->render('template/error.html.twig', $parameters);
         }
 
-        $charEsi = new CharacterApi();
+        //$charEsi = new CharacterApi();
 
 
         $api->isValid = CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
-
-
-        $api->portrait = $charEsi->getCharactersCharacterIdPortrait($api->getCharId())->getPx64x64();
-
-        /*$configuration = Configuration::getInstance();
-        $configuration->cache = NullCache::class;*/
+        //TODO if api is not valid
 
         $authentication = new EsiAuthentication([
             'client_id'     => CCPConfig::$clientIDAPI,
             'secret'        => CCPConfig::$secretKEYAPI,
             'refresh_token' => $api->getRefreshToken()
         ]);
+
+        $api->portrait = $charEsi->getCharactersCharacterIdPortrait($api->getCharId())->getPx64x64();
+
+
+
+
 
         $esi = new Eseye($authentication);
         $wallet = $esi->invoke('get', '/characters/{character_id}/wallet/', [

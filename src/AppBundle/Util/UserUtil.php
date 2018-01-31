@@ -124,7 +124,7 @@ class UserUtil
 
 
         //Si il n'y a pas de token et de refresh token, l'utilisateur est deconnecter
-        if($session->has('char_id')){
+        if($session->has('char_id') and $session->has('refresh_token')){ //TODO test on the refresh token
             return true;
         }
         return false;

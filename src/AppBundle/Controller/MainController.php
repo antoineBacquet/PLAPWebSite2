@@ -169,6 +169,7 @@ class MainController extends Controller
         }
 
         $session->set('char_id', $charID);
+        $session->set('refresh_token', $refresh_token);
 
 
         $doctrine = $this->getDoctrine();
