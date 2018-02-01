@@ -1,33 +1,18 @@
 <?php
 
-/*
- * This file is part of the Doctrine Bundle
- *
- * The code was originally distributed inside the Symfony framework.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- * (c) Doctrine Project, Benjamin Eberlei <kontakt@beberlei.de>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Doctrine\Bundle\DoctrineBundle\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Doctrine\ORM\Mapping\Driver\DatabaseDriver;
+use Doctrine\ORM\Tools\Console\MetadataFilter;
 use Doctrine\ORM\Tools\DisconnectedClassMetadataFactory;
 use Doctrine\ORM\Tools\Export\ClassMetadataExporter;
-use Doctrine\ORM\Tools\Console\MetadataFilter;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Import Doctrine ORM metadata mapping information from an existing database.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class ImportMappingDoctrineCommand extends DoctrineCommand
 {
@@ -77,21 +62,21 @@ EOT
         $bundle = $this->getApplication()->getKernel()->getBundle($input->getArgument('bundle'));
 
         $destPath = $bundle->getPath();
-        $type = $input->getArgument('mapping-type') ? $input->getArgument('mapping-type') : 'xml';
-        if ('annotation' === $type) {
+        $type     = $input->getArgument('mapping-type') ? $input->getArgument('mapping-type') : 'xml';
+        if ($type === 'annotation') {
             $destPath .= '/Entity';
         } else {
             $destPath .= '/Resources/config/doctrine';
         }
-        if ('yaml' === $type) {
+        if ($type === 'yaml') {
             $type = 'yml';
         }
 
-        $cme = new ClassMetadataExporter();
+        $cme      = new ClassMetadataExporter();
         $exporter = $cme->getExporter($type);
         $exporter->setOverwriteExistingFiles($input->getOption('force'));
 
-        if ('annotation' === $type) {
+        if ($type === 'annotation') {
             $entityGenerator = $this->getEntityGenerator();
             $exporter->setEntityGenerator($entityGenerator);
         }
@@ -111,16 +96,17 @@ EOT
         if ($metadata) {
             $output->writeln(sprintf('Importing mapping information from "<info>%s</info>" entity manager', $emName));
             foreach ($metadata as $class) {
-                $className = $class->name;
-                $class->name = $bundle->getNamespace().'\\Entity\\'.$className;
-                if ('annotation' === $type) {
-                    $path = $destPath.'/'.str_replace('\\', '.', $className).'.php';
+                $className   = $class->name;
+                $class->name = $bundle->getNamespace() . '\\Entity\\' . $className;
+                if ($type === 'annotation') {
+                    $path = $destPath . '/' . str_replace('\\', '.', $className) . '.php';
                 } else {
-                    $path = $destPath.'/'.str_replace('\\', '.', $className).'.orm.'.$type;
+                    $path = $destPath . '/' . str_replace('\\', '.', $className) . '.orm.' . $type;
                 }
                 $output->writeln(sprintf('  > writing <comment>%s</comment>', $path));
                 $code = $exporter->exportClassMetadata($class);
-                if (!is_dir($dir = dirname($path))) {
+                $dir  = dirname($path);
+                if (! is_dir($dir)) {
                     mkdir($dir, 0775, true);
                 }
                 file_put_contents($path, $code);

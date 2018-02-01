@@ -1,43 +1,25 @@
 <?php
 
-/*
- * This file is part of the Doctrine Bundle
- *
- * The code was originally distributed inside the Symfony framework.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- * (c) Doctrine Project, Benjamin Eberlei <kontakt@beberlei.de>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Doctrine\Bundle\DoctrineBundle;
 
+use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\EntityListenerPass;
 use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\ServiceRepositoryCompilerPass;
 use Doctrine\Common\Util\ClassUtils;
-use Doctrine\Bundle\DoctrineBundle\Command\CreateDatabaseDoctrineCommand;
-use Doctrine\Bundle\DoctrineBundle\Command\DropDatabaseDoctrineCommand;
-use Doctrine\Bundle\DoctrineBundle\Command\Proxy\ImportDoctrineCommand;
-use Doctrine\Bundle\DoctrineBundle\Command\Proxy\RunSqlDoctrineCommand;
-use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\EntityListenerPass;
 use Doctrine\ORM\Proxy\Autoloader;
+use Symfony\Bridge\Doctrine\DependencyInjection\CompilerPass\DoctrineValidationPass;
+use Symfony\Bridge\Doctrine\DependencyInjection\CompilerPass\RegisterEventListenersAndSubscribersPass;
+use Symfony\Bridge\Doctrine\DependencyInjection\Security\UserProvider\EntityFactory;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Bridge\Doctrine\DependencyInjection\CompilerPass\DoctrineValidationPass;
-use Symfony\Bridge\Doctrine\DependencyInjection\CompilerPass\RegisterEventListenersAndSubscribersPass;
-use Symfony\Bridge\Doctrine\DependencyInjection\Security\UserProvider\EntityFactory;
 
 /**
  * Bundle.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class DoctrineBundle extends Bundle
 {
+    /** @var callable|null */
     private $autoloader;
 
     /**
@@ -66,8 +48,8 @@ class DoctrineBundle extends Bundle
         // Register an autoloader for proxies to avoid issues when unserializing them
         // when the ORM is used.
         if ($this->container->hasParameter('doctrine.orm.proxy_namespace')) {
-            $namespace = $this->container->getParameter('doctrine.orm.proxy_namespace');
-            $dir = $this->container->getParameter('doctrine.orm.proxy_dir');
+            $namespace      = $this->container->getParameter('doctrine.orm.proxy_namespace');
+            $dir            = $this->container->getParameter('doctrine.orm.proxy_dir');
             $proxyGenerator = null;
 
             if ($this->container->getParameter('doctrine.orm.auto_generate_proxy_classes')) {
@@ -76,13 +58,13 @@ class DoctrineBundle extends Bundle
 
                 $proxyGenerator = function ($proxyDir, $proxyNamespace, $class) use (&$container) {
                     $originalClassName = ClassUtils::getRealClass($class);
-                    /** @var $registry Registry */
+                    /** @var Registry $registry */
                     $registry = $container->get('doctrine');
 
                     // Tries to auto-generate the proxy file
                     /** @var $em \Doctrine\ORM\EntityManager */
                     foreach ($registry->getManagers() as $em) {
-                        if (!$em->getConfiguration()->getAutoGenerateProxyClasses()) {
+                        if (! $em->getConfiguration()->getAutoGenerateProxyClasses()) {
                             continue;
                         }
 
@@ -94,7 +76,7 @@ class DoctrineBundle extends Bundle
 
                         $classMetadata = $metadataFactory->getMetadataFor($originalClassName);
 
-                        $em->getProxyFactory()->generateProxyClasses(array($classMetadata));
+                        $em->getProxyFactory()->generateProxyClasses([$classMetadata]);
 
                         clearstatcache(true, Autoloader::resolveFile($proxyDir, $proxyNamespace, $class));
 
@@ -112,7 +94,7 @@ class DoctrineBundle extends Bundle
      */
     public function shutdown()
     {
-        if (null !== $this->autoloader) {
+        if ($this->autoloader !== null) {
             spl_autoload_unregister($this->autoloader);
             $this->autoloader = null;
         }
@@ -120,7 +102,7 @@ class DoctrineBundle extends Bundle
         // Clear all entity managers to clear references to entities for GC
         if ($this->container->hasParameter('doctrine.entity_managers')) {
             foreach ($this->container->getParameter('doctrine.entity_managers') as $id) {
-                if (!method_exists($this->container, 'initialized') || $this->container->initialized($id)) {
+                if (! method_exists($this->container, 'initialized') || $this->container->initialized($id)) {
                     $this->container->get($id)->clear();
                 }
             }
@@ -129,7 +111,7 @@ class DoctrineBundle extends Bundle
         // Close all connections to avoid reaching too many connections in the process when booting again later (tests)
         if ($this->container->hasParameter('doctrine.connections')) {
             foreach ($this->container->getParameter('doctrine.connections') as $id) {
-                if (!method_exists($this->container, 'initialized') || $this->container->initialized($id)) {
+                if (! method_exists($this->container, 'initialized') || $this->container->initialized($id)) {
                     $this->container->get($id)->close();
                 }
             }

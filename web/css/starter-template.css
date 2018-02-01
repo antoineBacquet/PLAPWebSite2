@@ -1,6 +1,6 @@
 body {
   padding-top: 50px;
-   background: url(/img/background.jpg) no-repeat center center fixed;
+   background: url("../images/background.jpg") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -13,7 +13,7 @@ body {
 
 .main-w{
 background-color: rgba(22, 30, 39, 0.70);
-color: white;
+color: blue;
 }
 .bouton{color: black;
   background-color: #161e27}
@@ -23,7 +23,11 @@ color: white;
 .navbar{    background-color: rgba(22, 30, 39, 0.70);}
 
 .table > tbody > tr > td{
-color:black;
+color: black;
+    background-color: #404040;
+    border-top: 4px solid #161e27;
+    padding: 1px 6px;
+    color: white;
 }
 
 .logo{
