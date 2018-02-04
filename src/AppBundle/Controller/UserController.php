@@ -260,6 +260,9 @@ class UserController extends Controller
             $parameters['location']['type'] = 'space';
         }
 
+        //security status-----------------
+        $parameters['security_status'] = $charInfo->security_status;
+
         //--------------------------------
 
 
