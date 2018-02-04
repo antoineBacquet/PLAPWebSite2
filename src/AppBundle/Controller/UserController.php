@@ -12,7 +12,6 @@ namespace AppBundle\Controller;
 use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\CCPUtil;
 use AppBundle\CCP\EsiUtil;
-use AppBundle\CCP\TokenData;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
 use AppBundle\Entity\Item;
@@ -23,23 +22,16 @@ use AppBundle\Util\UserUtil;
 use nullx27\ESI\Api\CharacterApi;
 use nullx27\ESI\Api\MarketApi;
 use nullx27\ESI\Api\MailApi;
-use nullx27\ESI\Api\WalletApi;
 use nullx27\ESI\Models\GetCharactersCharacterIdOrders200Ok;
-use Seat\Eseye\Cache\NullCache;
-use Seat\Eseye\Configuration;
-use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
 use Seat\Eseye\Exceptions\RequestFailedException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Validator\Constraints\Date;
 
 class UserController extends Controller
 {
@@ -82,7 +74,6 @@ class UserController extends Controller
          */
         $apis = $rep->findByUser($parameters['user']->getId());
 
-        $charEsi = new CharacterApi();
 
 
         foreach($apis as $api){
@@ -131,7 +122,6 @@ class UserController extends Controller
 
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
 
-
         /**
          * @var CharApi $api
          */
@@ -150,140 +140,11 @@ class UserController extends Controller
             return $this->render('template/error.html.twig', $parameters);
         }
 
-        $api->isValid = CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
+        CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
         //TODO if api is not valid
 
+        $parameters['api_summary'] = UserUtil::getApiSummary($api, $this->getDoctrine());
 
-        //setting the esi api
-        $authentication = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
-        $esi = new Eseye($authentication);
-
-        //character information-----------
-        $charInfo = $esi->invoke('get', '/characters/{character_id}/', [
-            'character_id' => $api->getCharId(),
-        ]);
-        //--------------------------------
-
-
-
-        //portrait------------------------
-        $portrait = $esi->invoke('get', '/characters/{character_id}/portrait/', [
-            'character_id' => $api->getCharId(),
-        ])->px128x128;
-        $parameters['portrait'] = $portrait;
-        //--------------------------------
-
-
-        //corp----------------------------
-        $corp = $esi->invoke('get', '/corporations/{corporation_id}/', [
-            'corporation_id' => $charInfo->corporation_id,
-        ])->name;
-        $parameters['corp'] = $corp;
-        //--------------------------------
-
-        //corp history--------------------
-        $corpsHistory = $esi->invoke('get', '/characters/{character_id}/corporationhistory/', [
-            'character_id' => $api->getCharId(),
-        ])->getArrayCopy();
-        $lastCorp = current($corpsHistory);
-
-
-        $now = new \DateTime();
-        $startDate = new \DateTime($lastCorp->start_date);
-
-        $joined = $now->diff($startDate)->format("%a");
-        $parameters['joined'] = $joined;
-        //--------------------------------
-
-        //skillpoints---------------------
-        $skillpoints = $esi->invoke('get', '/characters/{character_id}/skills/', [
-            'character_id' => $api->getCharId(),
-        ])->total_sp;
-        $parameters['skillpoints'] = $skillpoints;
-        //--------------------------------
-
-        //wallet--------------------------
-        $wallet = $esi->invoke('get', '/characters/{character_id}/wallet/', [
-            'character_id' => $api->getCharId(),
-        ]);
-        $parameters['wallet'] = $wallet->getArrayCopy()['scalar'];
-        //--------------------------------
-
-        //current ship--------------------
-        $currentShip = $esi->invoke('get', '/characters/{character_id}/ship/', [
-            'character_id' => $api->getCharId(),
-        ]);
-        $itemRep = $this->getDoctrine()->getRepository(Item::class);
-
-        $parameters['current_ship']['type'] = $itemRep->find($currentShip->ship_type_id)->getName();
-        $parameters['current_ship']['name'] = $currentShip->ship_name;
-        //--------------------------------
-
-        //location------------------------
-        $location = $esi->invoke('get', '/characters/{character_id}/location/', [
-            'character_id' => $api->getCharId(),
-        ]);
-
-        //station
-        if(isset($location->station_id)){
-            $parameters['location']['type'] = 'station';
-
-            $station = $esi->invoke('get', '/universe/stations/{station_id}/', [
-                'station_id' => $location->station_id,
-            ]);
-
-            $parameters['location']['name'] = $station->name;
-        }
-        //citadel
-        else if(isset($location->structure_id)){
-            $parameters['location']['type'] = 'citadel';
-
-            $structure = null;
-                try{
-                    $structure = $esi->invoke('get', '/universe/structures/{structure_id}/', [
-                        'structure_id' => $location->structure_id,
-                    ]);
-
-                    $parameters['location']['name'] = $structure->name;
-                    //TODO System name
-                }
-                catch (EsiScopeAccessDeniedException $e){
-
-                }
-                catch (RequestFailedException $e){
-
-                }
-        }
-
-        //dans l'espsace
-        else{
-            $parameters['location']['type'] = 'space';
-        }
-
-        //security status-----------------
-        $parameters['security_status'] = $charInfo->security_status;
-
-        //--------------------------------
-
-
-        $parameters['api'] = $api;
-
-
-
-        $fatigueData = $esi->invoke('get', '/characters/{character_id}/fatigue/', [
-            'character_id' => $api->getCharId(),
-        ]);
-
-        $fatigueDate = new \DateTime($fatigueData->jump_fatigue_expire_date);
-        if($fatigueDate < (new \DateTime())){
-            $fatigueDate = "Pret a jump";
-        }
-        else{
-            $fatigueDate = $fatigueDate->format('Y-m-d H:i:s');
-        }
-
-
-        $parameters['fatigue'] = $fatigueDate;
 
         return $this->render('profile/api.html.twig', $parameters);
 

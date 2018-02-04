@@ -1,5 +1,5 @@
 
-<h1> Details de l'api de {{ api.charName }}</h1>
+<h1> Details de l'api de {{ api_summary.api.charName }}</h1>
 
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -10,13 +10,13 @@
 
         <div class="box-body box-profile">
 
-            <img src="{{ portrait }}" class="profile-user-img img-responsive img-circle img-lazy-load"  />
+            <img src="{{ api_summary.portrait }}" class="profile-user-img img-responsive img-circle img-lazy-load"  />
             <h3 class="profile-username text-center">
-                {{ api.charName }}
+                {{ api_summary.api.charName }}
             </h3>
 
             <p class="text-muted text-center">
-                {{ corp }}
+                {{ api_summary.corp }}
             </p>
 
 
@@ -25,23 +25,23 @@
             <dl>
 
                 <dt>A rejoint</dt>
-                <dd>Il y a {{ joined }} jours</dd>
+                <dd>Il y a {{ api_summary.joined }} jours</dd>
 
                 <dt>Skillpoints</dt>
-                <dd>{{ skillpoints|number_format(0, '.', ' ') }}</dd>
+                <dd>{{ api_summary.skillpoints|number_format(0, '.', ' ') }}</dd>
 
                 <dt>Wallet</dt>
-                <dd>{{ wallet|number_format(0, '.', ',') }} isk</dd>
+                <dd>{{ api_summary.wallet|number_format(0, '.', ',') }} isk</dd>
 
                 <dt>Ship actuel</dt>
-                <dd>{{ current_ship.type }} <i>{{ current_ship.name }}</i></dd>
+                <dd>{{ api_summary.current_ship.type }} <i>{{ api_summary.current_ship.name }}</i></dd>
 
                 <dt>Derniére location</dt>
                 <dd>
-                    {% if location.type == 'station' %}
-                        Station {{ location.name }}
-                    {% elseif location.type == 'citadel' %}
-                        Citadel {{ location.name }}
+                    {% if api_summary.location.type == 'station' %}
+                        Station {{ api_summary.location.name }}
+                    {% elseif api_summary.location.type == 'citadel' %}
+                        Citadel {{ api_summary.location.name }}
                     {% else %}
                         Dans l'espace
                     {% endif %}
@@ -50,13 +50,13 @@
                 <dt>Security Status</dt>
                 <dd>
 
-                    {% if security_status < 0 %}
+                    {% if api_summary.security_status < 0 %}
                         <span class="text-failed">
-                            {{ security_status|number_format(1, '.', ',') }}
+                            {{ api_summary.security_status|number_format(1, '.', ',') }}
                         </span>
                     {% else %}
                         <span class="text-success">
-                            {{ security_status|number_format(1, '.', ',') }}
+                            {{ api_summary.security_status|number_format(1, '.', ',') }}
                         </span>
                     {% endif %}
 
