@@ -70,6 +70,13 @@ class User
      */
     private $discordRandomString;
 
+    /**
+     * @var int
+     *
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Notification", mappedBy="user")
+     */
+    private $notification;
+
 
     /**
      * @var int
@@ -305,5 +312,29 @@ class User
     public function getDiscordId()
     {
         return $this->discordId;
+    }
+
+    /**
+     * Set notification
+     *
+     * @param \AppBundle\Entity\Notification $notification
+     *
+     * @return User
+     */
+    public function setNotification(\AppBundle\Entity\Notification $notification = null)
+    {
+        $this->notification = $notification;
+    
+        return $this;
+    }
+
+    /**
+     * Get notification
+     *
+     * @return \AppBundle\Entity\Notification
+     */
+    public function getNotification()
+    {
+        return $this->notification;
     }
 }

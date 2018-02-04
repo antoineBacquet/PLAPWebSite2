@@ -13,8 +13,10 @@ use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
+use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
+use Discord\OAuth\Parts\Invite;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -26,9 +28,24 @@ class DiscordController  extends Controller
 {
 
 
+    /**
+     * Discord service
+     *
+     * @Route("/service/discord", name="discordservice")
+     */
+    public function serviceAction(Request $request)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+
+        return $this->render('profile/service.html.twig', $parameters);
+
+    }
+
 
     /**
-     *
+     * Join the discord
      *
      * @Route("/discord/join/", name="discordjoin")
      */
@@ -46,12 +63,10 @@ class DiscordController  extends Controller
         $url = $url . "&redirect_uri=" . DiscordConfig::$redirectURI;
         return $this->redirect($url);
 
-
-
     }
 
     /**
-     *
+     * discord call back
      *
      * @Route("/discord/redirect/", name="discordredirect")
      */
@@ -95,26 +110,67 @@ class DiscordController  extends Controller
              * @var Invite $invite
              */
             // Accept an invite
-            $invite = $discordUser->acceptInvite('https://discord.gg/Q682jHS');
+            $invite = $discordUser->acceptInvite('https://discord.gg/aBM2rwn'); //TODO Global variable
 
             $user->setDiscordId($discordUser->getId());
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
 
+
+            //TODO Static function
             $webhook = new Client(DiscordConfig::$webhook_url);
             $embed = new Embed();
-
-
             $embed->description('Demande de test du discord');
-
-
-
             $webhook->username('Bot')->message('!test <@' . $user->getDiscordId() .'>')->embed($embed)->send();
+
+            DiscordUtil::updateRoles($user);
 
         }
 
         //-----------------------------------------------------------------------------------------
+
+
+        return $this->redirect($this->generateUrl('discordservice'));
+
+    }
+
+    /**
+     * Request to update roles on discord
+     *
+     * @Route("/service/discord/updateroles", name="updatemyroles")
+     */
+    public function updateMyRolesAction(Request $request)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+
+        DiscordUtil::updateRoles(UserUtil::getUser($this->getDoctrine(),$request)); //TODO error management
+
+        return $this->redirect($this->generateUrl('discordservice'));
+
+    }
+
+    /**
+     * Request to update roles on discord
+     *
+     * @Route("/service/discord/updateroles/{id}", name="updatediscordroles")
+     */
+    public function updateDiscordRolesAction(Request $request, $id)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        if(!is_array($parameters)) return $parameters;
+
+        $rep = $this->getDoctrine()->getRepository(User::class);
+        $user = $rep->find($id);
+
+        if($user == null){
+            //TODO error management
+        }
+        else{
+            DiscordUtil::updateRoles(UserUtil::getUser($user,$request)); //TODO error management
+        }
 
 
         return $this->redirect($this->generateUrl('discordservice'));
