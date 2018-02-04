@@ -1,15 +1,107 @@
 {% extends 'template/base.html.twig' %}
 
+{% block css %}
+    <link rel="stylesheet" href="{{ asset('css/api.css') }}" />
+{% endblock %}
 
 {% block body %}
 
     <h1> Details de l'api de {{ api.charName }}</h1>
 
-    <img src="{{ api.portrait }}">
 
-    wallet : {{ wallet }} <br>
 
-    fatigue : {{ fatigue }} <br>
+    <!--fatigue : {{ fatigue }} <br>-->
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Summary</h3>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="box-body box-profile">
+
+                <img src="{{ portrait }}" class="profile-user-img img-responsive img-circle img-lazy-load"  />
+                <h3 class="profile-username text-center">
+                    {{ api.charName }}
+                </h3>
+
+                <p class="text-muted text-center">
+                    {{ corp }}
+                </p>
+
+                <!--<table class="table table-condensed table-hover">
+                    <thead></thead>
+                    <tbody>
+
+
+
+
+
+                    <tr>
+                        <td>
+
+                            <a href="http://lotus.plapcorp.com/character/view/sheet/95766929">
+                                <img src="http://lotus.plapcorp.com/web/img/bg.png" data-src="//image.eveonline.com/Character/95766929_64.jpg" data-src-retina="//image.eveonline.com/Character/95766929_128.jpg" class="img-circle eve-icon small-icon img-lazy-load"  />
+                                Bakella Oramara
+                            </a>
+
+                            <span class="text-muted pull-right">
+                          Science and Trade Institute
+                        </span>
+                        </td>
+                    </tr>
+
+
+
+                    </tbody>
+                </table>-->
+
+                <hr>
+
+                <dl>
+
+                    <dt>A rejoint</dt>
+                    <dd>{{ joined }} jours</dd>
+
+                    <dt>Skillpoints</dt>
+                    <dd>{{ skillpoints|number_format(0, '.', ' ') }}</dd>
+
+                    <dt>Wallet</dt>
+                    <dd>{{ wallet|number_format(0, '.', ',') }} isk</dd>
+
+                    <dt>Ship actuel</dt>
+                    <dd>{{ current_ship.type }} <i>{{ current_ship.name }}</i></dd>
+
+                    <dt>Dernier location</dt>
+                    <dd>
+                        {% if location.type == 'station' %}
+                            Station {{ location.name }}
+                        {% elseif location.type == 'citadel' %}
+                            Citadel {{ location.name }}
+                        {% else %}
+                            Dans l'espace
+                        {% endif %}
+
+
+                    </dd>
+
+                    <dt>Security Status</dt>
+                    <dd>
+                              <span class="text-success">
+                      TODO
+                    </span>
+                    </dd>
+                    <dd>
+                    </dd>
+
+
+                </dl>
+            </div>
+        </div>
+    </div>
+
 
 
 {% endblock %}
