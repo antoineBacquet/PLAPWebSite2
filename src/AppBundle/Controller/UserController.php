@@ -90,15 +90,14 @@ class UserController extends Controller
             /**
              * @var CharApi $api
              */
-
-            $tokenData = new TokenData($api->getToken(), $api->getRefreshToken());
+            $api->isValid = CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
+            //TODO if api is not valid
 
             //setting the esi api
             $authentication = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
             $esi = new Eseye($authentication);
 
-            $api->isValid = CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
-            //TODO if api is not valid
+
 
             //portrait------------------------
             $api->portrait = $esi->invoke('get', '/characters/{character_id}/portrait/', [

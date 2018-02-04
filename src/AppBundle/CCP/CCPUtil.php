@@ -21,11 +21,13 @@ class CCPUtil
         $tokenData = new TokenData($api->getToken(), $api->getRefreshToken());
 
         if(CCPUtil::isTokenValid($tokenData)){
+            $api->isValid = true;
             return true;
         }
         else{
             $tokenData = CCPUtil::updateToken($tokenData);
             if( $tokenData == false){
+                $api->isValid = false;
                 return false;
             }
             else{
@@ -33,10 +35,12 @@ class CCPUtil
 
                 $api->setToken($tokenData->token);
                 $api->setRefreshToken($tokenData->refreshToken);
-		$expireOn = new \DateTime();
+		        $expireOn = new \DateTime();
                 $expireOn->add(new \DateInterval('PT1000S'));
                 $api->setExpireOn($expireOn);
                 $manager->flush();
+
+                return true;
 
             }
         }
