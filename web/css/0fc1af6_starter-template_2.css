@@ -1,0 +1,46 @@
+body {
+  padding-top: 50px;
+   background: url("../images/background.jpg") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+.main-w{
+background-color: rgba(22, 30, 39, 0.70);
+color: white;
+}
+.bouton{color: black;
+  background-color: #161e27}
+
+.btn-admin{color: white; background-color: black}
+
+.navbar{    background-color: rgba(22, 30, 39, 0.70);}
+
+.table > tbody > tr > td{
+color: black;
+    background-color: #404040;
+    border-top: 4px solid #161e27;
+    padding: 1px 6px;
+    color: white;
+}
+
+.logo{
+max-height: 100%;
+}
+
+.jumbotron h1{
+color: #fff;
+    text-align: center;
+    max-width: 960px;
+    min-width: 760px;
+    width: 100%;
+    font-weight: 100;
+    font-size: 68px;
+    font-family: "Roboto", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
