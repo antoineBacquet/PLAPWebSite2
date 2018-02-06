@@ -24,8 +24,6 @@ use nullx27\ESI\Api\MarketApi;
 use nullx27\ESI\Api\MailApi;
 use nullx27\ESI\Models\GetCharactersCharacterIdOrders200Ok;
 use Seat\Eseye\Eseye;
-use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
-use Seat\Eseye\Exceptions\RequestFailedException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -48,11 +46,54 @@ class UserController extends Controller
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
         if(!is_array($parameters)) return $parameters;
 
+        $user = UserUtil::getUser($this->getDoctrine(), $request);
+
+        if($user->getMainApi() === null){
+            $parameters['main_api'] = null;
+        }
+        else{
+            $parameters['main_api'] = $user->getMainApi();
+            $parameters['api_summary'] = UserUtil::getApiSummary($user->getMainApi(), $this->getDoctrine());
+        }
+
+        $parameters['apis'] = $user->getApis();
+
 
 
         return $this->render('profile/index.html.twig', $parameters);
 
     }
+
+    /**
+     * This route de the profile page of a user
+     *
+     * @Route("/profile/mainapi/{id}", name="set_main_api")
+     */
+    public function profileMainApiAction(Request $request, $id)
+    {
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
+
+        $user = UserUtil::getUser($this->getDoctrine(), $request);
+
+        $repApi = $this->getDoctrine()->getRepository(CharApi::class);
+        /**
+         * @var CharApi $api
+         */
+        $api = $repApi->find($id);
+        if($api == null)return $this->redirect($this->generateUrl('homepage')); //TODO error page
+        if($api->getUser()->getId() ==! $user->getId())return $this->redirect($this->generateUrl('homepage')); //TODO error page
+
+        $user->setMainApi($api);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        return $this->redirect($this->generateUrl('profile'));
+
+
+    }
+
 
 
     /**
@@ -95,8 +136,6 @@ class UserController extends Controller
                 'character_id' => $api->getCharId(),
             ])->px64x64;
             //--------------------------------
-
-
 
         }
 

@@ -12,8 +12,12 @@ body {
 }
 
 .main-w{
-background-color: rgba(22, 30, 39, 0.70);
-color: blue;
+    background-color: rgba(22, 30, 39, 0.70);
+    color : white;
+}
+
+.homepage{
+    color: blue;
 }
 .bouton{color: black;
   background-color: #161e27}
@@ -23,7 +27,6 @@ color: blue;
 .navbar{    background-color: rgba(22, 30, 39, 0.70);}
 
 .table > tbody > tr > td{
-color: black;
     background-color: #404040;
     border-top: 4px solid #161e27;
     padding: 1px 6px;

@@ -85,6 +85,14 @@ class User
      */
     private $discordId;
 
+    /**
+     * @var int
+     *
+     * @ORM\OneToOne(targetEntity="CharApi")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private $mainApi;
+
     public $isMember = false;
 
     public $isAdmin = false;
@@ -336,5 +344,29 @@ class User
     public function getNotification()
     {
         return $this->notification;
+    }
+
+    /**
+     * Set mainApi
+     *
+     * @param \AppBundle\Entity\CharApi $mainApi
+     *
+     * @return User
+     */
+    public function setMainApi(\AppBundle\Entity\CharApi $mainApi = null)
+    {
+        $this->mainApi = $mainApi;
+    
+        return $this;
+    }
+
+    /**
+     * Get mainApi
+     *
+     * @return \AppBundle\Entity\CharApi
+     */
+    public function getMainApi()
+    {
+        return $this->mainApi;
     }
 }

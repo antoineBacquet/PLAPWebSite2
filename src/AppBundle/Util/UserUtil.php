@@ -15,13 +15,11 @@ use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Groupe;
 use AppBundle\Entity\Item;
 use AppBundle\Entity\User;
-use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use nullx27\ESI\Api\CharacterApi;
 use Seat\Eseye\Eseye;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
 use Seat\Eseye\Exceptions\RequestFailedException;
-use function Sodium\add;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -36,7 +34,7 @@ class UserUtil
      */
     private static $user = null;
 
-    public static function userExist(SessionInterface $session, Registry $doctrine){
+    public static function userExist(SessionInterface $session, ManagerRegistry $doctrine){
 
         $apiRep = $doctrine->getRepository(CharApi::class);
 
@@ -57,9 +55,12 @@ class UserUtil
     }
 
     /**
-     ** @return User
+     **
+     * @param ManagerRegistry $doctrine
+     * @param Request $request
+     * @return User
      */
-    public static function getUser(Registry $doctrine, Request $request){
+    public static function getUser(ManagerRegistry $doctrine, Request $request){
         if(UserUtil::$user!=null)return UserUtil::$user;
 
         $rep = $doctrine->getRepository(User::class);
@@ -86,7 +87,7 @@ class UserUtil
     }
 
 
-    public static function addUser(SessionInterface $session, Registry $doctrine){
+    public static function addUser(SessionInterface $session, ManagerRegistry $doctrine){
 
 
          $api = new CharacterApi();
@@ -153,8 +154,9 @@ class UserUtil
 
     /**
      * @param CharApi $api
+     * @param ManagerRegistry $manager
      * @return array
-     * @throws \Seat\Eseye\Exceptions\EsiScopeAccessDeniedException
+     * @throws EsiScopeAccessDeniedException
      */
     public static function getApiSummary(CharApi $api, ManagerRegistry $manager){
 

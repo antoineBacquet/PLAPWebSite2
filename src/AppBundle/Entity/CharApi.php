@@ -206,7 +206,7 @@ class CharApi
     /**
      * Get userId
      *
-     * @return int
+     * @return User
      */
     public function getUser()
     {

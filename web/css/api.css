@@ -4,3 +4,15 @@
     padding: 3px;
     border: 3px solid #d2d6de;
 }
+.api-summary{
+    background-color: rgba(20, 25, 35, 0.80);
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.api-summary-heading{
+    background-color: rgba(20, 25, 35, 0.90);
+    padding: 10px 15px;
+    border-bottom: 1px solid transparent;
+    border-radius: inherit;
+}
