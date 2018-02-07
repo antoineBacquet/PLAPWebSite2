@@ -64,13 +64,6 @@ class User
     private $apis;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="discord_random_string", type="string", unique=false)
-     */
-    private $discordRandomString;
-
-    /**
      * @var int
      *
      * @ORM\OneToOne(targetEntity="AppBundle\Entity\Notification", mappedBy="user")

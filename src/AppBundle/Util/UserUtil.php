@@ -87,13 +87,15 @@ class UserUtil
     }
 
 
-    public static function addUser(SessionInterface $session, ManagerRegistry $doctrine){
+    public static function addUser(ManagerRegistry $doctrine, $refreshToken, $charId){
 
+        $authentication = EsiUtil::getDefaultUserAuthentication($refreshToken);
+        $esi = new Eseye($authentication);
 
-         $api = new CharacterApi();
-
-
-        $charInfo = $api->getCharactersCharacterId($session->get('char_id'), CCPConfig::$datasource);
+        //character information-----------
+        $charInfo = $esi->invoke('get', '/characters/{character_id}/', [
+            'character_id' => $charId,
+        ]);
 
         $rep = $doctrine->getRepository(Groupe::class);
 
@@ -101,19 +103,19 @@ class UserUtil
 
         array_push($groups, $rep->find(1));
 
-        if ($charInfo->getCorporationId() == Util::$corpId){
+        if ($charInfo->corporation_id == Util::$corpId){
             array_push($groups, $rep->find(2));
         }
 
         $user = new User();
 
-        $user->setCharId($session->get('char_id'));
-        $user->setCorpId($charInfo->getCorporationId());
+        $user->setCharId($charId);
+        $user->setCorpId($charInfo->corporation_id);
         foreach ($groups as $group){
             $user->addGroupe($group);
         }
-        $user->setName($charInfo->getName());
-        $user->setDiscordRandomString(Util::generateRandomString(128));
+        $user->setName($charInfo->name);
+
         $em = $doctrine->getManager();
 
         $em->persist($user);
@@ -143,9 +145,8 @@ class UserUtil
 
         $hasGroup = false;
         foreach ($userGroups as $g){
-            if(in_array ($g ->getId(), $groups)){
+            if(in_array ($g->getId(), $groups)){
                 $hasGroup = true;
-
             }
         }
 

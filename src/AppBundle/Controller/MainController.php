@@ -156,7 +156,6 @@ class MainController extends Controller
         if (strpos(@$response->Scopes, 'publicData') === false) {
             throw $this->createNotFoundException('Error from ccp. The scopes don\'t match');
         }
-
         $charID = (int)$response->CharacterID;
         //-----------------------------------------------------------------------------------------
 
@@ -179,7 +178,7 @@ class MainController extends Controller
         }
         else
         {
-            UserUtil::addUser($session, $doctrine);
+            UserUtil::addUser($session, $doctrine, $refresh_token, $charID);
 
         }
 
