@@ -10,6 +10,8 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\Util\ControllerUtil;
+use AppBundle\Util\Core;
+use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
@@ -66,7 +68,8 @@ class MainController extends Controller
     public function logoutAction(Request $request)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request);
+        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(!is_array($parameters)) return $parameters;
 
         if($request->getSession()){
             $request->getSession()->clear();
@@ -86,8 +89,11 @@ class MainController extends Controller
     public function ccpCallBackAction(Request $request)
     {
 
+        $parameters = Core::getDefaultParameter($this->getDoctrine(), $request);
 
         $userAgent = 'PLAP';
+
+
 
 
         //Getting a token and refresh from ccp with the code-----------------------------------
@@ -101,20 +107,20 @@ class MainController extends Controller
             $fields_string .= $key . '=' . $value . '&';
         }
         rtrim($fields_string, '&');
-        $result = false;
-            $ch = curl_init();
-            if ($ch === false) {
-                throw $this->createNotFoundException('Can\'t initialize curl');
-            }
-            curl_setopt($ch, CURLOPT_URL, CCPConfig::$tokenURL);
-            curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array($header));
-            curl_setopt($ch, CURLOPT_POST, count($fields));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            $result = curl_exec($ch);
+        $ch = curl_init();
+        if ($ch === false) {
+            $parameters['message'] = "Imposible d'initialiser curl, réessaye.";
+            return $this->render('error/login.html.twig', $parameters);
+        }
+        curl_setopt($ch, CURLOPT_URL, CCPConfig::$tokenURL);
+        curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array($header));
+        curl_setopt($ch, CURLOPT_POST, count($fields));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        $result = curl_exec($ch);
 
         //echo curl_getinfo($ch) . '<br/>';
         //echo curl_errno($ch) . '<br/>';
@@ -122,12 +128,14 @@ class MainController extends Controller
 
             curl_close($ch);
         if ($result === false) {
-            throw $this->createNotFoundException('Error from ccp.');
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            return $this->render('error/login.html.twig', $parameters);
         }
 
         $response = json_decode($result, true);
         if (isset($response['error'])) {
-            throw $this->createNotFoundException('Error from ccp. Error message : ' . $response['error']);
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            return $this->render('error/login.html.twig', $parameters);
         }
         $access_token = $response['access_token'];
         $refresh_token = $response['refresh_token'];
@@ -146,15 +154,18 @@ class MainController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         $result = curl_exec($ch);
         if ($result === false) {
-            throw $this->createNotFoundException('Error from ccp. (no response)');
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            return $this->render('error/login.html.twig', $parameters);
         }
         curl_close($ch);
         $response = json_decode($result);
         if (!isset($response->CharacterID)) {
-            throw $this->createNotFoundException('Error from ccp. Can\'t get the character id'); //when we don't have the charId, it's probably because it failed
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            return $this->render('error/login.html.twig', $parameters);
         }
         if (strpos(@$response->Scopes, 'publicData') === false) {
-            throw $this->createNotFoundException('Error from ccp. The scopes don\'t match');
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            return $this->render('error/login.html.twig', $parameters);
         }
         $charID = (int)$response->CharacterID;
         //-----------------------------------------------------------------------------------------
@@ -178,7 +189,7 @@ class MainController extends Controller
         }
         else
         {
-            UserUtil::addUser($session, $doctrine, $refresh_token, $charID);
+            UserUtil::addUser($doctrine, $refresh_token, $charID);
 
         }
 
