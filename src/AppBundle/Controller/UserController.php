@@ -14,16 +14,14 @@ use AppBundle\CCP\CCPUtil;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
-use AppBundle\Entity\Item;
 use AppBundle\Entity\Notification;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
-use nullx27\ESI\Api\CharacterApi;
 use nullx27\ESI\Api\MarketApi;
-use nullx27\ESI\Api\MailApi;
 use nullx27\ESI\Models\GetCharactersCharacterIdOrders200Ok;
 use Seat\Eseye\Eseye;
+use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -284,28 +282,33 @@ class UserController extends Controller
 
         $doctrine = $this->getDoctrine();
 
-        $esi = new CharacterApi(); //TODO replace with new API
+        $authentication = EsiUtil::getDefaultAuthentication($refresh_token);
+        $esi = new Eseye($authentication);
 
-        $charInfo = $esi->getCharactersCharacterId($charID);
+        //character information-----------
+        $charInfo = $esi->invoke('get', '/characters/{character_id}/', [
+            'character_id' => $charID,
+        ]);
 
         $api = new CharApi();
 	    $expireOn = new \DateTime();
         $expireOn->add(new \DateInterval('PT1000S'));
 
 
-        $api->setCharId($charID)->setCharName($charInfo->getName())->setRefreshToken($refresh_token)
+        $api->setCharId($charID)->setCharName($charInfo->name)->setRefreshToken($refresh_token)
             ->setToken($access_token)
             ->setUser(UserUtil::getUser($this->getDoctrine(), $request))
             ->setExpireOn($expireOn);
 
-        $mailEsi = new MailApi();
-
-
-
-        $mails = $mailEsi->getCharactersCharacterIdMail($charID, CCPConfig::$datasource, null, null, $access_token); //TODO replace with nex API
+        try {
+            $mails = $esi->invoke('get', '/characters/{character_id}/mail/', [
+                'character_id' => $api->getCharId()
+            ]);
+        } catch (EsiScopeAccessDeniedException $e) {
+        }
 
         if(count($mails)>0){
-            $api->setLastEmail($mails[0]->getMailId());
+            $api->setLastEmail($mails[0]->mail_id);
         }
         else{
             $api->setLastEmail(0);
@@ -358,6 +361,7 @@ class UserController extends Controller
         if(!is_array($parameters)) return $parameters;
         $user = UserUtil::getUser($this->getDoctrine(), $request);
 
+        die('orders');
         $apis = $user->getApis();
 
         $eveApi = new MarketApi();
