@@ -15,16 +15,15 @@ class Asset
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="CharApi")
      */
     private $owner;
 
@@ -45,7 +44,7 @@ class Asset
     /**
      * @var int
      *
-     * @ORM\Column(name="location", type="integer")
+     * @ORM\Column(name="location", type="bigint")
      */
     private $location;
 
@@ -70,6 +69,26 @@ class Asset
      */
     private $isSingleton;
 
+    /**
+     * @var
+     *
+     * @ORM\ManyToOne(targetEntity="asset", inversedBy="childs")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     *
+     */
+    private $parent;
+
+    /**
+     * @var
+     *
+     * @ORM\OneToMany(targetEntity="asset", mappedBy="parent")
+     */
+    private $childs;
+
+
+
+
+
 
     /**
      * Get id
@@ -84,7 +103,7 @@ class Asset
     /**
      * Set owner
      *
-     * @param integer $owner
+     * @param CharApi $owner
      *
      * @return Asset
      */
@@ -98,7 +117,7 @@ class Asset
     /**
      * Get owner
      *
-     * @return integer
+     * @return CharApi
      */
     public function getOwner()
     {
@@ -108,7 +127,7 @@ class Asset
     /**
      * Set item
      *
-     * @param integer $item
+     * @param Item $item
      *
      * @return Asset
      */
@@ -122,7 +141,7 @@ class Asset
     /**
      * Get item
      *
-     * @return integer
+     * @return Item
      */
     public function getItem()
     {
@@ -247,5 +266,84 @@ class Asset
     public function getIsSingleton()
     {
         return $this->isSingleton;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->childs = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set parent
+     *
+     * @param \AppBundle\Entity\asset $parent
+     *
+     * @return Asset
+     */
+    public function setParent(\AppBundle\Entity\asset $parent = null)
+    {
+        $this->parent = $parent;
+    
+        return $this;
+    }
+
+    /**
+     * Get parent
+     *
+     * @return \AppBundle\Entity\asset
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Add child
+     *
+     * @param \AppBundle\Entity\asset $child
+     *
+     * @return Asset
+     */
+    public function addChild(\AppBundle\Entity\asset $child)
+    {
+        $this->childs[] = $child;
+    
+        return $this;
+    }
+
+    /**
+     * Remove child
+     *
+     * @param \AppBundle\Entity\asset $child
+     */
+    public function removeChild(\AppBundle\Entity\asset $child)
+    {
+        $this->childs->removeElement($child);
+    }
+
+    /**
+     * Get childs
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getChilds()
+    {
+        return $this->childs;
+    }
+
+    /**
+     * Set id
+     *
+     * @param integer $id
+     *
+     * @return Asset
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    
+        return $this;
     }
 }

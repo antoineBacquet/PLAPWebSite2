@@ -43,7 +43,7 @@ class AjaxController extends Controller
             $em = $this->getDoctrine()->getRepository(Item::class);
             $query = $em->createQueryBuilder('i')
                 ->where($whereSql)
-                ->orderBy('i.itemGroup', 'ASC')
+                ->orderBy('i.itemGroup', 'DESC')
                 ->setMaxResults(10)
                 ->getQuery();
             $results = $query->getResult();
