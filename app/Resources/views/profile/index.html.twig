@@ -16,7 +16,15 @@
         Pas de personnage principal
     {% else %}
         Personnage principal : {{ api_summary.api.charName }} <br>
-        {% include 'template/api_summary.html.twig' with {'api_summary': api_summary} %}
+        {% if  api_summary == null %}
+            Erreur sur la requéte ESI!
+            <p>
+                {{ esi_exception.message }} <br>
+                {{ esi_exception.getDetail() }}
+            </p>
+        {% else %}
+            {% include 'template/api_summary.html.twig' with {'api_summary': api_summary} %}
+        {% endif %}
     {% endif %}
 
         <div class="table-responsive">
@@ -33,11 +41,11 @@
                         <td> <img src="{{ api.portrait }}"> </td>
                         <td> <a href="{{ path('myapi', { 'id' : api.id } ) }} ">{{ api.charName }} </a> </td>
 
-                    {% if  main_api != null and main_api.id == api.id %}
-                        <td> Personnage principale actuel </td>
-                    {% else %}
-                        <td> <a href="{{ path('set_main_api', { 'id' : api.id } ) }}"> Changer personnage principale </a> </td>
-                    {% endif %}
+                        {% if  main_api != null and main_api.id == api.id %}
+                            <td> Personnage principale actuel </td>
+                        {% else %}
+                            <td> <a href="{{ path('set_main_api', { 'id' : api.id } ) }}"> Changer personnage principale </a> </td>
+                        {% endif %}
 
                     </tr>
 

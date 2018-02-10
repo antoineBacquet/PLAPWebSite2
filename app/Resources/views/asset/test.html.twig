@@ -1,0 +1,53 @@
+{% extends 'template/base.html.twig' %}
+{% import _self as lel %}
+
+{% block css %}
+    <link rel="stylesheet" href="{{ asset('css/jquery.treegrid.css') }}">
+
+
+{%  endblock %}
+
+{% block body %}
+
+    {% macro draw_childs(childs, parent) %}
+        {% for child in childs %}
+
+            <tr class="treegrid-{{ child.id }} treegrid-parent-{{ parent }}">
+                <td>{{ child.id }}</td><td>TODO</td>
+            </tr>
+
+        {% endfor %}
+    {% endmacro %}
+
+    <table class="tree table tree-table">
+        {% for asset in assets %}
+
+        <tr class="treegrid-{{ asset.id }}">
+            <td>{{ asset.id }}</td><td>TODO</td>
+        </tr>
+            {% if asset.getChilds() is not null %}
+               {{ lel.draw_childs(asset.getChilds(), asset.id) }}
+            {% endif %}
+
+        {% endfor %}
+    </table>
+
+
+
+
+{% endblock %}
+
+
+{% block js %}
+
+    <script type="text/javascript" src="{{ asset('js/jquery.treegrid.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.tree').treegrid({
+                expanderExpandedClass: 'glyphicon glyphicon-minus',
+                expanderCollapsedClass: 'glyphicon glyphicon-plus'
+            });
+        });
+    </script>
+
+{% endblock %}

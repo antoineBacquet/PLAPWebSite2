@@ -32,7 +32,9 @@ class MainController extends Controller
     public function indexAction(Request $request)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request);
+        $parameters = ControllerUtil::before($this, $request);
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+
 
         return $this->render('default/index.html.twig', $parameters);
         //
@@ -51,7 +53,7 @@ class MainController extends Controller
         $url = $url . 'response_type=code'; // le type de connection, on need un code pour generer un token aprés
         $url = $url . '&client_id=' . CCPConfig::$clientID;
         $url = $url . '&redirect_uri='.CCPConfig::$redirectUrl ;
-        $url = $url . '&scope=publicData'; //no scope needded -- publicData+esi-wallet.read_character_wallet.v1
+        $url = $url . '&scope=publicData'; //no scope needed
         $url = $url . '&state=ajmzoeijapoziepaize'; //TODO random
 
 
@@ -68,14 +70,14 @@ class MainController extends Controller
     public function logoutAction(Request $request)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request);
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
         if($request->getSession()){
             $request->getSession()->clear();
             $request->getSession()->invalidate(0);
         }
-        //
+
 
         return $this->redirect($this->generateUrl('homepage'));
     }
@@ -89,11 +91,11 @@ class MainController extends Controller
     public function ccpCallBackAction(Request $request)
     {
 
-        $parameters = Core::getDefaultParameter($this->getDoctrine(), $request);
+        $parameters = ControllerUtil::before($this, $request);
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
-        $userAgent = 'PLAP';
 
-
+        $userAgent = 'PLAPWebsite';
 
 
         //Getting a token and refresh from ccp with the code-----------------------------------
@@ -126,7 +128,7 @@ class MainController extends Controller
         //echo curl_errno($ch) . '<br/>';
         //echo curl_error($ch) . '<br/>';
 
-            curl_close($ch);
+        curl_close($ch);
         if ($result === false) {
             $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
             return $this->render('error/login.html.twig', $parameters);
@@ -185,14 +187,9 @@ class MainController extends Controller
         $doctrine = $this->getDoctrine();
 
         //creating the user in the database if necessary
-        if (UserUtil::userExist($session, $doctrine)) {
-        }
-        else
-        {
+        if (!UserUtil::userExist($session, $doctrine)) {
             UserUtil::addUser($doctrine, $refresh_token, $charID);
-
         }
-
 
         return $this->redirect('profile');
     }
@@ -205,6 +202,7 @@ class MainController extends Controller
     public function testAction(Request $request)
     {
 
+        die('what are you looking for?');
         $webhook = new Client('https://discordapp.com/api/webhooks/383371839298207765/MvOKVEt8VpBRxpJOxb9jxW3gP5OKMrjOHSPfkPWbQeIw9eUCuPzX9YmuMsozJ-K1vlKK');
         $embed = new Embed();
 

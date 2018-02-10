@@ -10,6 +10,7 @@ namespace AppBundle\Util;
 
 
 use AppBundle\CCP\CCPConfig;
+use AppBundle\CCP\EsiException;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Groupe;
@@ -157,7 +158,7 @@ class UserUtil
      * @param CharApi $api
      * @param ManagerRegistry $manager
      * @return array
-     * @throws EsiScopeAccessDeniedException
+     * @throws EsiException
      */
     public static function getApiSummary(CharApi $api, ManagerRegistry $manager){
 
@@ -168,35 +169,31 @@ class UserUtil
         $esi = new Eseye($authentication);
 
         //character information-----------
-        $charInfo = $esi->invoke('get', '/characters/{character_id}/', [
+        /*$charInfo = $esi->invoke('get', '/characters/{character_id}/', [
             'character_id' => $api->getCharId(),
-        ]);
+        ]);*/
+
+        $charInfo = EsiUtil::callESI($esi, 'get','/characters/{character_id}/', ['character_id' => $api->getCharId()]);
         //--------------------------------
 
         $parameters['api'] = $api;
 
 
         //portrait------------------------
-        $portrait = $esi->invoke('get', '/characters/{character_id}/portrait/', [
-            'character_id' => $api->getCharId(),
-        ])->px128x128;
+        $portrait = EsiUtil::callESI($esi, 'get','/characters/{character_id}/portrait/', ['character_id' => $api->getCharId()])->px128x128;
         $parameters['portrait'] = $portrait;
         //--------------------------------
 
 
         //corp----------------------------
-        $corp = $esi->invoke('get', '/corporations/{corporation_id}/', [
-            'corporation_id' => $charInfo->corporation_id,
-        ])->name;
+        $corp = EsiUtil::callESI($esi, 'get','/corporations/{corporation_id}/', ['corporation_id' => $charInfo->corporation_id])->name;
         $parameters['corp'] = $corp;
         //--------------------------------
 
         //corp history--------------------
-        $corpsHistory = $esi->invoke('get', '/characters/{character_id}/corporationhistory/', [
-            'character_id' => $api->getCharId(),
-        ])->getArrayCopy();
-        $lastCorp = current($corpsHistory);
+        $corpsHistory = EsiUtil::callESI($esi, 'get','/characters/{character_id}/corporationhistory/', [ 'character_id' => $api->getCharId()])->getArrayCopy();
 
+        $lastCorp = current($corpsHistory);
 
         $now = new \DateTime();
         $startDate = new \DateTime($lastCorp->start_date);
@@ -205,24 +202,19 @@ class UserUtil
         $parameters['joined'] = $joined;
         //--------------------------------
 
-        //skillpoints---------------------
-        $skillpoints = $esi->invoke('get', '/characters/{character_id}/skills/', [
-            'character_id' => $api->getCharId(),
-        ])->total_sp;
-        $parameters['skillpoints'] = $skillpoints;
+        //skill points--------------------
+        $skillPoints = EsiUtil::callESI($esi, 'get','/characters/{character_id}/skills/', [ 'character_id' => $api->getCharId()])->total_sp;
+        $parameters['skillpoints'] = $skillPoints;
         //--------------------------------
 
         //wallet--------------------------
-        $wallet = $esi->invoke('get', '/characters/{character_id}/wallet/', [
-            'character_id' => $api->getCharId(),
-        ]);
+        $wallet = EsiUtil::callESI($esi, 'get','/characters/{character_id}/wallet/', [ 'character_id' => $api->getCharId()]);
         $parameters['wallet'] = $wallet->getArrayCopy()['scalar'];
         //--------------------------------
 
         //current ship--------------------
-        $currentShip = $esi->invoke('get', '/characters/{character_id}/ship/', [
-            'character_id' => $api->getCharId(),
-        ]);
+        $currentShip = EsiUtil::callESI($esi, 'get','/characters/{character_id}/ship/', [ 'character_id' => $api->getCharId()]);
+
         $itemRep = $manager->getRepository(Item::class);
         $parameters['current_ship'] = array();
         $parameters['current_ship']['type'] = $itemRep->find($currentShip->ship_type_id)->getName();
@@ -230,17 +222,12 @@ class UserUtil
         //--------------------------------
 
         //location------------------------
-        $location = $esi->invoke('get', '/characters/{character_id}/location/', [
-            'character_id' => $api->getCharId(),
-        ]);
+        $location = EsiUtil::callESI($esi, 'get','/characters/{character_id}/location/', [ 'character_id' => $api->getCharId()]);
 
         //station
         if(isset($location->station_id)){
             $parameters['location']['type'] = 'station';
-
-            $station = $esi->invoke('get', '/universe/stations/{station_id}/', [
-                'station_id' => $location->station_id,
-            ]);
+            $station = EsiUtil::callESI($esi, 'get','/universe/stations/{station_id}/', [ 'station_id' => $location->station_id]);
 
             $parameters['location']['name'] = $station->name;
         }

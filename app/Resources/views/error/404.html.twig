@@ -1,0 +1,13 @@
+{% extends 'template/base.html.twig' %}
+
+{% block body %}
+    <h1>Non trouvé!</h1>
+
+
+
+    <p>
+        {% if message is defined %}
+            {{ message }}
+        {% endif %}
+    </p>
+{% endblock %}

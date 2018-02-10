@@ -1,0 +1,14 @@
+{% extends 'template/base.html.twig' %}
+
+{% block body %}
+    <h1>Erreur sur la requéte ESI! </h1>
+
+
+
+    <p>
+
+        {{ esi_exception.message }} <br>
+        {{ esi_exception.getDetail() }}
+
+    </p>
+{% endblock %}

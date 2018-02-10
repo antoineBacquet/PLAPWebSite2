@@ -159,7 +159,9 @@ class AssetController extends Controller
             $i = $i+1;
         }
 
-        die(dump($assets));
+        $parameters['assets'] = $assets;
+
+        return $this->render('asset/test.html.twig', $parameters);
 
 
     }

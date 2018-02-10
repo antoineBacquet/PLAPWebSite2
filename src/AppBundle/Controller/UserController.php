@@ -11,6 +11,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\CCPUtil;
+use AppBundle\CCP\EsiException;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
@@ -20,6 +21,7 @@ use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use nullx27\ESI\Api\MarketApi;
 use nullx27\ESI\Models\GetCharactersCharacterIdOrders200Ok;
+use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -41,8 +43,8 @@ class UserController extends Controller
     public function profileAction(Request $request)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
         $user = UserUtil::getUser($this->getDoctrine(), $request);
 
@@ -51,7 +53,13 @@ class UserController extends Controller
         }
         else{
             $parameters['main_api'] = $user->getMainApi();
-            $parameters['api_summary'] = UserUtil::getApiSummary($user->getMainApi(), $this->getDoctrine());
+            try{
+                $parameters['api_summary'] = UserUtil::getApiSummary($user->getMainApi(), $this->getDoctrine());
+            }catch (EsiException $e){
+                $parameters['esi_exception'] = $e;
+                $parameters['api_summary'] = null;
+            }
+
         }
 
         $parameters['apis'] = $user->getApis();
@@ -69,8 +77,8 @@ class UserController extends Controller
      */
     public function profileMainApiAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
         $user = UserUtil::getUser($this->getDoctrine(), $request);
 
@@ -79,8 +87,17 @@ class UserController extends Controller
          * @var CharApi $api
          */
         $api = $repApi->find($id);
-        if($api == null)return $this->redirect($this->generateUrl('homepage')); //TODO error page
-        if($api->getUser()->getId() ==! $user->getId())return $this->redirect($this->generateUrl('homepage')); //TODO error page
+
+
+        if($api == null){
+            $parameters['message'] = 'Api trouvé dans la base de données';
+            return $this->render('error/404.html.twig', $parameters);
+
+        } //TODO error page
+        if($api->getUser()->getId() ==! $user->getId()){
+            $parameters['message'] = 'Cette api ne t\'arpatient pas.';
+            return $this->render('error/forbidden.html.twig', $parameters);
+        }
 
         $user->setMainApi($api);
         $em = $this->getDoctrine()->getManager();
@@ -102,8 +119,8 @@ class UserController extends Controller
     public function myApisAction(Request $request){
 
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
 
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
@@ -115,28 +132,25 @@ class UserController extends Controller
 
 
 
-        foreach($apis as $api){
+        foreach($apis as $api) {
 
             /**
              * @var CharApi $api
              */
-            $api->isValid = CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
+            CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
             //TODO if api is not valid
 
             //setting the esi api
-            $authentication = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
-            $esi = new Eseye($authentication);
-
+            $esi = new Eseye();
 
 
             //portrait------------------------
-            $api->portrait = $esi->invoke('get', '/characters/{character_id}/portrait/', [
-                'character_id' => $api->getCharId(),
-            ])->px64x64;
-            //--------------------------------
-
+            try {
+                $api->portrait = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/portrait/', ['character_id' => $api->getCharId()])->px128x128;
+            } catch (EsiException $e) {
+                //TODO not found image
+            }
         }
-
 
         $parameters['apis'] = $apis;
 
@@ -153,8 +167,8 @@ class UserController extends Controller
     public function myApiAction(Request $request, $id){
 
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
 
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
@@ -168,13 +182,13 @@ class UserController extends Controller
         //test if the API exist in the database, return an error page if not
         if($api == null){
             $parameters['message'] = "L'API n'existe pas.";
-            return $this->render('template/error.html.twig', $parameters);
+            return $this->render('template/404.html.twig', $parameters);
         }
 
         //if this not the user api or the user is not an admin return an error page
         if($api->getUser() != $parameters['user'] and !$parameters['user']->isAdmin){
             $parameters['message'] = "Tu n'es pas autorisé a voir ca.";
-            return $this->render('template/error.html.twig', $parameters);
+            return $this->render('template/forbidden.html.twig', $parameters);
         }
 
         CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());

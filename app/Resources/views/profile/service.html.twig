@@ -10,12 +10,9 @@
 
 
     {%  if user.discordId == null %}
-        <li>Focntionnement : Cliquez sur l'invitation discord ci-dessu.</li>
-        <li>Une fois sur le discord envoyer un message privé au bot avec le code suivant :</li>
-        <hr class="my-4">
-        {{ user.discordRandomString }}
+        Liaison avec le discord non effectuée <br>
     {% else %}
-        Liaison avec le discord effectuer <br>
+        Liaison avec le discord effectuée <br>
 
         <a href="{{ path('updatemyroles') }}" > Mettre a jour mes roles discord</a> <br> <br>
 
@@ -37,14 +34,11 @@
                     if(data['error']){
                         alert(JSON.stringify(data));
                     }
-
-
-
-                    }
-                }).fail(function (msg) {
-                    alert('error');
-                });
-            }
+                }
+            }).fail(function (msg) {
+                alert('error');
+            });
+        }
 
 
 </script>

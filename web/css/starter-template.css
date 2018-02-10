@@ -33,6 +33,14 @@ body {
     color: white;
 }
 
+.tree-table > tbody > tr > td{
+    background-color: #404040;
+    border-top: 4px solid #161e27;
+    padding: 1px 6px;
+    color: white;
+    text-align: left;
+}
+
 .logo{
 max-height: 100%;
 }
