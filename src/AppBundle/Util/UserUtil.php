@@ -220,9 +220,14 @@ class UserUtil
         $currentShip = EsiUtil::callESI($esi, 'get','/characters/{character_id}/ship/', [ 'character_id' => $api->getCharId()]);
 
         $itemRep = $manager->getRepository(Item::class);
-        die(dump($currentShip));
+        //die(dump($currentShip));
         $parameters['current_ship'] = array();
-        $parameters['current_ship']['type'] = $itemRep->find($currentShip->ship_type_id)->getName();
+        $shipType = $itemRep->find($currentShip->ship_type_id);
+        if($shipType == null)
+            $parameters['current_ship']['type'] = 'Type de vaisseau inconnue';
+        else
+        $parameters['current_ship']['type'] = $shipType->getName();
+
         $parameters['current_ship']['name'] = $currentShip->ship_name;
         //--------------------------------
 
