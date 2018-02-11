@@ -61,29 +61,33 @@ class UserUtil
      * @param Request $request
      * @return User
      */
-    public static function getUser(ManagerRegistry $doctrine, Request $request){
+    public static function getUser(ManagerRegistry $doctrine = null, Request $request =null){
         if(UserUtil::$user!=null)return UserUtil::$user;
 
-        $rep = $doctrine->getRepository(User::class);
+        if($doctrine != null and $request != null){
+            $rep = $doctrine->getRepository(User::class);
 
-        UserUtil::$user = $rep->findOneByCharId($request->getSession()->get('char_id'));
+            UserUtil::$user = $rep->findOneByCharId($request->getSession()->get('char_id'));
 
-        if(UserUtil::$user == null) return null;
+            if(UserUtil::$user == null) return null;
 
-        foreach (  UserUtil::$user->getGroupes() as $group){
-            if($group->getId() == GroupUtil::$GROUP_LISTE['Membre']){
-                UserUtil::$user->isMember = true;
+            foreach (  UserUtil::$user->getGroupes() as $group){
+                if($group->getId() == GroupUtil::$GROUP_LISTE['Membre']){
+                    UserUtil::$user->isMember = true;
+                }
+
+                if($group->getId() == GroupUtil::$GROUP_LISTE['Admin']){
+                    UserUtil::$user->isAdmin = true;
+                }
+
+                if($group->getId() == GroupUtil::$GROUP_LISTE['Responsable de production']){
+                    UserUtil::$user->isProdResp = true;
+                }
             }
-
-            if($group->getId() == GroupUtil::$GROUP_LISTE['Admin']){
-                UserUtil::$user->isAdmin = true;
-            }
-
-            if($group->getId() == GroupUtil::$GROUP_LISTE['Responsable de production']){
-                UserUtil::$user->isProdResp = true;
-            }
+            return UserUtil::$user;
         }
-        return UserUtil::$user;
+        return null;
+
 
     }
 
@@ -216,6 +220,7 @@ class UserUtil
         $currentShip = EsiUtil::callESI($esi, 'get','/characters/{character_id}/ship/', [ 'character_id' => $api->getCharId()]);
 
         $itemRep = $manager->getRepository(Item::class);
+        die(dump($currentShip));
         $parameters['current_ship'] = array();
         $parameters['current_ship']['type'] = $itemRep->find($currentShip->ship_type_id)->getName();
         $parameters['current_ship']['name'] = $currentShip->ship_name;

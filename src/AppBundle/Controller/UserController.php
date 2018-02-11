@@ -146,7 +146,7 @@ class UserController extends Controller
 
             //portrait------------------------
             try {
-                $api->portrait = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/portrait/', ['character_id' => $api->getCharId()])->px128x128;
+                $api->portrait = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/portrait/', ['character_id' => $api->getCharId()])->px64x64;
             } catch (EsiException $e) {
                 //TODO not found image
             }
@@ -229,8 +229,8 @@ class UserController extends Controller
     public function ccpCallBackApiAction(Request $request)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
 
         $userAgent = 'PLAP';
@@ -295,16 +295,29 @@ class UserController extends Controller
 
 
         $doctrine = $this->getDoctrine();
+        $apiRep = $doctrine->getRepository(CharApi::class);
 
         $authentication = EsiUtil::getDefaultAuthentication($refresh_token);
         $esi = new Eseye($authentication);
 
         //character information-----------
-        $charInfo = $esi->invoke('get', '/characters/{character_id}/', [
-            'character_id' => $charID,
-        ]);
 
-        $api = new CharApi();
+        try {
+            $charInfo = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/', ['character_id' => $api->getCharId()])->px64x64;
+        } catch (EsiException $e) {
+            $parameters['esi_exception'] = $e;
+            $this->render('error/esi.html.twig', $parameters);
+        }
+
+        /**
+         * @var CharApi $api
+         */
+        $api = $apiRep->findOneByCharId($charID);
+
+        if($api == null or $api->getUser() !== UserUtil::getUser() )
+            $api = new CharApi();
+
+
 	    $expireOn = new \DateTime();
         $expireOn->add(new \DateInterval('PT1000S'));
 
