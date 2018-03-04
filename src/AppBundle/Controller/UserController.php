@@ -301,6 +301,11 @@ class UserController extends Controller
         $esi = new Eseye($authentication);
 
         //character information-----------
+        /**
+         * @var CharApi $api
+         */
+        $api = $apiRep->findOneByCharId($charID);
+
 
         try {
             $charInfo = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/', ['character_id' => $api->getCharId()])->px64x64;
@@ -309,10 +314,6 @@ class UserController extends Controller
             $this->render('error/esi.html.twig', $parameters);
         }
 
-        /**
-         * @var CharApi $api
-         */
-        $api = $apiRep->findOneByCharId($charID);
 
         if($api == null or $api->getUser() !== UserUtil::getUser() )
             $api = new CharApi();

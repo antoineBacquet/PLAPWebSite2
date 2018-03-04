@@ -99,7 +99,8 @@ class AssetController extends Controller
                 ->setLocation($asset->location_id)
                 ->setQuantity($asset->quantity)
                 ->setLocationFlag($asset->location_flag)
-                ->setLocationType($asset->location_type);
+                ->setLocationType($asset->location_type)
+                ->setIsSingleton($asset->is_singleton);
             $em->persist($assetDB);
         }
         $em->flush();
@@ -159,7 +160,25 @@ class AssetController extends Controller
             $i = $i+1;
         }
 
+        $assetsTmp = array();
+
+        /**
+         * @var Asset $asset
+         */
+        foreach ($assets as $asset){
+            if(!isset($assetsTmp[$asset->getLocation()])){
+                $assetsTmp[$asset->getLocation()]['childs'] = array();
+                echo $asset->getLocation() . ' ; ' . $asset->getLocationType() . ' ; ' . $asset->getLocationFlag() .  '<br>';
+            }
+
+            $assetsTmp[$asset->getLocation()][$asset->getId()] = $asset;
+        }
+
+        $assets = $assetsTmp;
+
         $parameters['assets'] = $assets;
+
+        die(dump($assets));
 
         return $this->render('asset/test.html.twig', $parameters);
 
