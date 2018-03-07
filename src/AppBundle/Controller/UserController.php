@@ -332,9 +332,10 @@ class UserController extends Controller
 
         try {
             $mails = $esi->invoke('get', '/characters/{character_id}/mail/', [
-                'character_id' => $api->getCharId()
+                'character_id' => $charID
             ]);
         } catch (EsiScopeAccessDeniedException $e) {
+            //TODO error management
         }
 
         if(count($mails)>0){
