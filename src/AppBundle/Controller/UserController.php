@@ -305,7 +305,7 @@ class UserController extends Controller
 
 
         try {
-            $charInfo = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/', ['character_id' => $charID])->px64x64;
+            $charInfo = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/', ['character_id' => $charID]);
         } catch (EsiException $e) {
             $parameters['esi_exception'] = $e;
             $this->render('error/esi.html.twig', $parameters);
@@ -339,7 +339,12 @@ class UserController extends Controller
         }
 
         if(count($mails)>0){
-            $api->setLastEmail($mails[0]->mail_id);
+
+            if(isset($mails[0]))
+                $api->setLastEmail($mails[0]->mail_id);
+            else {
+                $api->setLastEmail(0);
+            }
         }
         else{
             $api->setLastEmail(0);
