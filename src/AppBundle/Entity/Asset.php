@@ -19,6 +19,13 @@ class Asset
      * @ORM\Id
      */
     private $id;
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=255 , nullable=true)
+     */
+    private $name;
+
 
     /**
      * @var User
@@ -345,5 +352,29 @@ class Asset
         $this->id = $id;
     
         return $this;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     *
+     * @return Asset
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 }

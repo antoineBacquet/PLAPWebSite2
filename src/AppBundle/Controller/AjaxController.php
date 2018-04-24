@@ -9,11 +9,18 @@
 namespace AppBundle\Controller;
 
 
+use AppBundle\CCP\CCPConfig;
+use AppBundle\CCP\CCPUtil;
+use AppBundle\CCP\EsiException;
+use AppBundle\CCP\EsiUtil;
 use AppBundle\Discord\DiscordConfig;
+use AppBundle\Entity\Asset;
+use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Item;
 use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
+use Seat\Eseye\Eseye;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,7 +50,7 @@ class AjaxController extends Controller
             $em = $this->getDoctrine()->getRepository(Item::class);
             $query = $em->createQueryBuilder('i')
                 ->where($whereSql)
-                ->orderBy('i.itemGroup', 'DESC')
+                ->orderBy('i.name', 'ASC')
                 ->setMaxResults(10)
                 ->getQuery();
             $results = $query->getResult();
@@ -99,6 +106,313 @@ class AjaxController extends Controller
 
 
     }
+
+    /**
+     * Get item information
+     *
+     * @Route("/asset/getroot", name="getroot")
+     */
+    public function getRootAction(Request $request)
+    {
+
+        $user = UserUtil::getUser($this->getDoctrine(), $request);
+
+        $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
+
+        /**
+         * @var CharApi $api
+         */
+        $api = $apiRep->find($request->get('api_id'));
+
+
+        if($api === null){
+            return $this->json(array('error' => 'Api non trouvée dans la DB'));
+        }
+
+        if($api->getUser() !== $user and !$user->isAdmin){
+            return $this->json(array('error' => 'Tu n\'as pas le droit de voir les assets des autres'));
+        }
+
+
+        $esi = new Eseye(EsiUtil::getDefaultAuthentication($api->getRefreshToken()));
+
+        $em = $this->getDoctrine()->getManager();
+        $assetRep = $em->getRepository(Asset::class);
+
+        $assetsDB = $assetRep->findBy(
+            ['owner' => $api, 'parent' => null]
+        );
+
+
+        $assets = array();
+        /**
+         * @var Asset $asset
+         */
+       foreach ($assetsDB as $asset){
+
+           $hasLocation = false;
+           foreach($assets as $tmp )
+               if($tmp['id'] === $asset->getLocation()) $hasLocation = true;
+
+            if(!$hasLocation){
+                $location = array();
+                $location['children'] = true; //TODO test if it has children
+                if($asset->getLocationType() === "station"){
+                    //station
+                    $location['id'] = $asset->getLocation();
+                    try {
+                        $station = EsiUtil::callESI($esi, 'get', '/universe/stations/{station_id}/', ['station_id' => $asset->getLocation()]);
+
+                        $location['text'] = $station->name;
+                        $location['icon'] = CCPConfig::$imageServer . $station->type_id.'_32.png';
+
+                    } catch (EsiException $e) {
+                        $location['text'] = 'Unknown station';
+
+                    }
+
+                    $assets[] = $location;
+
+                }
+                else if($asset->getLocationType() === "other" and $asset->getLocationFlag() === "Hangar"){
+                    //Structure
+                    $location['id'] = $asset->getLocation();
+                    try {
+                        $station = EsiUtil::callESI($esi, 'get', '/universe/structures/{structure_id}/', ['structure_id' => $asset->getLocation()]);
+
+                        $location['text'] = $station->name;
+                        $location['icon'] = CCPConfig::$imageServer . $station->type_id.'_32.png';
+
+                    } catch (EsiException $e) {
+                        $location['text'] = 'Unknown location';
+                    }
+
+                    $assets[] = $location;
+
+                }
+
+
+            }
+        }
+
+        return $this->json($assets);
+    }
+
+    /**
+     * Get item information
+     *
+     * @Route("/asset/getchildren", name="getchildren")
+     */
+    public function getChildrenAction(Request $request)
+    {
+
+        $user = UserUtil::getUser($this->getDoctrine(), $request);
+
+        $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
+
+        /**
+         * @var CharApi $api
+         */
+        $api = $apiRep->find($request->get('api_id'));
+
+
+        if($api === null){
+            return $this->json(array('error' => 'Api non trouvée dans la DB'));
+        }
+
+        if($api->getUser() !== $user and !$user->isAdmin){
+            return $this->json(array('error' => 'Tu n\'as pas le droit de voir les assets des autres'));
+        }
+
+
+        $em = $this->getDoctrine()->getManager();
+        $assetRep = $em->getRepository(Asset::class);
+
+        $assetsJson = array();
+        $assets = $assetRep->findBy(
+            ['owner' => $api, 'location' => $request->get('id')]
+        );
+
+        /**
+         * @var Asset $asset
+         */
+        foreach ($assets as $asset){
+
+            $itemName = "Unknown item";
+            if($asset->getItem() !== null){
+                $itemName = $asset->getItem()->getName();
+            }
+
+
+            $hasChildren = true;
+            $children = $assetRep->findByLocation($asset->getId());
+            if(count($children) === 0) $hasChildren = false;
+            if($asset->getItem() !== null)$icon = CCPConfig::$imageServer . $asset->getItem()->getId().'_32.png';
+            else $icon = false;
+
+            $assetsJson[] = array('id' => $asset->getId(),
+                'text' => $itemName . ' x ' . $asset->getQuantity() . ($asset->getName() === null? "" : ' - ' . $asset->getName()),
+                'is_location' => false,
+                'children' => $hasChildren, 'icon' => $icon);
+
+        }
+
+        return $this->json($assetsJson);
+    }
+
+    /**
+     * Get item information
+     *
+     * @Route("/asset/search", name="asset-search")
+     */
+    public function searchAssetAction(Request $request)
+    {
+
+        $user = UserUtil::getUser($this->getDoctrine(), $request); //TODO if user null
+
+        if($user === null) return $this->json(array('text' => 'Erreur: tu doit étre connecté pour effectuer une recherche'));
+
+        $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
+        $assetRep = $this->getDoctrine()->getRepository(Asset::class);
+
+        /**
+         * @var CharApi $api
+         */
+        $api = $apiRep->find($request->get('api_id'));
+
+        if($api === null){
+            return $this->json(array('error' => 'Api non trouvée dans la DB'));
+        }
+
+        if($api->getUser() !== $user and !$user->isAdmin){
+            return $this->json(array('error' => 'Tu n\'as pas le droit de voir les assets des autres'));
+        }
+
+        $esi = new Eseye(EsiUtil::getDefaultAuthentication($api->getRefreshToken()));
+
+
+        $qb = $assetRep->createQueryBuilder('a');
+        $resultsDB = $qb
+            ->join('a.item', 'i')
+            ->Where('a.name like \'%' . $request->get('text') . '%\'')
+            ->orWhere('i.name like \'%' . $request->get('text') . '%\'')
+            ->getQuery()->execute();
+
+        if(count($resultsDB) === 0) return $this->json(array('text' => 'Aucun resultat'));
+        $results = array();
+
+        /**
+         * @var Asset $resultDB
+         */
+        foreach ($resultsDB as $resultDB){
+
+
+            $currentNode = false;
+            $current = $resultDB;
+            $hasParent = true;
+
+            while($hasParent){
+
+                $itemName = "Unknown item";
+                $icon = false;
+                if($current->getItem() !== null){
+                    $itemName = $current->getItem()->getName();
+                    $icon = CCPConfig::$imageServer . $current->getItem()->getId().'_32.png';
+                }
+
+                $parent = array('id' => $current->getId(),
+                    'text' => $itemName . ' x ' . $current->getQuantity() . ($current->getName() === null? "" : ' - ' . $current->getName()),
+                    'is_location' => false,
+                    'icon' => $icon,
+                    'state' => array('opened' => true)
+                );
+                if($currentNode)$parent['children'] = array($currentNode);
+
+                $currentNode = $parent;
+
+                if($current->getParent() === null)
+                    $hasParent = false;
+                else{
+                    $current = $current->getParent();
+                }
+            }
+
+            $location = array();
+            $location['children'] = array($currentNode);
+            if($current->getLocationType() === "station"){
+                //station
+                $location['id'] = $current->getLocation();
+                $location['state'] = array('opened' => true);
+                try {
+                    $station = EsiUtil::callESI($esi, 'get', '/universe/stations/{station_id}/', ['station_id' => $current->getLocation()]);
+
+                    $location['text'] = $station->name;
+                    $location['icon'] = CCPConfig::$imageServer . $station->type_id.'_32.png';
+
+                } catch (EsiException $e) {
+                    $location['text'] = 'Unknown station';
+
+                }
+
+                $results[] = $location;
+
+            }
+            else if($current->getLocationType() === "other" and $current->getLocationFlag() === "Hangar"){
+                //Structure
+                $location['id'] = $current->getLocation();
+                try {
+                    $station = EsiUtil::callESI($esi, 'get', '/universe/structures/{structure_id}/', ['structure_id' => $current->getLocation()]);
+
+                    $location['text'] = $station->name;
+                    $location['icon'] = CCPConfig::$imageServer . $station->type_id.'_32.png';
+
+                } catch (EsiException $e) {
+                    $location['text'] = 'Unknown location';
+                }
+
+                $results[] = $location;
+
+            }
+        }
+
+
+        $resultsJson = array();
+        foreach ($results as $result){
+            $resultsJson = $this->addToFinal($resultsJson, $result);
+        }
+
+
+
+        return $this->json($resultsJson);
+
+    }
+
+
+    private function addToFinal($results, $toAdd)
+    {
+
+        $hasIt = false;
+
+        foreach ($results as &$result) {
+
+            if ($result['id'] === $toAdd['id']) {
+                if (isset($result['children'])) {
+                    if (!isset($toAdd['children']))
+                        return $results;
+                    $result['children'] = $this->addToFinal($result['children'], $toAdd['children'][0]);
+                    $hasIt = true;
+                }
+
+            }
+
+        }
+
+        if (!$hasIt)
+            $results[] = $toAdd;
+        return $results;
+    }
+
+
 
 
 }

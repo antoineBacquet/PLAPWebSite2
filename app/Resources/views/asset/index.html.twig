@@ -1,0 +1,48 @@
+{% extends 'template/base.html.twig' %}
+
+
+
+{% block body %}
+
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <td>Portrait</td>
+                <td>Nom du perso</td>
+                <td>Toujour valable?</td>
+                <td>Derniére MAJ</td>
+                <td>Action</td>
+            </tr>
+
+
+            {% for api in apis %}
+                <tr>
+                    <td> <img src="{{ api.portrait }}"> </td>
+                    <td> <a href="{{ path('myapi', { 'id' : api.id } ) }} ">{{ api.charName }} </a> </td>
+
+                    <td> {% if api.isValid %} oui {% else %} non {% endif %}  </td>
+
+                    <td> {% if api.lastAssetUpdate is null %} jamais {% else %} api.lastAssetUpdate {% endif %}  </td>
+
+                    {% if api.lastAssetUpdate is null or api.lastAssetUpdate|date_modify('+1 minute') < date() %}
+                        <td> <a href="{{ path('asset-list', { 'id' : api.id }) }}"> Voir les assets </a> - <a href="{{ path('update-asset', { 'id' : api.id }) }}">Update</a></td>
+                    {% else %}
+                        <td> <a href="{{ path('asset-list', { 'id' : api.id }) }}"> Voir les assets </a> - Update indisponible</td>
+                    {% endif %}
+
+                </tr>
+
+
+            {% else %}
+                Pas d'API
+            {% endfor %}
+
+        </table>
+    </div>
+
+
+
+{% endblock %}
+
+

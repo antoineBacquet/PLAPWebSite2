@@ -36,10 +36,10 @@ class Item
 
     /**
      *
-     * @ORM\ManyToOne(targetEntity="ItemGroup" ,inversedBy="items")
+     * @ORM\ManyToOne(targetEntity="ItemMarketGroup" ,inversedBy="items")
      * @ORM\JoinColumn(nullable=true)
      */
-    private $itemGroup;
+    private $itemMarketGroup;
 
     /**
      * @var int
@@ -148,13 +148,13 @@ class Item
     /**
      * Set itemGroup
      *
-     * @param \AppBundle\Entity\ItemGroup $itemGroup
+     * @param \AppBundle\Entity\ItemMarketGroup $itemMarketGroup
      *
      * @return Item
      */
-    public function setItemGroup(\AppBundle\Entity\ItemGroup $itemGroup = null)
+    public function setItemMarketGroup(\AppBundle\Entity\ItemMarketGroup $itemMarketGroup = null)
     {
-        $this->itemGroup = $itemGroup;
+        $this->itemMarketGroup = $itemMarketGroup;
 
         return $this;
     }
@@ -162,10 +162,10 @@ class Item
     /**
      * Get itemGroup
      *
-     * @return \AppBundle\Entity\ItemGroup
+     * @return \AppBundle\Entity\ItemMarketGroup
      */
-    public function getItemGroup()
+    public function getItemMarketGroup()
     {
-        return $this->itemGroup;
+        return $this->itemMarketGroup;
     }
 }

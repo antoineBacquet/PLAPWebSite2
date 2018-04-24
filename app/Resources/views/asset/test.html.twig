@@ -2,36 +2,16 @@
 {% import _self as lel %}
 
 {% block css %}
-    <link rel="stylesheet" href="{{ asset('css/jquery.treegrid.css') }}">
-
+    <link rel="stylesheet" href="{{ asset('js/dist/themes/default/style.min.css') }}" />
 
 {%  endblock %}
 
 {% block body %}
 
-    {% macro draw_childs(childs, parent) %}
-        {% for child in childs %}
+    <input type="text" placeholder="Search.." onkeydown="search(this)" style="color: black">
+    <button type="button" class="btn btn-light" style="color: black" onclick="cancel()">Annuler</button>
 
-            <tr class="treegrid-{{ child.id }} treegrid-parent-{{ parent }}">
-                <td>{{ child.id }}</td><td>TODO</td>
-            </tr>
-
-        {% endfor %}
-    {% endmacro %}
-
-    <table class="tree table tree-table">
-        {% for asset in assets %}
-
-        <tr class="treegrid-{{ asset.id }}">
-            <td>{{ asset.id }}</td><td>TODO</td>
-        </tr>
-            {% if asset.getChilds() is not null %}
-               {{ lel.draw_childs(asset.getChilds(), asset.id) }}
-            {% endif %}
-
-        {% endfor %}
-    </table>
-
+    <div id="tree" style="text-align: left"></div>
 
 
 
@@ -40,14 +20,68 @@
 
 {% block js %}
 
-    <script type="text/javascript" src="{{ asset('js/jquery.treegrid.js') }}"></script>
+
+    <script src="{{ asset('js/dist/jstree.min.js') }}"></script>
     <script type="text/javascript">
-        $(document).ready(function() {
-            $('.tree').treegrid({
-                expanderExpandedClass: 'glyphicon glyphicon-minus',
-                expanderCollapsedClass: 'glyphicon glyphicon-plus'
-            });
-        });
+        $('#tree').jstree({
+            'core' : {
+                'data' : {
+                    'url' : function (node) {
+                        return node.id === '#' ?
+                            '/asset/getroot' :
+                            '/asset/getchildren'
+                    },
+                    'data' : function (node) {
+                        return { 'id' : node.id ,'api_id' : {{ api.id }} };
+                    }
+                },
+                "themes" : {
+                    "variant" : "large"
+                }
+
+            }});
+
+
+        function search(e) {
+            if(event.key === 'Enter' && e.value.length > 3) {
+
+                $.ajax({
+                    url: '{{ (path('asset-search')) }}',
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        text : e.value,
+                        api_id: {{ api.id }}
+                    },
+                    //async: true,
+                    success: function (data) {
+                        //alert(JSON.stringify(data));
+
+                        var tree = $('#tree');
+                        tree.jstree().settings.core.data = data;
+                        tree.jstree().refresh();
+                    },
+                    fail : function(data){
+                        alert('error');
+                    }
+                });
+            }
+        }
+
+        function cancel(e) {
+            var tree = $('#tree');
+            tree.jstree().settings.core.data = {
+                'url' : function (node) {
+                    return node.id === '#' ?
+                        '/asset/getroot' :
+                        '/asset/getchildren'
+                },
+                'data' : function (node) {
+                    return { 'id' : node.id ,'api_id' : {{ api.id}} };
+                }
+            };
+            tree.jstree().refresh();
+        }
     </script>
 
 {% endblock %}

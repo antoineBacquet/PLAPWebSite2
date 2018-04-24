@@ -331,12 +331,13 @@ class UserController extends Controller
             ->setExpireOn($expireOn);
 
         try {
-            $mails = $esi->invoke('get', '/characters/{character_id}/mail/', [
-                'character_id' => $charID
-            ]);
-        } catch (EsiScopeAccessDeniedException $e) {
-            //TODO error management
+            $mails = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/mail/', ['character_id' => $charID]);
+        } catch (EsiException $e) {
+            $parameters['esi_exception'] = $e;
+            $this->render('error/esi.html.twig', $parameters);
         }
+
+
 
         if(count($mails)>0){
 

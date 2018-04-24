@@ -67,13 +67,14 @@ class EsiUtil
      * @param string $route
      * @param array $params
      * @param array|null $queryParams
+     * @param array $body
      * @return \Seat\Eseye\Containers\EsiResponse
-     * @throws EsiException
      */
-    public static function callESI(Eseye $esi, string $method,  string $route, array $params = array(), array $queryParams = null){
+    public static function callESI(Eseye $esi, string $method,  string $route, array $params = array(), array $queryParams = array(), array $body = array()){
 
 
-        if($queryParams)$esi->setQueryString($queryParams);
+       $esi->setQueryString($queryParams);
+       $esi->setBody($body);
 
         try {
             $response = $esi->invoke($method, $route, $params);

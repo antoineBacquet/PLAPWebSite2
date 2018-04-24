@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  * CharApi
@@ -69,6 +70,13 @@ class CharApi
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(type="datetime", nullable=true, options={"default":null})
+     */
+    private $lastAssetUpdate;
 
     /**
      * @var boolean
@@ -308,5 +316,28 @@ class CharApi
     {
         return $this->expireOn;
     }
-}
 
+    /**
+     * Set lastAssetUpdate
+     *
+     * @param \DateTime $lastAssetUpdate
+     *
+     * @return CharApi
+     */
+    public function setLastAssetUpdate($lastAssetUpdate)
+    {
+        $this->lastAssetUpdate = $lastAssetUpdate;
+    
+        return $this;
+    }
+
+    /**
+     * Get lastAssetUpdate
+     *
+     * @return \DateTime
+     */
+    public function getLastAssetUpdate()
+    {
+        return $this->lastAssetUpdate;
+    }
+}

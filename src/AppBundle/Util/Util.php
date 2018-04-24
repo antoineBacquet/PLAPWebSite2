@@ -10,7 +10,7 @@ namespace AppBundle\Util;
 
 
 use AppBundle\Entity\Item;
-use AppBundle\Entity\ItemGroup;
+use AppBundle\Entity\ItemMarketGroup;
 use AppBundle\Repository\ItemRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -46,7 +46,7 @@ class Util
 
 
             /**
-             * @var ItemGroup $group
+             * @var ItemMarketGroup $group
              */
             foreach ($groups as $group){
                 $tmp = array();
