@@ -78,7 +78,7 @@ class EmailController extends Controller
     public function myEmailsNoLabelAction(Request $request, $id)
     {
 
-        return $this->myEmailsAction($request, $id, 0);
+        return $this->myEmailsAction($request, $id, 1);
     }
 
     /**
@@ -120,7 +120,7 @@ class EmailController extends Controller
             'character_id' => $api->getCharId(),
         ]);
 
-        //var_dump($labels->getArrayCopy());
+        //die(dump($labels->getArrayCopy()));
 
         $parameters['labels'] = $labels->getArrayCopy();
 

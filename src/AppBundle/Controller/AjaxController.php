@@ -294,8 +294,12 @@ class AjaxController extends Controller
         $qb = $assetRep->createQueryBuilder('a');
         $resultsDB = $qb
             ->join('a.item', 'i')
+            ->join('i.itemGroup', 'g')
+            ->join('g.category', 'c')
             ->Where('a.name like \'%' . $request->get('text') . '%\'')
             ->orWhere('i.name like \'%' . $request->get('text') . '%\'')
+            ->orWhere('g.name like \'%' . $request->get('text') . '%\'')
+            ->orWhere('c.name like \'%' . $request->get('text') . '%\'')
             ->getQuery()->execute();
 
         if(count($resultsDB) === 0) return $this->json(array('text' => 'Aucun resultat'));
