@@ -33,11 +33,17 @@ class Item
      * @ORM\Column(name="volume", type="float")
      */
     private $volume;
+    /**
+     *
+     * @ORM\ManyToOne(targetEntity="ItemGroup" ,inversedBy="items")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    private $itemGroup;
 
     /**
      *
      * @ORM\ManyToOne(targetEntity="ItemMarketGroup" ,inversedBy="items")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $itemMarketGroup;
 

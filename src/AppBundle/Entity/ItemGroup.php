@@ -32,7 +32,7 @@ class ItemGroup
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Category")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $category;
     

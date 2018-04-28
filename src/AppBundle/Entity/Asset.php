@@ -31,6 +31,7 @@ class Asset
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="CharApi")
+     * @ORM\JoinColumn(onDelete="cascade")
      */
     private $owner;
 
@@ -38,6 +39,7 @@ class Asset
      * @var Item
      *
      * @ORM\ManyToOne(targetEntity="Item")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $item;
 

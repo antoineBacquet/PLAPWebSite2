@@ -31,7 +31,7 @@ class ItemMarketGroup
     /**
      *
      * @ORM\ManyToOne(targetEntity="ItemMarketGroup" ,inversedBy="sons")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $parentGroup;
 
