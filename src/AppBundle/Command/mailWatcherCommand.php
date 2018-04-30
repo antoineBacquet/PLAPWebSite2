@@ -13,13 +13,10 @@ use AppBundle\CCP\EsiUtil;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
 use DiscordWebhooks\Client;
-use DiscordWebhooks\Embed;
 use Seat\Eseye\Eseye;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Validator\Constraints\Date;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class mailWatcherCommand extends ContainerAwareCommand
 {
@@ -88,6 +85,6 @@ class mailWatcherCommand extends ContainerAwareCommand
 
         }
 
-        $output->writeln('Ending new mail notification');
+        $output->writeln('[ ' . date('Y-m-d H:i:s') . ' ] ' . 'Ending new mail notification');
     }
 }
