@@ -12,6 +12,8 @@ use AppBundle\CCP\EsiException;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
+use AppBundle\Util\UserUtil;
+use AppBundle\Util\Util;
 use DiscordWebhooks\Client;
 use Seat\Eseye\Eseye;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -59,6 +61,7 @@ class mailWatcherCommand extends ContainerAwareCommand
                         $api->setLastEmail($mails[0]->mail_id);
                         $doctrine->getManager()->persist($api);
                         $doctrine->getManager()->flush();
+                        if($api->getUser()->getNotification() === null)UserUtil::createDefaultNotification($api->getUser(), $doctrine->getManager());
                         if($api->getUser()->getDiscordId() !== null && $api->getUser()->getNotification()->getEmailNotification()){
                             $webhook = new Client(DiscordConfig::$webhook_url);
                             $sender = EsiUtil::callESI($auth,'get','/characters/{character_id}/', ['character_id' => $mails[0]->from]);

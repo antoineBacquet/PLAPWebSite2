@@ -15,8 +15,10 @@ use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Groupe;
 use AppBundle\Entity\Item;
+use AppBundle\Entity\Notification;
 use AppBundle\Entity\User;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ObjectManager;
 use nullx27\ESI\Api\CharacterApi;
 use Seat\Eseye\Eseye;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
@@ -102,6 +104,8 @@ class UserUtil
             'character_id' => $charId,
         ]);
 
+        //TODO error management
+
         $rep = $doctrine->getRepository(Groupe::class);
 
         $groups = array();
@@ -121,8 +125,16 @@ class UserUtil
         }
         $user->setName($charInfo->name);
 
+        $user->setNotification(new Notification());
+
         $em = $doctrine->getManager();
 
+        $em->persist($user);
+        $em->flush();
+    }
+
+    public static function createDefaultNotification(User $user, ObjectManager $em){
+        $user->setNotification(new Notification());
         $em->persist($user);
         $em->flush();
     }
