@@ -394,6 +394,7 @@ class UserController extends Controller
     public function myOrderAction(Request $request)
     {
 
+        die('nop');
         $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
         if(!is_array($parameters)) return $parameters;
         $user = UserUtil::getUser($this->getDoctrine(), $request);
