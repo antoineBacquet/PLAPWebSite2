@@ -8,30 +8,29 @@ use Doctrine\ORM\Mapping as ORM;
  * job
  *
  * @ORM\Table(name="job")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\jobRepository")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\JobRepository")
  */
-class job
+class Job
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="ActivityId", type="integer")
+     * @ORM\Column(name="activityId", type="integer")
      */
     private $activityId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="BlueprintId", type="integer")
+     * @ORM\Column(name="blueprintId", type="bigint")
      */
     private $blueprintId;
 
@@ -73,9 +72,17 @@ class job
     /**
      * @var int
      *
-     * @ORM\Column(name="stationId", type="integer")
+     * @ORM\Column(name="stationId", type="bigint")
      */
     private $stationId;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="CharApi")
+     * @ORM\JoinColumn(onDelete="cascade")
+     */
+    private $owner;
 
 
     /**
@@ -93,7 +100,7 @@ class job
      *
      * @param integer $activityId
      *
-     * @return job
+     * @return Job
      */
     public function setActivityId($activityId)
     {
@@ -117,7 +124,7 @@ class job
      *
      * @param integer $blueprintId
      *
-     * @return job
+     * @return Job
      */
     public function setBlueprintId($blueprintId)
     {
@@ -141,7 +148,7 @@ class job
      *
      * @param integer $blueprintTypeId
      *
-     * @return job
+     * @return Job
      */
     public function setBlueprintTypeId($blueprintTypeId)
     {
@@ -165,7 +172,7 @@ class job
      *
      * @param string $state
      *
-     * @return job
+     * @return Job
      */
     public function setState($state)
     {
@@ -189,7 +196,7 @@ class job
      *
      * @param \DateTime $startDate
      *
-     * @return job
+     * @return Job
      */
     public function setStartDate($startDate)
     {
@@ -213,7 +220,7 @@ class job
      *
      * @param \DateTime $endDate
      *
-     * @return job
+     * @return Job
      */
     public function setEndDate($endDate)
     {
@@ -237,7 +244,7 @@ class job
      *
      * @param integer $duration
      *
-     * @return job
+     * @return Job
      */
     public function setDuration($duration)
     {
@@ -261,7 +268,7 @@ class job
      *
      * @param integer $stationId
      *
-     * @return job
+     * @return Job
      */
     public function setStationId($stationId)
     {
@@ -279,5 +286,42 @@ class job
     {
         return $this->stationId;
     }
-}
 
+    /**
+     * Set owner
+     *
+     * @param \AppBundle\Entity\CharApi $owner
+     *
+     * @return Job
+     */
+    public function setOwner(\AppBundle\Entity\CharApi $owner = null)
+    {
+        $this->owner = $owner;
+    
+        return $this;
+    }
+
+    /**
+     * Get owner
+     *
+     * @return \AppBundle\Entity\CharApi
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * Set id
+     *
+     * @param integer $id
+     *
+     * @return Job
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    
+        return $this;
+    }
+}
