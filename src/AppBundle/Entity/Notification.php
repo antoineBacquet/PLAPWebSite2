@@ -28,8 +28,14 @@ class Notification
      */
     private $emailNotification = false;
 
-
-
+    /**
+     * Notification constructor.
+     * @param User $user
+     */
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
 
 
     /**

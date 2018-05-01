@@ -13,7 +13,6 @@ use AppBundle\CCP\EsiUtil;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
 use AppBundle\Util\UserUtil;
-use AppBundle\Util\Util;
 use DiscordWebhooks\Client;
 use Seat\Eseye\Eseye;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -73,6 +72,9 @@ class mailWatcherCommand extends ContainerAwareCommand
                             catch (\Exception $e){
                                 $output->writeln('[ ' . date('Y-m-d H:i:s') . ' ] ' . '----Discord Webhook Error for ' . $api->getCharName() . ' : ' . $e->getMessage() );
                             }
+                        }
+                        else{
+                            $output->writeln('[ ' . date('Y-m-d H:i:s') . ' ] ' . '----No discord link or no notification wanted for ' . $api->getCharName());
                         }
                     }
                     else

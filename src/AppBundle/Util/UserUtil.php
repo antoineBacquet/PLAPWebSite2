@@ -125,7 +125,7 @@ class UserUtil
         }
         $user->setName($charInfo->name);
 
-        $user->setNotification(new Notification());
+        $user->setNotification(new Notification($user));
 
         $em = $doctrine->getManager();
 
@@ -134,7 +134,7 @@ class UserUtil
     }
 
     public static function createDefaultNotification(User $user, ObjectManager $em){
-        $user->setNotification(new Notification());
+        $user->setNotification(new Notification($user));
         $em->persist($user);
         $em->flush();
     }
