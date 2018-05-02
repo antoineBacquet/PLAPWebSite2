@@ -19,6 +19,8 @@ use AppBundle\Entity\Notification;
 use AppBundle\Entity\User;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
+use Illuminate\Contracts\Routing\Registrar;
+use Monolog\Registry;
 use nullx27\ESI\Api\CharacterApi;
 use Seat\Eseye\Eseye;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
@@ -143,7 +145,7 @@ class UserUtil
     }
 
 
-    public static function isConnected(Request $request){
+    public static function isConnected(Request $request, ManagerRegistry $doctrine){
         //si il n'y a pas de session l'utilisateur ne sais jamais connecté sur le site
         $session = $request->getSession();
         if (!$session) {
@@ -152,8 +154,14 @@ class UserUtil
 
 
 
-        //Si il n'y a pas de token et de refresh token, l'utilisateur est deconnecter
+        //Si il n'y a pas de token et de refresh token, l'utilisateur est deconnecté
         if($session->has('char_id') and $session->has('refresh_token')){ //TODO test on the refresh token
+            $userRep = $doctrine->getRepository(User::class);
+            if($userRep->find($session->get('char_id')) === null ) {
+                $session->clear();
+                $session->invalidate(0);
+                return false;
+            }
             return true;
         }
         return false;

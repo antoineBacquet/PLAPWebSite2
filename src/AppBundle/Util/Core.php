@@ -3,11 +3,8 @@
 
 namespace AppBundle\Util;
 
-use AppBundle\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
 
 
 /**
@@ -25,7 +22,7 @@ class Core
 
         $parameters = array();
 
-        if(UserUtil::isConnected($request)){
+        if(UserUtil::isConnected($request, $doctrine)){
 
             $user = UserUtil::getUser($doctrine, $request);
 
