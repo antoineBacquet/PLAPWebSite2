@@ -12,11 +12,21 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Notification
 {
+
     /**
      * @var int
      *
-     * @ORM\OneToOne(targetEntity="AppBundle\Entity\User")
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+
+    /**
+     * @var int
+     *
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\User", inversedBy="notification")
      */
     private $user;
 
@@ -28,14 +38,6 @@ class Notification
      */
     private $emailNotification = false;
 
-    /**
-     * Notification constructor.
-     * @param User $user
-     */
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
 
 
     /**
@@ -84,5 +86,15 @@ class Notification
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 }
