@@ -11,6 +11,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\CCPUtil;
+use AppBundle\CCP\EsiException;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
@@ -42,9 +43,8 @@ class AdminController extends Controller
      */
     public function adminGroupRemoveAction(Request $request, $id)
     {
-
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
 
         //TODO some group should not be removed (user, admin, etc);
@@ -60,7 +60,6 @@ class AdminController extends Controller
         }
 
         return $this->redirect($this->generateUrl('group'));
-        //die('remove group');
     }
 
 
@@ -72,8 +71,8 @@ class AdminController extends Controller
     public function adminGroupAction(Request $request)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
         $doctrine = $this->getDoctrine();
         $repository = $doctrine->getRepository(Groupe::class);
@@ -111,13 +110,12 @@ class AdminController extends Controller
     public function adminMemberAction(Request $request, $id)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
 
         $doctrine = $this->getDoctrine();
         $userRep = $doctrine->getRepository(User::class);
-        $groupeRep = $this->getDoctrine()->getRepository(Groupe::class);
         $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
 
 
@@ -138,16 +136,18 @@ class AdminController extends Controller
             CCPUtil::isApiValid($api, $doctrine->getManager());
             $api->isValid = true;
 
-            $authentication = new EsiAuthentication([
-                'client_id'     => CCPConfig::$clientIDAPI,
-                'secret'        => CCPConfig::$secretKEYAPI,
-                'refresh_token' => $api->getRefreshToken()
-            ]);
+            $authentication = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
 
             $esi = new Eseye($authentication);
-            $portraits = $esi->invoke('get', '/characters/{character_id}/portrait/', [
-                'character_id' => $api->getCharId()
-            ]);
+
+            try {
+                $portraits = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/portrait/', array('character_id' => $api->getCharId()));
+            }
+            catch (EsiException $e){
+                $parameters['esi_exception'] = $e;
+                return $this->render('error/esi.html.twig', $parameters);
+            }
+
 
             $api->portrait = $portraits->px64x64;
         }
@@ -223,15 +223,13 @@ class AdminController extends Controller
     public function adminMemberListAction(Request $request)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
+        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
 
         $session = $request->getSession();
 
 
-
         $rep = $this->getDoctrine()->getRepository(User::class);
-
 
 
         $users = null;
@@ -243,10 +241,13 @@ class AdminController extends Controller
 
         foreach ($users as $user){
 
-            //$corp = $corpAPI->getCorporationsCorporationId($user->getCorpId(), CCPConfig::$datasource);
-            $corp = $esi->invoke('get', '/corporations/{corporation_id}/', [
-                'corporation_id' => $user->getCorpId(),
-            ]);
+
+            try {
+                $corp = EsiUtil::callESI($esi, 'get', '/corporations/{corporation_id}/', array('corporation_id' => $user->getCorpId()));
+            }
+            catch (EsiException $e){
+                $corp = null;
+            }
 
 
             $user->corp = $corp;

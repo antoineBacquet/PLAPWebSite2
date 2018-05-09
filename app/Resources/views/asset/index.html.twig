@@ -23,9 +23,9 @@
 
                     <td> {% if api.isValid %} oui {% else %} non {% endif %}  </td>
 
-                    <td> {% if api.lastAssetUpdate is null %} jamais {% else %} api.lastAssetUpdate {% endif %}  </td>
+                    <td> {% if api.lastAssetUpdate is null %} jamais {% else %} {{ api.lastAssetUpdate|date("d/m/Y H:i") }} {% endif %}  </td>
 
-                    {% if api.lastAssetUpdate is null or api.lastAssetUpdate|date_modify('+1 minute') < date() %}
+                    {% if api.lastAssetUpdate is null or api.lastAssetUpdate|date_modify('+1 hour') < date() %}
                         <td> <a href="{{ path('asset-list', { 'id' : api.id }) }}"> Voir les assets </a> - <a href="{{ path('update-asset', { 'id' : api.id }) }}">Update</a></td>
                     {% else %}
                         <td> <a href="{{ path('asset-list', { 'id' : api.id }) }}"> Voir les assets </a> - Update indisponible</td>

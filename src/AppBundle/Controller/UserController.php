@@ -57,7 +57,7 @@ class UserController extends Controller
                 $parameters['api_summary'] = UserUtil::getApiSummary($user->getMainApi(), $this->getDoctrine());
             }catch (EsiException $e){
                 $parameters['esi_exception'] = $e;
-                $parameters['api_summary'] = null;
+                $parameters['api_summary'] = null; //TODO better error management
             }
 
         }

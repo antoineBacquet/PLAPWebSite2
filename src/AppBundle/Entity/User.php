@@ -67,7 +67,7 @@ class User
      * @var int
      *
      * @ORM\OneToOne(targetEntity="AppBundle\Entity\Notification", mappedBy="id", cascade={"persist"}))
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $notification;
 

@@ -157,7 +157,7 @@ class UserUtil
         //Si il n'y a pas de token et de refresh token, l'utilisateur est deconnecté
         if($session->has('char_id') and $session->has('refresh_token')){ //TODO test on the refresh token
             $userRep = $doctrine->getRepository(User::class);
-            if($userRep->find($session->get('char_id')) === null ) {
+            if($userRep->findByCharId($session->get('char_id')) === null ) {
                 $session->clear();
                 $session->invalidate(0);
                 return false;
@@ -199,6 +199,8 @@ class UserUtil
         /*$charInfo = $esi->invoke('get', '/characters/{character_id}/', [
             'character_id' => $api->getCharId(),
         ]);*/
+
+
 
         $charInfo = EsiUtil::callESI($esi, 'get','/characters/{character_id}/', ['character_id' => $api->getCharId()]);
         //--------------------------------
@@ -257,6 +259,7 @@ class UserUtil
         //location------------------------
         $location = EsiUtil::callESI($esi, 'get','/characters/{character_id}/location/', [ 'character_id' => $api->getCharId()]);
 
+
         //station
         if(isset($location->station_id)){
             $parameters['location']['type'] = 'station';
@@ -264,6 +267,7 @@ class UserUtil
 
             $parameters['location']['name'] = $station->name;
         }
+
         //citadel
         else if(isset($location->structure_id)){
             $parameters['location']['type'] = 'citadel';
@@ -289,6 +293,7 @@ class UserUtil
         else{
             $parameters['location']['type'] = 'space';
         }
+
 
         //security status-----------------
         $parameters['security_status'] = $charInfo->security_status;
