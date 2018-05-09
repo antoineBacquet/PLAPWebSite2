@@ -191,9 +191,9 @@ class MainController extends Controller
             UserUtil::addUser($doctrine, $refresh_token, $charID);
         }
 
-        $user = UserUtil::getUser();
+        $user = UserUtil::getUser($doctrine,$request);
 
-        if(UserUtil::hasGroups($user, GroupUtil::$GROUP_LISTE['Membre'])){
+        if(UserUtil::hasGroups($user, array(GroupUtil::$GROUP_LISTE['Membre']))){
             return $this->redirect('profile');
         }
         else{
