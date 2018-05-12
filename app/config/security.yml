@@ -39,4 +39,4 @@ security:
 
     role_hierarchy:
         ROLE_MEMBER:      ROLE_GUEST
-        ROLE_ADMIN:       ROLE_MEMBER
+        ROLE_ADMIN:       [ROLE_MEMBER, ROLE_MODERATOR]
