@@ -13,7 +13,7 @@ use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\EsiException;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\CharApi;
-use AppBundle\Entity\Groupe;
+use AppBundle\Entity\Role;
 use AppBundle\Entity\Item;
 use AppBundle\Entity\Notification;
 use AppBundle\Entity\User;
@@ -34,106 +34,100 @@ class UserUtil
 {
 
 
+
+    public static $roleMapping = array('Invité' => 'ROLE_GUEST', 'Membre' => 'ROLE_MEMBER', 'Admin' => 'ROLE_ADMIN');
+
     /**
      * @var User
      */
     private static $user = null;
 
-    public static function userExist(SessionInterface $session, ManagerRegistry $doctrine){
+    public static function userExist(int $charId, ManagerRegistry $doctrine){
 
         $apiRep = $doctrine->getRepository(CharApi::class);
 
         $repository = $doctrine->getRepository(User::class);
 
-        $user = $repository->findOneBy(array('charId' => $session->get('char_id')));
+        $user = $repository->findOneBy(array('charId' => $charId));
 
         if (!$user){
-            $api = $apiRep->findOneByCharId($session->get('char_id'));
+            $api = $apiRep->findOneByCharId($charId);
             if(!$api) return false;
-            $session->set('char_id', $api->getUser()->getCharId() );
             return true;
         }
 
         return true;
-
 
     }
 
     /**
      **
      * @param ManagerRegistry $doctrine
-     * @param Request $request
+     * @param $charId int
      * @return User
      */
-    public static function getUser(ManagerRegistry $doctrine = null, Request $request =null){
-        if(UserUtil::$user!=null)return UserUtil::$user;
+    public static function getUser(ManagerRegistry $doctrine = null, int $charId = null){
+        if(UserUtil::$user !== null)return UserUtil::$user;
 
-        if($doctrine != null and $request != null){
-            $rep = $doctrine->getRepository(User::class);
+        if($doctrine !== null and $charId !== null){
 
-            UserUtil::$user = $rep->findOneByCharId($request->getSession()->get('char_id'));
+            $userRep = $doctrine->getRepository(User::class);
+            $apiRep = $doctrine->getRepository(CharApi::class);
 
-            if(UserUtil::$user == null) return null;
-
-            foreach (  UserUtil::$user->getGroupes() as $group){
-                if($group->getId() == GroupUtil::$GROUP_LISTE['Membre']){
-                    UserUtil::$user->isMember = true;
-                }
-
-                if($group->getId() == GroupUtil::$GROUP_LISTE['Admin']){
-                    UserUtil::$user->isAdmin = true;
-                }
-
-                if($group->getId() == GroupUtil::$GROUP_LISTE['Responsable de production']){
-                    UserUtil::$user->isProdResp = true;
-                }
-            }
-            return UserUtil::$user;
+            UserUtil::$user = $userRep->findOneByCharId($charId);
+            if(UserUtil::$user === null)
+                UserUtil::$user = $apiRep->findOneByCharId($charId)->getUser();
         }
-        return null;
 
-
+        return UserUtil::$user;
     }
 
 
-    public static function addUser(ManagerRegistry $doctrine, $refreshToken, $charId){
+    /**
+     * @param ManagerRegistry $doctrine
+     * @param $charId
+     * @throws EsiException
+     */
+    public static function addUser(ManagerRegistry $doctrine, $charId)
+    {
 
-        $authentication = EsiUtil::getDefaultUserAuthentication($refreshToken);
-        $esi = new Eseye($authentication);
+        $esi = new Eseye();
 
         //character information-----------
-        $charInfo = $esi->invoke('get', '/characters/{character_id}/', [
-            'character_id' => $charId,
-        ]);
+        $charInfo = EsiUtil::callESI($esi, 'get' ,'/characters/{character_id}/', array('character_id' => $charId) );
 
-        //TODO error management
+        $roles = array();
 
-        $rep = $doctrine->getRepository(Groupe::class);
-
-        $groups = array();
-
-        array_push($groups, $rep->find(1));
+        array_push($roles, 'ROLE_GUEST'); //Adding "invité" role
 
         if ($charInfo->corporation_id == Util::$corpId){
-            array_push($groups, $rep->find(2));
+            array_push($roles, 'ROLE_MEMBER'); //If he is a membre of our corporation we add the corporation role
         }
 
         $user = new User();
 
         $user->setCharId($charId);
         $user->setCorpId($charInfo->corporation_id);
-        foreach ($groups as $group){
-            $user->addGroupe($group);
-        }
+        $user->setRoles($roles);
         $user->setName($charInfo->name);
-
-
-        UserUtil::createDefaultNotification($user, $doctrine->getManager());
 
         $em = $doctrine->getManager();
 
         $em->persist($user);
         $em->flush();
+
+        UserUtil::createDefaultNotification($user, $doctrine->getManager());
+    }
+
+
+
+    public static function hasRole(User $user, $role){
+        $userRoles = $user->getRoles();
+
+        foreach ($userRoles as $userRole){
+            if($role === $userRole) return true;
+        }
+        return false;
     }
 
     public static function createDefaultNotification(User $user, ObjectManager $em){
@@ -142,43 +136,6 @@ class UserUtil
         $user->setNotification($notification);
         $em->persist($user);
         $em->flush();
-    }
-
-
-    public static function isConnected(Request $request, ManagerRegistry $doctrine){
-        //si il n'y a pas de session l'utilisateur ne sais jamais connecté sur le site
-        $session = $request->getSession();
-        if (!$session) {
-            return false;
-        }
-
-
-
-        //Si il n'y a pas de token et de refresh token, l'utilisateur est deconnecté
-        if($session->has('char_id') and $session->has('refresh_token')){ //TODO test on the refresh token
-            $userRep = $doctrine->getRepository(User::class);
-            if($userRep->findByCharId($session->get('char_id')) === null ) {
-                $session->clear();
-                $session->invalidate(0);
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
-
-
-    public static function hasGroups(User $user, array $groups){
-        $userGroups = $user->getGroupes();
-
-        $hasGroup = false;
-        foreach ($userGroups as $g){
-            if(in_array ($g->getId(), $groups)){
-                $hasGroup = true;
-            }
-        }
-
-        return $hasGroup;
     }
 
     /**
@@ -273,6 +230,7 @@ class UserUtil
             $parameters['location']['type'] = 'citadel';
 
             $structure = null;
+            //TODO new esi management
             try{
                 $structure = $esi->invoke('get', '/universe/structures/{structure_id}/', [
                     'structure_id' => $location->structure_id,

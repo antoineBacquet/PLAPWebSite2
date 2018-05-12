@@ -5,11 +5,11 @@
 
     <h1> Email</h1>
 
-    <div class="jumbotron">
+    <div  style="background-color:#1f1f1f " class="jumbotron">
         <h2> {{ email.subject }}</h2>
         <h4> De : {{ email.from }}</h4>
         <h4> Date : {{ email.timestamp|date("d/m/Y H:i") }}</h4>
-        <p style="background-color:#1f1f1f ">
+        <p>
             {{ email.body|raw  }}
         </p>
 

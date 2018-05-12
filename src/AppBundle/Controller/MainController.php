@@ -9,6 +9,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
+use AppBundle\CCP\EsiException;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
 use AppBundle\Util\GroupUtil;
@@ -19,21 +20,22 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class MainController extends Controller
 {
 
     /**
      *
-     * This route is the homepage idiot
+     * This route is the homepage
      *
      * @Route("/", name="homepage")
      */
     public function indexAction(Request $request)
     {
 
-        $parameters = ControllerUtil::before($this, $request);
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
 
         return $this->render('default/index.html.twig', $parameters);
@@ -42,7 +44,7 @@ class MainController extends Controller
 
     /**
      *
-     * Basically generate the url to the ccp login page.
+     * This route generate the url to the ccp login page.
      *
      * @Route("/login", name="login")
      */
@@ -69,16 +71,6 @@ class MainController extends Controller
      */
     public function logoutAction(Request $request)
     {
-
-        $parameters = ControllerUtil::before($this, $request);
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
-
-        if($request->getSession()){
-            $request->getSession()->clear();
-            $request->getSession()->invalidate(0);
-        }
-
-
         return $this->redirect($this->generateUrl('homepage'));
     }
 
@@ -91,8 +83,7 @@ class MainController extends Controller
     public function ccpCallBackAction(Request $request)
     {
 
-        $parameters = ControllerUtil::before($this, $request);
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
 
         $userAgent = 'PLAPWebsite';
@@ -140,12 +131,15 @@ class MainController extends Controller
             return $this->render('error/login.html.twig', $parameters);
         }
         $access_token = $response['access_token'];
-        $refresh_token = $response['refresh_token'];
         //-----------------------------------------------------------------------------------------
 
 
         //getting the char id from ccp and testing if the token is good----------------------------
         $ch = curl_init();
+        if ($ch === false) {
+            $parameters['message'] = "Imposible d'initialiser curl, réessaye.";
+            return $this->render('error/login.html.twig', $parameters);
+        }
         // Get the Character details from SSO
         $header = 'Authorization: Bearer ' . $access_token;
         curl_setopt($ch, CURLOPT_URL, CCPConfig::$verifyURL);
@@ -173,35 +167,42 @@ class MainController extends Controller
         //-----------------------------------------------------------------------------------------
 
 
-        //setting up the session
-        $session = $request->getSession();
-        if (!$session) {
-            $session = new Session();
-            $session->start();
-        }
-
-        $session->set('char_id', $charID);
-        $session->set('refresh_token', $refresh_token);
-
 
         $doctrine = $this->getDoctrine();
 
         //creating the user in the database if necessary
-        if (!UserUtil::userExist($session, $doctrine)) {
-            UserUtil::addUser($doctrine, $refresh_token, $charID);
+        if (!UserUtil::userExist($charID, $doctrine)) {
+            try {
+                UserUtil::addUser($doctrine, $charID);
+            }
+            catch (EsiException $e){
+                $parameters['esi_exception'] = $e;
+                return $this->render('error/esi.html.twig', $parameters);
+            }
+
         }
 
-        $user = UserUtil::getUser($doctrine,$request);
+        $user = UserUtil::getUser($doctrine,$charID);
 
-        if(UserUtil::hasGroups($user, array(GroupUtil::$GROUP_LISTE['Membre']))){
-            return $this->redirect('profile');
+        $token = new UsernamePasswordToken($user, null, 'main', $user->getRoles());
+
+        $this->get('security.token_storage')->setToken($token);
+        $this->get('session')->set('_security_main', serialize($token));
+
+        // Fire the login event manually
+        $event = new InteractiveLoginEvent($request, $token);
+        $this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
+
+
+        if(UserUtil::hasRole($user, 'ROLE_MEMBRE')){
+            return $this->redirect($this->generateUrl('profile'));
         }
         else{
-            return $this->redirect('homepage');
+            return $this->redirect('/'); //TODO redirect to recruitment page
         }
-
-
     }
+
+
 
     /**
      * Test stuff here
@@ -212,14 +213,6 @@ class MainController extends Controller
     {
 
         die('what are you looking for?');
-        $webhook = new Client('https://discordapp.com/api/webhooks/383371839298207765/MvOKVEt8VpBRxpJOxb9jxW3gP5OKMrjOHSPfkPWbQeIw9eUCuPzX9YmuMsozJ-K1vlKK');
-        $embed = new Embed();
-
-        $embed->description('This is an embed');
-
-        $webhook->username('Bot')->message('!ur <@' . UserUtil::getUser($this->getDoctrine(),$request)->getDiscordId() .'>')->embed($embed)->send();
-
-        die('test page');
 
     }
 

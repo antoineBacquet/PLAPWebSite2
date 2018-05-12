@@ -2,14 +2,15 @@
 
 
 {% block body %}
-<div class="jumbotron main-w">
-    <h2> Eve-Emails </h2>
+    <h2> Eve Mails </h2>
 
     {% for api in apis %}
-        <li><a href="{{ path('myemails1', { 'id' : api.getId() } ) }}">{{ api.charName }}({{ api.unread }})</a></li>
-    {%  endfor %}
+        <li><a href="{{ path('emailsNoLabel', { 'id' : api.getId() } ) }}">{{ api.charName }}({{ api.unread }})</a></li>
+    {% else %}
+        Le membre n'as aucune API.
+    {% endfor %}
 
 
-</div>
+
 
 {% endblock %}

@@ -7,6 +7,9 @@ security:
         in_memory:
             memory: ~
 
+        our_users:
+            entity: { class: AppBundle\Entity\User, property: name }
+
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
@@ -15,10 +18,25 @@ security:
 
         main:
             anonymous: ~
+
+            logout:
+                path: /logout
+                target: /
             # activate different ways to authenticate
 
             # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
             #http_basic: ~
 
             # https://symfony.com/doc/current/security/form_login_setup.html
-            #form_login: ~
+            form_login: ~
+
+            access_denied_handler: access_denied.handler
+
+
+    access_control:
+        # allow anonymous access to the homepage:
+        - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+    role_hierarchy:
+        ROLE_MEMBER:      ROLE_GUEST
+        ROLE_ADMIN:       ROLE_MEMBER

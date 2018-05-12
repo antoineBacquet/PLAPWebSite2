@@ -5,6 +5,7 @@ namespace AppBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use nullx27\ESI\Models\GetCorporationsCorporationIdOk;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * user
@@ -12,7 +13,7 @@ use nullx27\ESI\Models\GetCorporationsCorporationIdOk;
  * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  */
-class User
+class User implements UserInterface, \Serializable
 {
     /**
      * @var int
@@ -45,13 +46,11 @@ class User
     private $corpId;
 
     /**
-     * @var int
      *
-     * @ORM\ManyToMany(targetEntity="Groupe", inversedBy="users")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\Column(type="json_array")
      */
 
-    private $groupes;
+    private $roles;
 
     /**
      * @var GetCorporationsCorporationIdOk
@@ -96,8 +95,6 @@ class User
 
     public function __construct()
     {
-
-        $this->groupes = new  ArrayCollection();
         $this->apis = new ArrayCollection();
     }
 
@@ -184,54 +181,69 @@ class User
     }
 
     /**
-     * Set groupe
+     * Set roles
      *
-     * @param ArrayCollection $groupes
+     * @param array $roles
      * @return User
      */
-    public function setGroupes($groupes)
+    public function setRoles($roles)
     {
-        $this->groupes = $groupes;
+        $this->roles = $roles;
 
         return $this;
     }
 
     /**
-     * Get groupe
+     * Get roles
      *
-     * @return array(Groupe)
+     * @return array()
      */
-    public function getGroupes()
+    public function getRoles()
     {
-        return $this->groupes;
+
+        return $this->roles;
+/*
+        $rolesTmp = array();
+
+        foreach ($this->roles as $role){
+            if($role->getId() === 2)$rolesTmp[] = 'ROLE_MEMBRE';
+            else if($role->getId() === 3)$rolesTmp[] = 'ROLE_ADMIN';
+        }
+*/
+
+
+        //return $rolesTmp; //TODO
     }
+
+    /**
+     * Add role
+     *
+     * @param string $role
+     *
+     * @return User
+     */
+    public function addRole($role)
+    {
+        $this->roles[] = $role;
+
+        return $this;
+    }
+
+    /**
+     * Remove role
+     *
+     * @param string $role
+     */
+    public function removeRole($role)
+    {
+        $this->roles->removeElement($role);
+
+    }
+
+
 
     public function __toString() {
         return $this->id.'';
-    }
-
-    /**
-     * Add groupe
-     *
-     * @param \AppBundle\Entity\Groupe $groupe
-     *
-     * @return User
-     */
-    public function addGroupe(\AppBundle\Entity\Groupe $groupe)
-    {
-        $this->groupes[] = $groupe;
-
-        return $this;
-    }
-
-    /**
-     * Remove groupe
-     *
-     * @param \AppBundle\Entity\Groupe $groupe
-     */
-    public function removeGroupe(\AppBundle\Entity\Groupe $groupe)
-    {
-        $this->groupes->removeElement($groupe);
     }
 
     /**
@@ -363,4 +375,42 @@ class User
     {
         return $this->mainApi;
     }
+
+    public function serialize()
+    {
+        return serialize(array(
+            $this->id,
+            $this->name,
+        ));
+    }
+
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+            $this->name,
+            ) = unserialize($serialized, ['allowed_classes' => false]);
+    }
+
+    public function getPassword()
+    {
+        return null;
+    }
+
+    public function getSalt()
+    {
+        return null;
+    }
+
+    public function getUsername()
+    {
+        return $this->name;
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
+
+
 }

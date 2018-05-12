@@ -16,6 +16,7 @@ use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\Util;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -38,11 +39,13 @@ class CommandController extends Controller
      * Add a command
      *
      * @Route("/command/add", name="commandadd")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function commandAddAction(Request $request)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
+
+        $user = $this->getUser();
 
         $doctrine = $this->getDoctrine();
 
@@ -72,7 +75,7 @@ class CommandController extends Controller
 
             $command = new Command();
 
-            $command->setIssuer($parameters['user'])->setState('pending')->setDate(new \DateTime());
+            $command->setIssuer($user)->setState('pending')->setDate(new \DateTime());
             $command->setImportant($data['important']);
 
 
@@ -80,16 +83,11 @@ class CommandController extends Controller
 
             $command->setEstimatedPrice($evePraisalData['appraisal']['totals']['sell']);
 
-            //die($evePraisalData['appraisal']['id']);
-
             $command->setEvepraisal("http://evepraisal.com/a/" .$evePraisalData['appraisal']['id'] );
 
 
             $doctrine->getManager()->persist($command);
             $doctrine->getManager()->flush();
-
-
-
 
 
             for ( $i=0 ; $i<count($data['items']) ; $i++){
@@ -113,11 +111,11 @@ class CommandController extends Controller
      * Commands list
      *
      * @Route("/commands", name="commandlist")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function commandListAction(Request $request, $userId = null)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
         $commandRep = $doctrine->getRepository(Command::class);
@@ -139,11 +137,11 @@ class CommandController extends Controller
      * Commands list
      *
      * @Route("/commands/user/{id}", name="usercommandlist")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function userCommandListAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         return $this->commandListAction($request, $id);
 
@@ -153,11 +151,11 @@ class CommandController extends Controller
      * Show command information
      *
      * @Route("/commands/{id}", name="commandinfo")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function commandAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
         $commandRep = $doctrine->getRepository(Command::class);
@@ -169,8 +167,8 @@ class CommandController extends Controller
         $parameters['command'] = $command;
 
         $proposedForm = $this->createFormBuilder()
-->add('prix_propose', NumberType::class, array('data' => $command->getEstimatedPrice()))            
-->add('save', SubmitType::class, array('label' => 'Proposer un prix'))
+            ->add('prix_propose', NumberType::class, array('data' => $command->getEstimatedPrice()))
+            ->add('save', SubmitType::class, array('label' => 'Proposer un prix'))
             ->getForm();
 
         $proposedForm->handleRequest($request);
@@ -216,11 +214,11 @@ class CommandController extends Controller
      * Add a command
      *
      * @Route("/command/accept/{id}", name="commandaccept")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function commandAcceptAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
         $commandRep = $doctrine->getRepository(Command::class);
@@ -245,11 +243,11 @@ class CommandController extends Controller
      * Add a command
      *
      * @Route("/command/refuse/{id}", name="commandrefuse")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function commandRefuseAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
         $commandRep = $doctrine->getRepository(Command::class);
@@ -277,11 +275,11 @@ class CommandController extends Controller
      * Add a command
      *
      * @Route("/commands/remove/{id}", name="removecommand")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function removeMyCommandAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
         $commandRep = $doctrine->getRepository(Command::class);

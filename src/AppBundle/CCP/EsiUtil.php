@@ -54,7 +54,6 @@ class EsiUtil
 
         $option['refresh_token'] = $refreshToken;
 
-
         $authentication = new EsiAuthentication($option);
 
         return $authentication;

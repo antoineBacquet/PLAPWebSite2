@@ -20,58 +20,14 @@ class ControllerUtil extends Controller
 {
 
 
-    public static function beforeRequest(Controller $c, Request $r, Array $groups = null){
+    public static function before(Controller $c){
 
 
+        $parameters = array();
 
-
-        $parameters = Core::getDefaultParameter($c->getDoctrine(), $r);
         $parameters['base_dir'] = realpath($c->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR;
 
-
-
-        if($groups!= null){
-
-            $user = UserUtil::getUser($c->getDoctrine(), $r);
-            if( $user == null)
-                return $c->redirect('/');
-            else{
-
-
-                if(!UserUtil::hasGroups($user, $groups))
-                    return $c->redirect('/');
-
-            }
-        }
-
-
-
-        return $parameters;
-
-    }
-
-    public static function before(Controller $c, Request $r, Array $groups = null){
-
-        $parameters = Core::getDefaultParameter($c->getDoctrine(), $r);
-        $parameters['base_dir'] = realpath($c->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR;
-
-        if($groups!= null) {
-
-            $user = UserUtil::getUser($c->getDoctrine(), $r);
-            if ($user == null) {
-                $parameters['redirect'] = true;
-                $parameters['redirect_path'] = 'error/forbidden.html.twig';
-                $parameters['message'] = 'Tu dois être connecté pour voir ca';
-            }
-            else{
-                if(!UserUtil::hasGroups($user, $groups)){
-                    $parameters['redirect'] = true;
-                    $parameters['redirect_path'] = 'error/forbidden.html.twig';
-                    $parameters['message'] = 'Tu n\'as pas le doit de voir ca';
-                }
-
-            }
-        }
+        if($c->getUser() !== null) $parameters['user'] = $c->getUser();
 
         return $parameters;
 

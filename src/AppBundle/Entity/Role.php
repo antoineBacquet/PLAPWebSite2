@@ -8,10 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Groupe
  *
- * @ORM\Table(name="groupe")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\GroupeRepository")
+ * @ORM\Table(name="role")
  */
-class Groupe
+class Role
 {
     /**
      * @var int
@@ -28,11 +27,6 @@ class Groupe
      * @ORM\Column(name="name", type="string", length=255)
      */
     private $name;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="User", mappedBy="groupes")
-     */
-    private $users;
 
 
     public function __construct()
@@ -55,7 +49,7 @@ class Groupe
      *
      * @param string $name
      *
-     * @return Groupe
+     * @return Role
      */
     public function setName($name)
     {
@@ -79,7 +73,7 @@ class Groupe
      *
      * @param \AppBundle\Entity\User $user
      *
-     * @return Groupe
+     * @return Role
      */
     public function addUser(\AppBundle\Entity\User $user)
     {

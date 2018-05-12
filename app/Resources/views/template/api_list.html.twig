@@ -4,6 +4,7 @@
             <td>Portrait</td>
             <td>Nom du perso</td>
             <td>Asset</td>
+            <td>Mails</td>
             <td>Toujour valable?</td>
             <td>Action</td>
         </tr>
@@ -12,13 +13,18 @@
         {% for api in apis %}
             <tr>
                 <td> <img src="{{ api.portrait }}"> </td>
+
                 <td> <a href="{{ path('myapi', { 'id' : api.id } ) }} ">{{ api.charName }} </a> </td>
 
                 <td> <a href="{{ path('asset-list', { 'id' : api.id } ) }} ">Voir les assets </a> </td>
 
+                <td><a href="{{ path('emailsNoLabel', { 'id' : api.id } ) }}">Voir les mails</a></td>
+
                 <td>  {% if api.isValid %} oui {% else %} non {% endif %}  </td>
 
                 <td> <a href="{{ path('removeapi', { 'id' : api.id } ) }}"> Supprimer </a> </td>
+
+
             </tr>
 
 

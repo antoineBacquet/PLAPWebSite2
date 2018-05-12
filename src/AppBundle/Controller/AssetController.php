@@ -9,9 +9,6 @@
 namespace AppBundle\Controller;
 
 
-
-use AppBundle\CCP\CCPConfig;
-use AppBundle\CCP\CCPUtil;
 use AppBundle\CCP\EsiException;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\Asset;
@@ -19,15 +16,12 @@ use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Item;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
-use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
-use nullx27\ESI\Api\AssetsApi;
-use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 
 class AssetController extends Controller
@@ -37,17 +31,17 @@ class AssetController extends Controller
      * Remove a group
      *
      * @Route("/asset/update/{id}", name="update-asset")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function assetUpdateAction(Request $request, $id)
     {
 
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
         /**
          * @var User $user
          */
-        $user = $parameters['user'];
+        $user = $this->getUser();
 
         $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
 
@@ -58,21 +52,15 @@ class AssetController extends Controller
         $api = $apiRep->find($id);
 
         if($api === null){
-            $parameters['message'] = 'Api non trouvé dans la base de données';
-            return $this->render('error/404.html.twig', $parameters);
+            throw $this->createNotFoundException('Api non trouvée dans la base de données');
         }
 
-        if($api->getUser() !== $user and !$user->isAdmin){
-            $parameters['message'] = 'Tu n\'as pas le droit d\'update les assets des autres membres';
-            return $this->render('error/forbidden.html.twig', $parameters);
+        if($api->getUser() !== $user and !$this->isGranted('ROLE_ADMIN')){
+            throw $this->createAccessDeniedException('Tu n\'as pas le droit d\'update les assets des autres membres');
         }
-
-
 
         $api->setLastAssetUpdate(new \DateTime());
         $this->getDoctrine()->getManager()->flush();
-
-        //return $this->redirect($this->generateUrl('asset'));
 
 
         $authentication = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
@@ -84,7 +72,7 @@ class AssetController extends Controller
         $itemRep = $em->getRepository(Item::class);
 
         //delete old asset
-        $oldAset = $assetRep->findBy(array("owner" => $api));
+        $oldAset = $assetRep->findByOwner($api);
         foreach ($oldAset as $old){
             $em->remove($old);
         }
@@ -139,7 +127,6 @@ class AssetController extends Controller
         foreach ($assets as $asset){
             $parent = $assetRep->find($asset->getLocation());
             if($parent != null){
-                //echo 'has parent';
                 $asset->setParent($parent);
                 $em->persist($asset);
             }
@@ -159,9 +146,6 @@ class AssetController extends Controller
                 try {
                     $esi->setBody($assetTmp);
                     $esi->setQueryString(array());
-                    /*$lel = $esi->invoke('post', '/characters/{character_id}/assets/names/', [
-                        'character_id' => $api->getCharId(),
-                    ]);*/
 
                     $assetNames = EsiUtil::callESI($esi, 'post', '/characters/{character_id}/assets/names/', ['character_id' => $api->getCharId()], array(), $assetTmp);
 
@@ -192,19 +176,18 @@ class AssetController extends Controller
      *
      *
      * @Route("/asset/{id}", name="asset-list")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function assetListAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         /**
          * @var User $user
          */
-        $user = $parameters['user'];
+        $user = $this->getUser();
 
         $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
-
 
         /**
          * @var CharApi $api
@@ -212,13 +195,11 @@ class AssetController extends Controller
         $api = $apiRep->find($id);
 
         if($api === null){
-            $parameters['message'] = 'Api non trouvé dans la base de données';
-            return $this->render('error/404.html.twig', $parameters);
+            throw $this->createNotFoundException('Api non trouvée dans la base de données');
         }
 
-        if($api->getUser() !== $user and !$user->isAdmin){
-            $parameters['message'] = 'Tu n\'as pas le droit d\'update les assets des autres membres';
-            return $this->render('error/forbidden.html.twig', $parameters);
+        if($api->getUser() !== $user and !$this->isGranted('ROLE_ADMIN')){
+            throw $this->createAccessDeniedException('Tu n\'as pas le droit de voir les assets des autres membres');
         }
 
         $parameters['api'] = $api;
@@ -232,13 +213,13 @@ class AssetController extends Controller
      *
      *
      * @Route("/asset", name="asset")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function assetAction(Request $request)
     {
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
-        $user = UserUtil::getUser();
+        $user = $this->getUser();
 
         $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
         $apis = $apiRep->findByUser($user);

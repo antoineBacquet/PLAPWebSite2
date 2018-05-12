@@ -9,100 +9,74 @@
 namespace AppBundle\Controller;
 
 
-use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\CCPUtil;
 use AppBundle\CCP\EsiException;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
-use AppBundle\Entity\Groupe;
+use AppBundle\Entity\Role;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
-use AppBundle\Util\GroupUtil;
+use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
-use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 
+/**
+ * Class AdminController
+ * @package AppBundle\Controller
+ *
+ * @Security("has_role('ROLE_ADMIN')")
+ */
 class AdminController extends Controller
 {
 
-    /**
-     * Remove a group
-     *
-     * @Route("/admin/group/remove/{id}", name="groupRemove")
-     */
-    public function adminGroupRemoveAction(Request $request, $id)
-    {
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
-
-
-        //TODO some group should not be removed (user, admin, etc);
-
-        $repository = $this->getDoctrine()->getRepository(Groupe::class);
-
-        $group = $repository->find($id);
-
-        if($group){
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($group);
-            $em->flush();
-        }
-
-        return $this->redirect($this->generateUrl('group'));
-    }
-
 
     /**
-     * Show the group list, and handle the addition of group
-     *
-     * @Route("/admin/group", name="group")
+     * @Route("/members", name="members")
      */
-    public function adminGroupAction(Request $request)
+    public function adminMemberListAction(Request $request)
     {
 
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
-
-        $doctrine = $this->getDoctrine();
-        $repository = $doctrine->getRepository(Groupe::class);
+        $parameters = ControllerUtil::before($this);
 
 
+        $rep = $this->getDoctrine()->getRepository(User::class);
 
-        $groupe = new Groupe();
-        $form = $this->createFormBuilder($groupe)
-            ->add('name', TextType::class)
-            ->add('save', SubmitType::class, array('label' => 'Ajouter groupe'))
-            ->getForm();
+        $users = $rep->findAll();
 
-        $form->handleRequest($request);
+        $esi = new Eseye();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $newGroupe = $form->getData();
 
-            $doctrine->getManager()->persist($newGroupe);
-            $doctrine->getManager()->flush();
+
+        foreach ($users as $user){
+
+            try {
+                $corp = EsiUtil::callESI($esi, 'get', '/corporations/{corporation_id}/', array('corporation_id' => $user->getCorpId()));
+            }
+            catch (EsiException $e){
+                $corp = null;
+            }
+
+            $user->corp = $corp;
         }
 
-        $groups = $repository->findAll();
 
-        $parameters['groups'] = $groups;
-        $parameters['form'] = $form->createView();
-
-        return $this->render('admin/groupListe.html.twig', $parameters);
-
+        $parameters['members'] = $users;
+        return $this->render('admin/members.html.twig', $parameters);
 
     }
+
 
     /**
      * @Route("/member/{id}", name="member")
@@ -110,8 +84,7 @@ class AdminController extends Controller
     public function adminMemberAction(Request $request, $id)
     {
 
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
 
         $doctrine = $this->getDoctrine();
@@ -125,8 +98,7 @@ class AdminController extends Controller
         $user = $userRep->find($id);
 
         if($user == null){
-            $parameters['message'] = "L'utilisateur n'existe pas.";
-            return $this->render('template/error.html.twig', $parameters);
+            throw  $this->createNotFoundException("Le membre n'existe pas.");
         }
 
 
@@ -134,41 +106,36 @@ class AdminController extends Controller
 
         foreach($apis as $api){
             CCPUtil::isApiValid($api, $doctrine->getManager());
-            $api->isValid = true;
 
-            $authentication = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
 
-            $esi = new Eseye($authentication);
+            $esi = new Eseye();
 
             try {
                 $portraits = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/portrait/', array('character_id' => $api->getCharId()));
             }
             catch (EsiException $e){
-                $parameters['esi_exception'] = $e;
-                return $this->render('error/esi.html.twig', $parameters);
+                $portraits = null; //TODO not found image
             }
-
 
             $api->portrait = $portraits->px64x64;
         }
 
 
         $groupForm = $this->createFormBuilder($user)
-            ->add('groupes', EntityType::class, array(
-                'class' => 'AppBundle:Groupe',
-                'expanded'  => true,
-                'choice_label' => 'name',
-                'multiple' => true
-            ))
-            ->add('save', SubmitType::class, array('label' => 'Changer groupe',  'attr' => array(
-          'class' => 'btn-admin')))
+            ->add('Roles', ChoiceType::class, [
+                'multiple' => true,
+                'expanded' => true, // render check-boxes
+                'choices' => UserUtil::$roleMapping,
+            ])
+            ->add('save', SubmitType::class, array('label' => 'Changer les roles',  'attr' => array(
+                'class' => 'btn-admin')))
             ->getForm();
 
 
         $groupForm->handleRequest($request);
 
         if ($groupForm->isSubmitted() && $groupForm->isValid()) {
-            //$user->setGroupes( $groupForm->getData()->getGroupe());
+            $user->setRoles( $groupForm->getData()->GetRoles());
 
             $doctrine->getManager()->persist($user);
             $doctrine->getManager()->flush();
@@ -179,8 +146,12 @@ class AdminController extends Controller
 
                 $embed->description('Demande de mise a jour des roles');
 
-                $webhook->username('Bot')->message('!ur <@' . $user->getDiscordId() .'>')->embed($embed)->send();
-
+                try{
+                    $webhook->username('Bot')->message('!ur <@' . $user->getDiscordId() .'>')->embed($embed)->send();
+                }
+                catch (\Exception $e){
+                    //TODO error management
+                }
                 //TODO message de feedback
             }
         }
@@ -198,6 +169,10 @@ class AdminController extends Controller
 
 
     }
+
+
+
+
 
     /**
      * @Route("/admin/emails/{id}", name="emails")
@@ -217,47 +192,7 @@ class AdminController extends Controller
 
     }*/
 
-    /**
-     * @Route("/members", name="members")
-     */
-    public function adminMemberListAction(Request $request)
-    {
 
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
-
-        $session = $request->getSession();
-
-
-        $rep = $this->getDoctrine()->getRepository(User::class);
-
-
-        $users = null;
-        $users = $rep->findAll();
-
-        $esi = new Eseye(EsiUtil::getDefaultUserAuthentication($session->get('refresh_token')));
-
-
-
-        foreach ($users as $user){
-
-
-            try {
-                $corp = EsiUtil::callESI($esi, 'get', '/corporations/{corporation_id}/', array('corporation_id' => $user->getCorpId()));
-            }
-            catch (EsiException $e){
-                $corp = null;
-            }
-
-
-            $user->corp = $corp;
-        }
-
-
-        $parameters['members'] = $users;
-        return $this->render('admin/members.html.twig', $parameters);
-
-    }
 
 
 

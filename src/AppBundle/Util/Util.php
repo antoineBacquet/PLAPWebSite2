@@ -34,16 +34,16 @@ class Util
 
     /**
      * @param array(ItemGroup) $groups
+     * @param array $json
+     * @return array
      */
     public static function getChild(array $groups, array $json){
 
         if ($groups == null){
             return $json;
-
         }
         else{
             $json['children'] = array();
-
 
             /**
              * @var ItemMarketGroup $group
@@ -66,9 +66,6 @@ class Util
                     $tmp = Util::getChild($group->getSons()->toArray(), $tmp);
                     $json['children'][] = $tmp;
                 }
-
-
-
 
             }
         }

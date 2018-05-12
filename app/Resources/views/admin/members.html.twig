@@ -6,7 +6,6 @@
 
 
 {% block body %}
-<div class="jumbotron main-w">
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -15,6 +14,7 @@
                     <td> Groupe </td>
                     <td> Discord lié? </td>
                     <td> Corporation </td>
+                    <td> Nombre de personnage </td>
                 </tr>
             </thead>
 
@@ -23,11 +23,13 @@
                     <tr>
                         <td><a href="{{ path('member', { 'id' : member.getId() } ) }}"> {{ member.getName()}} </a>  </td>
 
-                        <td> TODO </td>
+                        <td>  {{ member.roles|last }}</td>
 
                         <td> {% if member.discordId == null %} Non {% else %} Oui {% endif %} </td>
 
-                        <td>{{ member.corp.name}}  </td>
+                        <td>{% if member.corp is null %} Corporation inconue (erreur ESI) {% else %}{{ member.corp.name}} {% endif %}  </td>
+
+                        <td>{% if member.apis is null %} 0 {% else %} {{ member.apis.count }} {% endif %}</td>
 
                     </tr>
                 {% else %}
@@ -36,6 +38,5 @@
             </tbody>
         </table>
     </div>
-</div>
 
 {% endblock %}

@@ -21,6 +21,7 @@ use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
 use Seat\Eseye\Eseye;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -66,40 +67,35 @@ class AjaxController extends Controller
      * Get item information
      *
      * @Route("/service/discord/test", name="testdiscord")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function discordTestAction(Request $request)
     {
         /*
          *
          */
-        $user = UserUtil::getUser($this->getDoctrine(), $request);
+        $user = $this->getUser();
 
         $response = [];
+        if($user->getDiscordId() != null){
 
-        if($user == null){
-            $response['error'] = true;
-            $response['error_id'] = 1; // User not connected
-        }
-        else{
-            if($user->getDiscordId() != null){
+            $response['error'] = false;
 
-                $response['error'] = false;
+            $webhook = new Client(DiscordConfig::$webhook_url);
+            $embed = new Embed();
 
-                $webhook = new Client(DiscordConfig::$webhook_url);
-                $embed = new Embed();
+            $embed->description('Demande de test du discord');
 
-                $embed->description('Demande de test du discord');
-
-                $webhook->username('Bot')->message('!test <@' . $user->getDiscordId() .'>')->embed($embed)->send();
+            $webhook->username('Bot')->message('!test <@' . $user->getDiscordId() .'>')->embed($embed)->send();
 
                 //TODO message de feedback
-            }
-
-            else{
-                $response['error'] = true;
-                $response['error_id'] = 2; // Not linked to the discord
-            }
         }
+
+        else{
+            $response['error'] = true;
+            $response['error_id'] = 2; // Not linked to the discord
+        }
+
 
 
         return $this->json($response);
@@ -111,11 +107,12 @@ class AjaxController extends Controller
      * Get item information
      *
      * @Route("/asset/getroot", name="getroot")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function getRootAction(Request $request)
     {
 
-        $user = UserUtil::getUser($this->getDoctrine(), $request);
+        $user = $this->getUser();
 
         $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
 
@@ -129,7 +126,7 @@ class AjaxController extends Controller
             return $this->json(array('error' => 'Api non trouvée dans la DB'));
         }
 
-        if($api->getUser() !== $user and !$user->isAdmin){
+        if($api->getUser() !== $user and !$this->isGranted('ROLE_ADMIN')){
             return $this->json(array('error' => 'Tu n\'as pas le droit de voir les assets des autres'));
         }
 
@@ -202,11 +199,12 @@ class AjaxController extends Controller
      * Get item information
      *
      * @Route("/asset/getchildren", name="getchildren")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function getChildrenAction(Request $request)
     {
 
-        $user = UserUtil::getUser($this->getDoctrine(), $request);
+        $user = $this->getUser();
 
         $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
 
@@ -220,7 +218,7 @@ class AjaxController extends Controller
             return $this->json(array('error' => 'Api non trouvée dans la DB'));
         }
 
-        if($api->getUser() !== $user and !$user->isAdmin){
+        if($api->getUser() !== $user and !$this->isGranted('ROLE_ADMIN')){
             return $this->json(array('error' => 'Tu n\'as pas le droit de voir les assets des autres'));
         }
 
@@ -264,13 +262,12 @@ class AjaxController extends Controller
      * Get item information
      *
      * @Route("/asset/search", name="asset-search")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function searchAssetAction(Request $request)
     {
 
-        $user = UserUtil::getUser($this->getDoctrine(), $request); //TODO if user null
-
-        if($user === null) return $this->json(array('text' => 'Erreur: tu doit étre connecté pour effectuer une recherche'));
+        $user = $this->getUser();
 
         $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
         $assetRep = $this->getDoctrine()->getRepository(Asset::class);
@@ -284,7 +281,7 @@ class AjaxController extends Controller
             return $this->json(array('error' => 'Api non trouvée dans la DB'));
         }
 
-        if($api->getUser() !== $user and !$user->isAdmin){
+        if($api->getUser() !== $user and !$this->isGranted('ROLE_ADMIN')){
             return $this->json(array('error' => 'Tu n\'as pas le droit de voir les assets des autres'));
         }
 

@@ -7,8 +7,8 @@
             <a class="navbar-brand" href="http://plapcorp.com"><img class="logo"  src="/img/logo.png"></a>
         </div>
                
-                {% if user is defined %}
-            {% if user.isMember == true %}
+        {% if user is defined %}
+            {% if is_granted('ROLE_MEMBER') %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Mon profil <span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -26,7 +26,7 @@
         {% endif %}
 
         {% if user is defined %}
-            {% if user.isMember == true %}
+            {% if is_granted('ROLE_MEMBER') %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Commandes Prod. <span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -41,7 +41,7 @@
 
 
         {% if user is defined %}
-            {% if user.isMember == true %}
+            {% if is_granted('ROLE_MEMBER') == true %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Services <span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -55,7 +55,7 @@
 
 
         {% if user is defined %}
-            {% if user.isAdmin == true %}
+            {% if is_granted('ROLE_ADMIN') == true %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Administration <span class="caret"></span></a>
                     <ul class="dropdown-menu">

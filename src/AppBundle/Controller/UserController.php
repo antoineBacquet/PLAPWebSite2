@@ -25,7 +25,9 @@ use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,14 +41,14 @@ class UserController extends Controller
      * This route de the profile page of a user
      *
      * @Route("/profile", name="profile")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function profileAction(Request $request)
     {
 
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
-        $user = UserUtil::getUser($this->getDoctrine(), $request);
+        $user = $this->getUser();
 
         if($user->getMainApi() === null){
             $parameters['main_api'] = null;
@@ -74,13 +76,13 @@ class UserController extends Controller
      * This route de the profile page of a user
      *
      * @Route("/profile/mainapi/{id}", name="set_main_api")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function profileMainApiAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
-        $user = UserUtil::getUser($this->getDoctrine(), $request);
+        $user = $this->getUser();
 
         $repApi = $this->getDoctrine()->getRepository(CharApi::class);
         /**
@@ -90,13 +92,10 @@ class UserController extends Controller
 
 
         if($api == null){
-            $parameters['message'] = 'Api trouvé dans la base de données';
-            return $this->render('error/404.html.twig', $parameters);
-
-        } //TODO error page
+            throw $this->createNotFoundException('Api non trouvée dans la base de données');
+        }
         if($api->getUser()->getId() ==! $user->getId()){
-            $parameters['message'] = 'Cette api ne t\'arpatient pas.';
-            return $this->render('error/forbidden.html.twig', $parameters);
+            throw $this->createAccessDeniedException('Cette api ne t\'arpatient pas.');
         }
 
         $user->setMainApi($api);
@@ -105,8 +104,6 @@ class UserController extends Controller
         $em->flush();
 
         return $this->redirect($this->generateUrl('profile'));
-
-
     }
 
 
@@ -115,12 +112,12 @@ class UserController extends Controller
      * List every api of a user. One api per character
      *
      * @Route("/profile/apis", name="myapis")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function myApisAction(Request $request){
 
 
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
 
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
@@ -128,7 +125,7 @@ class UserController extends Controller
         /**
          * @var $apis array(CharApi)
          */
-        $apis = $rep->findByUser($parameters['user']->getId());
+        $apis = $rep->findByUser($this->getUser());
 
 
 
@@ -138,7 +135,6 @@ class UserController extends Controller
              * @var CharApi $api
              */
             CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
-            //TODO if api is not valid
 
             //setting the esi api
             $esi = new Eseye();
@@ -163,39 +159,36 @@ class UserController extends Controller
      * Show information from an api
      *
      * @Route("/profile/api/{id}", name="myapi")
+     * @Security("has_role('ROLE_MEMBER')")
      */
-    public function myApiAction(Request $request, $id){
+    public function myApiAction(Request $request, $id)
+    {
 
-
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
 
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
+
+        $user = $this->getUser();
 
         /**
          * @var CharApi $api
          */
         $api = $rep->find($id);
 
-
-        //test if the API exist in the database, return an error page if not
         if($api == null){
-            $parameters['message'] = "L'API n'existe pas.";
-            return $this->render('template/404.html.twig', $parameters);
+            throw $this->createNotFoundException('Api non trouvée dans la base de données');
+        }
+        if($api->getUser() != $user and !$this->isGranted('ROLE_ADMIN')){
+            throw $this->createAccessDeniedException('Cette api ne t\'arpatient pas.');
         }
 
-        //if this not the user api or the user is not an admin return an error page
-        if($api->getUser() != $parameters['user'] and !$parameters['user']->isAdmin){
-            $parameters['message'] = "Tu n'es pas autorisé a voir ca.";
-            return $this->render('template/forbidden.html.twig', $parameters);
+        if(CCPUtil::isApiValid($api, $this->getDoctrine()->getManager())){
+            $parameters['api_summary'] = UserUtil::getApiSummary($api, $this->getDoctrine());
         }
-
-        CCPUtil::isApiValid($api, $this->getDoctrine()->getManager());
-        //TODO if api is not valid
-
-        $parameters['api_summary'] = UserUtil::getApiSummary($api, $this->getDoctrine());
-
+        else{
+            $parameters['api_summary'] = null;
+        }
 
         return $this->render('profile/api.html.twig', $parameters);
 
@@ -205,6 +198,7 @@ class UserController extends Controller
      * Basically generate the url to the ccp login page. This time with the scope needed.
      *
      * @Route("/profile/addapi", name="addapi")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function addApiAction(Request $request)
     {
@@ -225,12 +219,12 @@ class UserController extends Controller
      * This route manage the redirection after login on ccp server, create a CharacterApi and add this to the database
      *
      * @Route("/profile/ccpcallback", name="ccpcallbackapi")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function ccpCallBackApiAction(Request $request)
     {
 
-        $parameters = ControllerUtil::before($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(isset($parameters['redirect'])) return $this->render($parameters['redirect_path'],$parameters);
+        $parameters = ControllerUtil::before($this);
 
 
         $userAgent = 'PLAP';
@@ -246,6 +240,10 @@ class UserController extends Controller
         }
         rtrim($fields_string, '&');
         $ch = curl_init();
+        if ($ch === false) {
+            $parameters['message'] = "Imposible d'initialiser curl, réessaye.";
+            return $this->render('error/login.html.twig', $parameters);
+        }
         curl_setopt($ch, CURLOPT_URL, CCPConfig::$tokenURL);
         curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array($header));
@@ -256,18 +254,24 @@ class UserController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         $result = curl_exec($ch);
         if ($result === false) {
-            throw $this->createNotFoundException('Error from ccp. No response');
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            return $this->render('error/login.html.twig', $parameters);
         }
         curl_close($ch);
 
 
         $response = json_decode($result, true);
         if (isset($response['error'])) {
-            throw $this->createNotFoundException('Error from ccp. Error message : ' . $response['error']);
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            return $this->render('error/login.html.twig', $parameters);
         }
         $access_token = $response['access_token'];
         $refresh_token = $response['refresh_token'];
         $ch = curl_init();
+        if ($ch === false) {
+            $parameters['message'] = "Imposible d'initialiser curl, réessaye.";
+            return $this->render('error/login.html.twig', $parameters);
+        }
         // Get the Character details from SSO
         $header = 'Authorization: Bearer ' . $access_token;
         curl_setopt($ch, CURLOPT_URL, CCPConfig::$verifyURL);
@@ -278,12 +282,14 @@ class UserController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         $result = curl_exec($ch);
         if ($result === false) {
-            throw $this->createNotFoundException('Error from ccp. (no response)');
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            return $this->render('error/login.html.twig', $parameters);
         }
         curl_close($ch);
         $response = json_decode($result);
         if (!isset($response->CharacterID)) {
-            throw $this->createNotFoundException('Error from ccp. Can\'t get the character id');
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            return $this->render('error/login.html.twig', $parameters);
         }
         /*if (strpos(@$response->Scopes, 'publicData') === false) {
             throw $this->createNotFoundException('Error from ccp. The scopes don\'t match');
@@ -308,7 +314,7 @@ class UserController extends Controller
             $charInfo = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/', ['character_id' => $charID]);
         } catch (EsiException $e) {
             $parameters['esi_exception'] = $e;
-            $this->render('error/esi.html.twig', $parameters);
+            return $this->render('error/esi.html.twig', $parameters);
         }
 
         /**
@@ -317,7 +323,7 @@ class UserController extends Controller
         $api = $apiRep->findOneByCharId($charID);
 
 
-        if($api == null or $api->getUser() !== UserUtil::getUser() )
+        if($api === null or $api->getUser() !== $this->getUser() )
             $api = new CharApi();
 
 
@@ -327,14 +333,14 @@ class UserController extends Controller
 
         $api->setCharId($charID)->setCharName($charInfo->name)->setRefreshToken($refresh_token)
             ->setToken($access_token)
-            ->setUser(UserUtil::getUser($this->getDoctrine(), $request))
+            ->setUser($this->getUser())
             ->setExpireOn($expireOn);
 
         try {
             $mails = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/mail/', ['character_id' => $charID]);
         } catch (EsiException $e) {
             $parameters['esi_exception'] = $e;
-            $this->render('error/esi.html.twig', $parameters);
+            return $this->render('error/esi.html.twig', $parameters);
         }
 
 
@@ -363,26 +369,31 @@ class UserController extends Controller
      * Remove an api
      *
      * @Route("/profile/removeapi/{id}", name="removeapi")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function removeApiAction(Request $request, $id)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
+
+        $user = $this->getUser();
 
 
-        $user = UserUtil::getUser($this->getDoctrine(), $request);
         $rep = $this->getDoctrine()->getRepository(CharApi::class);
         $api = $rep->find($id);
-        if( $api == null)  return $this->redirect('/profile/api');
-
-        if($api->getUser()->getId() != $user->getId()) return $this->redirect('/');
+        if($api === null){
+            throw $this->createNotFoundException('Api non trouvée dans la base de données');
+        }
+        if($api->getUser()->getId() ==! $user->getId() and !$this->isGranted('ROLE_ADMIN')){
+            throw $this->createAccessDeniedException('Cette api ne t\'arpatient pas.');
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->remove($api);
         $em->flush();
-        return $this->redirect('/profile/apis');
 
+
+        return $this->redirect('/profile/apis');
 
     }
 
@@ -390,14 +401,14 @@ class UserController extends Controller
      * Remove an api
      *
      * @Route("/profile/order", name="myorder")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function myOrderAction(Request $request)
     {
 
+        $parameters = ControllerUtil::before($this);
+
         die('nop');
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
-        $user = UserUtil::getUser($this->getDoctrine(), $request);
 
         die('orders');
         $apis = $user->getApis();
@@ -432,16 +443,16 @@ class UserController extends Controller
      * Add a command
      *
      * @Route("/profile/commands", name="mycommands")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function myCommandAction(Request $request)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
         $commandRep = $doctrine->getRepository(Command::class);
 
-        $commands = $commandRep->findByIssuer($parameters['user']);
+        $commands = $commandRep->findByIssuer($this->getUser());
 
         $parameters['commands'] = $commands;
 
@@ -453,17 +464,19 @@ class UserController extends Controller
      * Remove an api
      *
      * @Route("/service/notification", name="notification")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function notificationAction(Request $request)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
-        $notification = $parameters['user']->getNotification();
+        $user = $this->getUser();
+
+        $notification = $user->getNotification();
 
         if($notification === null){
             $notification = new Notification();
-            $notification->setUser($parameters['user']);
+            $notification->setUser($user);
         }
 
         $form = $this->createFormBuilder($notification)

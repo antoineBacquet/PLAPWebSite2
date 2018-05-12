@@ -12,13 +12,12 @@ namespace AppBundle\Controller;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
-use AppBundle\Util\Core;
 use AppBundle\Util\DiscordUtil;
-use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use Discord\OAuth\Parts\Invite;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,11 +31,11 @@ class DiscordController  extends Controller
      * Discord service
      *
      * @Route("/service/discord", name="discordservice")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function serviceAction(Request $request)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
 
         return $this->render('profile/service.html.twig', $parameters);
@@ -48,12 +47,12 @@ class DiscordController  extends Controller
      * Join the discord
      *
      * @Route("/discord/join/", name="discordjoin")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function discordJoinAction(Request $request)
     {
 
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         $url = DiscordConfig::$loginURI;
 
@@ -69,14 +68,14 @@ class DiscordController  extends Controller
      * discord call back
      *
      * @Route("/discord/redirect/", name="discordredirect")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function discordRedirectAction(Request $request)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
 
-        $user = UserUtil::getUser($this->getDoctrine(), $request);
+        $user = $this->getUser();
 
 
 
@@ -139,14 +138,14 @@ class DiscordController  extends Controller
      * Request to update roles on discord
      *
      * @Route("/service/discord/updateroles", name="updatemyroles")
+     * @Security("has_role('ROLE_MEMBER')")
      */
     public function updateMyRolesAction(Request $request)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Membre']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
 
-        DiscordUtil::updateRoles(UserUtil::getUser($this->getDoctrine(),$request)); //TODO error management
+        DiscordUtil::updateRoles($this->getUser());
 
         return $this->redirect($this->generateUrl('discordservice'));
 
@@ -156,11 +155,11 @@ class DiscordController  extends Controller
      * Request to update roles on discord
      *
      * @Route("/service/discord/updateroles/{id}", name="updatediscordroles")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function updateDiscordRolesAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::beforeRequest($this, $request, array(GroupUtil::$GROUP_LISTE['Admin']));
-        if(!is_array($parameters)) return $parameters;
+        $parameters = ControllerUtil::before($this);
 
         $rep = $this->getDoctrine()->getRepository(User::class);
         $user = $rep->find($id);
@@ -169,7 +168,7 @@ class DiscordController  extends Controller
             //TODO error management
         }
         else{
-            DiscordUtil::updateRoles(UserUtil::getUser($user,$request)); //TODO error management
+            DiscordUtil::updateRoles($this->getUser()); //TODO error management
         }
 
 

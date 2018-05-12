@@ -15,7 +15,6 @@
     {% if  main_api == null %}
         Pas de personnage principal
     {% else %}
-        Personnage principal : {{ api_summary.api.charName }} <br>
         {% if  api_summary == null %}
             Erreur sur la requéte ESI!
             <p>
@@ -23,6 +22,7 @@
                 {{ esi_exception.getDetail() }}
             </p>
         {% else %}
+            Personnage principal : {{ api_summary.api.charName }} <br>
             {% include 'template/api_summary.html.twig' with {'api_summary': api_summary} %}
         {% endif %}
     {% endif %}

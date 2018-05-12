@@ -3,7 +3,7 @@
 
 {% block body %}
 
-    <h1> Emails</h1>
+    <h2> Emails de {{ api.charName }}</h2>
 
     <div class="container-fluid">
         <div class="row">
@@ -12,7 +12,7 @@
                     {% for label in labels.labels %}
                         <li>
                             {%  if label.unread_count is defined and label.unread_count>0 %} <strong> {% endif %}
-                                <a href="{{ path('myemails', { 'id' : api.getId(), 'label_id' : label.label_id } ) }}">{{ label.name }}</a>
+                                <a href="{{ path('emails', { 'id' : api.getId(), 'label_id' : label.label_id } ) }}">{{ label.name }}</a>
                                 {%  if label.unread_count  is defined and label.unread_count>0  %} ({{ label.unread_count  }}) </strong> {% endif %}
                         </li>
                     {%  endfor %}
