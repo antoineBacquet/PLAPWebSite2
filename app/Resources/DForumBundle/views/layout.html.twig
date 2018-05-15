@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+{% set pagetitle %}{% block title %}{{ 'home.meta.title'|trans }}{% endblock %}{% endset %}
+<html lang="{{ app.request.locale }}">
+  <head>
+    <meta charset="utf-8" />
+    <!--[if lt IE 9]>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>{{ pagetitle }}</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <style>
+        body {
+            padding-top: 50px;
+        }
+        .starter-template {
+            padding: 40px 15px;
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+
+      <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}" />
+      <link rel="stylesheet" href="{{ asset('css/starter-template.css') }}" />
+  </head>
+
+
+  <body>
+      <nav class="navbar navbar-inverse navbar-fixed-top">
+          <div class="container">
+
+              {{ include('template/menutmp.html.twig') }}
+
+          </div>
+      </nav>
+
+
+      <div class="container">
+          <div class="starter-template">
+              <div class="jumbotron main-w">
+                  {% for label, flashes in app.session.flashbag.all %}
+                      {% for flash in flashes %}
+                          <div class="alert alert-{{ label }}">{{ flash }}</div>
+                      {% endfor %}
+                  {% endfor %}
+
+                  {% block body %}{% endblock %}
+              </div>
+          </div>
+      </div>
+
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <script src="{{ asset('js/bootstrap.js') }}"></script>
+
+      {% block js %}{% endblock %}
+
+      {{ include('template/_footer.html.twig') }}
+
+      </body>
+</html>
