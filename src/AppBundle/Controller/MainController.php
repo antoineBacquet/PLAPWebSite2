@@ -115,19 +115,19 @@ class MainController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         $result = curl_exec($ch);
 
-        //echo curl_getinfo($ch) . '<br/>';
-        //echo curl_errno($ch) . '<br/>';
-        //echo curl_error($ch) . '<br/>';
+        dump(curl_getinfo($ch));
+        dump( curl_errno($ch));
+        dump(curl_error($ch));
 
         curl_close($ch);
         if ($result === false) {
-            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ)1.";
             return $this->render('error/login.html.twig', $parameters);
         }
 
         $response = json_decode($result, true);
         if (isset($response['error'])) {
-            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ)2.";
             return $this->render('error/login.html.twig', $parameters);
         }
         $access_token = $response['access_token'];
@@ -150,17 +150,17 @@ class MainController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         $result = curl_exec($ch);
         if ($result === false) {
-            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ)3.";
             return $this->render('error/login.html.twig', $parameters);
         }
         curl_close($ch);
         $response = json_decode($result);
         if (!isset($response->CharacterID)) {
-            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ)4.";
             return $this->render('error/login.html.twig', $parameters);
         }
         if (strpos(@$response->Scopes, 'publicData') === false) {
-            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ).";
+            $parameters['message'] = "Erreur inconnue venant de CCP (CCPLZ)5.";
             return $this->render('error/login.html.twig', $parameters);
         }
         $charID = (int)$response->CharacterID;
