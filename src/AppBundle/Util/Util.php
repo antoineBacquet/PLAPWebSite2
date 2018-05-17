@@ -20,6 +20,8 @@ class Util
 
     public static $corpId = '98491538';
 
+    public static $activityMapping = array(1=> "Manufacturing", 3=> "Time efficiency research", 4=> "Materials efficiency research", 5=> "Copying", 8=> "Invention");
+
 
     public static function generateRandomString($length = 10) {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
