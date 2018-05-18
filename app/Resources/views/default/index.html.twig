@@ -1,36 +1,22 @@
 {% extends 'template/base.html.twig' %}
 
+{% block css %}
+	<link rel="stylesheet" href="{{ asset('css/plap-video.css') }}" />
+{% endblock %}
+
 {% block body %}
 
 
+	<!--<div style="position: fixed; top: 0; left:0; z-index: -99; width: 100%; height: 100%">
+		<iframe frameborder="0" height="110%" width="100%" allowfullscreen
+				src="https://youtube.com/embed/BeR8X_uARUM?version=3&autoplay=1&loop=1&controls=0&version=3&playlist=BeR8X_uARUM&showinfo=0&autohide=1">
+				</div>
+		</iframe>-->
+		<video autoplay muted loop id="plap-video">
+			<source src="{{ asset('video/plap.mp4') }}" type="video/mp4">
+			Your browser does not support the video tag.
+		</video>
 
-       <center><h1 class="title">♦ Pain and Pleasur ♦</h1>
-<img class="logo"  src="/img/logo.png">
- 
-<br>
-<br>
-        <p class="lead">Nous recherchons des joueurs actifs et ambitieux.
-	<br>
-	<br>
-		<b><u>Exigences:</u></b>
-		<br>
-		   <ul>
-			<li>FULL API Key</li>
-			<li>20 Millions SPs </li>
-			<li>Experience PvP </li>
-            <li>Savoir être autonome</li>
-			<li>Skills Armor prioritaires</li>
-			<li>Avoir l'esprit d'&eacute;quipe</li>
-			<li>l'Anglais de Fleets est exig&eacute;e</li>
-			<li>CAP ARMOR READY (supers/titans - FAX obligatoire)</li> 
-			<li>Teamspeak, Discord et un microphone</li>
-			<li>NBSI, EUTZ et plus, Fleets actives</li>
-		   </ul>
-<br>
-On vends du rève, on fait des tarifs de groupes.. I'm Elite !<span style="color:red;">  Notre channel public in Eve : pap </span></p>
-<p>
-  <hr class="my-4">
-<span style="color:red;">Contact in-game :</span></p> Yanamar Dusk, Maitre Kirua, RAVENnn Otsito, Instiink Loutte, Fbrz</p>
-        <a class="btn btn-lg btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLScRg6TbWWOcPJMAxcsBDb9CZuS-fYefmPASXvMPm-AR6Pdpcw/viewform" role="button">Recrutement</a></center>
+
 
 {% endblock %}
