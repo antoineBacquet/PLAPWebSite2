@@ -15,55 +15,57 @@
 <h1 class="text-center">{{ 'discutea.forum.forumlist'|trans }}</h1>
 
 <div class="container">
-    <div class="api-summary panel-default">
+    <div class="">
 
         {% for category in categories if is_granted('CanReadCategory', category) %}
 
-            <div class="api-summary-heading">
+            <div class="">
                 <h3>{{ category.name }}</h3>
             </div>
 
-        <div class="panel-body">
-
+        <div class="">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">Category</th>
+                    <th scope="col">Autheur</th>
+                    <th scope="col">{{ 'discutea.forum.lastpostby'|trans }} </th>
+                    <th scope="col">Nombre to topics</th>
+                </tr>
+                </thead>
             {% for forum in category.forums %}
+                {% set lastTopic = dfLastTopicInForum(forum) %}
 
-                <section class="col-md-6">
-                    <h3><a href="{{ path('discutea_forum_topic', {'slug': forum.slug}) }}" title="{{ forum.name }}">{{ forum.name }}</a></h3>
-                    <hr>
-                    <h6>{{ forum.description }} </h6>
 
-                </section>
-                <section class="col-md-2">
-                    <ul id="post-topic">
-                        <li class="list-unstyled"> Topics:62 </li>
-                        <li class="list-unstyled"> Posts:445 </li>
-                    </ul>
-                </section>
-                <section class="col-md-3">
-                    {% set lastTopic = dfLastTopicInForum(forum) %}
-                    {% if lastTopic is not null %}
-                        {% if lastTopic.posts.last.poster is not null %}
-                            {% set username = lastTopic.posts.last.poster.username %}
-                        {% else %}
-                            {% set username = 'discutea.forum.deleted.user'|trans %}
-                        {% endif %}
-                        <h4> <a class="lastComment" href="{{ dfLastPostPages(lastTopic.posts.last) }}">{{ lastTopic.posts.last.topic.title }}</a></h4> <hr>
-                        {{ 'discutea.forum.lastpostby'|trans }} <i class="glyphicon glyphicon-user"></i> {{ username }}  <br>
-                        <i class="glyphicon glyphicon-calendar"></i> {{ lastTopic.posts.last.date|date("Y-m-d H:i:s") }}
-
+                <tbody>
+                <tr class="table-active">
+                    <td scope="row"><a href="{{ path('discutea_forum_topic', {'slug': forum.slug}) }}" title="{{ forum.name }}">{{ forum.name }}</a></td>
+                    <td>Column content</td>
+                {% if lastTopic is not null %}
+                    {% if lastTopic.posts.last.poster is not null %}
+                        {% set username = lastTopic.posts.last.poster.username %}
                     {% else %}
-                    {%  endif %}
+                        {% set username = 'discutea.forum.deleted.user'|trans %}
+                    {% endif %}
+                    <td><a class="lastComment" href="{{ dfLastPostPages(lastTopic.posts.last) }}">{{ lastTopic.posts.last.topic.title }}</a> <br>
+                    <i class="glyphicon glyphicon-user"></i> {{ username }}  <br>
+                    <i class="glyphicon glyphicon-calendar"></i> {{ lastTopic.posts.last.date|date("Y-m-d H:i:s") }}</td>
 
-                </section>
+                {% else %}
+                    Aucun topic
+                {% endif %}
+                    <td>{{ forum.topics|length }}</td>
+                </tr>
+                </tbody>
 
 
             {% else %}
                 <p class="text-center"><a class="btn btn-primary" href="{{ path('discutea_forum_create_forum', {'id': category.id}) }}">{{ 'discutea.forum.category.addforum'|trans }}</a></p>
             {% endfor %}
-
+            </table>
         </div>
 
-
+            <hr>
         {% else %}
             <p class="text-center"><a class="btn btn-primary" href="{{ path('discutea_forum_create_category') }}"> {{ 'discutea.forum.category.createnew'|trans }} </a></p>
         {% endfor %}
