@@ -37,9 +37,17 @@ class Job
     /**
      * @var int
      *
-     * @ORM\Column(name="blueprintTypeId", type="integer")
+     * @ORM\ManyToOne(targetEntity="Item")
+     * @ORM\JoinColumn(onDelete="SET NULL", nullable=true)
      */
     private $blueprintTypeId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="runs", type="integer",options={"default" : 1})
+     */
+    private $runs = 1;
 
     /**
      * @var string
@@ -83,6 +91,21 @@ class Job
      * @ORM\JoinColumn(onDelete="cascade")
      */
     private $owner;
+
+    /**
+     * @var int
+     *
+     * @ORM\ManyToOne(targetEntity="Item")
+     * @ORM\JoinColumn(onDelete="SET NULL", nullable=true)
+     */
+    private $productType;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="successfulRun", type="integer", nullable=true)
+     */
+    private $successfulRun;
 
 
     /**
@@ -146,11 +169,11 @@ class Job
     /**
      * Set blueprintTypeId
      *
-     * @param integer $blueprintTypeId
+     * @param \AppBundle\Entity\Item $blueprintTypeId
      *
      * @return Job
      */
-    public function setBlueprintTypeId($blueprintTypeId)
+    public function setBlueprintTypeId(\AppBundle\Entity\Item $blueprintTypeId)
     {
         $this->blueprintTypeId = $blueprintTypeId;
     
@@ -160,7 +183,7 @@ class Job
     /**
      * Get blueprintTypeId
      *
-     * @return integer
+     * @return Item
      */
     public function getBlueprintTypeId()
     {
@@ -323,5 +346,77 @@ class Job
         $this->id = $id;
     
         return $this;
+    }
+
+    /**
+     * Set runs
+     *
+     * @param integer $runs
+     *
+     * @return Job
+     */
+    public function setRuns($runs)
+    {
+        $this->runs = $runs;
+    
+        return $this;
+    }
+
+    /**
+     * Get runs
+     *
+     * @return integer
+     */
+    public function getRuns()
+    {
+        return $this->runs;
+    }
+
+    /**
+     * Set successfulRun
+     *
+     * @param integer $successfulRun
+     *
+     * @return Job
+     */
+    public function setSuccessfulRun($successfulRun)
+    {
+        $this->successfulRun = $successfulRun;
+    
+        return $this;
+    }
+
+    /**
+     * Get successfulRun
+     *
+     * @return integer
+     */
+    public function getSuccessfulRun()
+    {
+        return $this->successfulRun;
+    }
+
+    /**
+     * Set productType
+     *
+     * @param \AppBundle\Entity\Item $productType
+     *
+     * @return Job
+     */
+    public function setProductType(\AppBundle\Entity\Item $productType = null)
+    {
+        $this->productType = $productType;
+    
+        return $this;
+    }
+
+    /**
+     * Get productType
+     *
+     * @return \AppBundle\Entity\Item
+     */
+    public function getProductType()
+    {
+        return $this->productType;
     }
 }
