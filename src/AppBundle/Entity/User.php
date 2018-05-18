@@ -81,17 +81,18 @@ class User implements UserInterface, \Serializable
     /**
      * @var int
      *
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Recruitement", mappedBy="id"))
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    private $recruitment;
+
+    /**
+     * @var int
+     *
      * @ORM\OneToOne(targetEntity="CharApi")
      * @ORM\JoinColumn(nullable=true)
      */
     private $mainApi;
-
-    public $isMember = false;
-
-    public $isAdmin = false;
-
-    public $isProdResp = false;
-
 
     public function __construct()
     {
@@ -413,4 +414,28 @@ class User implements UserInterface, \Serializable
     }
 
 
+
+    /**
+     * Set recruitment
+     *
+     * @param \AppBundle\Entity\Recruitement $recruitment
+     *
+     * @return User
+     */
+    public function setRecruitment(\AppBundle\Entity\Recruitement $recruitment = null)
+    {
+        $this->recruitment = $recruitment;
+    
+        return $this;
+    }
+
+    /**
+     * Get recruitment
+     *
+     * @return \AppBundle\Entity\Recruitement
+     */
+    public function getRecruitment()
+    {
+        return $this->recruitment;
+    }
 }

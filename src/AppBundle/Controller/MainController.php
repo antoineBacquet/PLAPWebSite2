@@ -34,12 +34,24 @@ class MainController extends Controller
      */
     public function indexAction(Request $request)
     {
-
         $parameters = ControllerUtil::before($this);
 
-
         return $this->render('default/index.html.twig', $parameters);
-        //
+
+    }
+
+    /**
+     *
+     *
+     * This route is the recruitment
+     *
+     * @Route("/recruitment", name="recruitment")
+     */
+    public function recruitmentAction(Request $request)
+    {
+        $parameters = ControllerUtil::before($this);
+
+        return $this->render('default/recruitment.html.twig', $parameters);
     }
 
     /**
@@ -198,7 +210,7 @@ class MainController extends Controller
             return $this->redirect($this->generateUrl('profile'));
         }
         else{
-            return $this->redirect('/'); //TODO redirect to recruitment page
+            return $this->redirect($this->generateUrl('recruitment')); //TODO redirect to recruitment page
         }
     }
 
