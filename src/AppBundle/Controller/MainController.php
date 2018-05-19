@@ -119,6 +119,8 @@ class MainController extends Controller
             $event = new InteractiveLoginEvent($request, $token);
             $this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
 
+            //TODO notify ROLE_DIPLO
+
             return $this->redirect($this->generateUrl('profile'));
         }
 
@@ -201,10 +203,10 @@ class MainController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         $result = curl_exec($ch);
-
+/*
         dump(curl_getinfo($ch));
         dump( curl_errno($ch));
-        dump(curl_error($ch));
+        dump(curl_error($ch));*/
 
         curl_close($ch);
         if ($result === false) {

@@ -15,6 +15,7 @@ use AppBundle\CCP\EsiUtil;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
+use AppBundle\Entity\Recruitement;
 use AppBundle\Entity\Role;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
@@ -170,11 +171,65 @@ class AdminController extends Controller
 
     }
 
-
-
-
-
     /**
+     * @Route("/admin/apply", name="apply-list")
+     */
+    public function adminApplyListAction(Request $request)
+    {
+
+        $parameters = ControllerUtil::before($this);
+
+        $applyRep = $this->getDoctrine()->getRepository(Recruitement::class);
+
+        $applys = $applyRep->findAll();
+
+        $esi = new Eseye();
+        foreach ($applys as $apply){
+
+            try {
+                $corp = EsiUtil::callESI($esi, 'get', '/corporations/{corporation_id}/', array('corporation_id' => $apply->getUser()->getCorpId()));
+            }
+            catch (EsiException $e){
+                $corp = null;
+            }
+
+            $apply->getUser()->corp = $corp;
+        }
+
+        $parameters['applys'] = $applys;
+
+        return $this->render('admin/apply.html.twig', $parameters);
+    }
+    /**
+     * @Route("/admin/apply/{id}", name="apply-info")
+     */
+    public function adminApplyAction(Request $request, $id)
+    {
+        $parameters = ControllerUtil::before($this);
+
+        $applyRep = $this->getDoctrine()->getRepository(Recruitement::class);
+
+        $apply = $applyRep->find($id);
+        $esi = new Eseye();
+        try {
+            $corp = EsiUtil::callESI($esi, 'get', '/corporations/{corporation_id}/', array('corporation_id' => $apply->getUser()->getCorpId()));
+        }
+        catch (EsiException $e){
+            $corp = null;
+        }
+        $apply->getUser()->corp = $corp;
+
+        $parameters['apply'] = $apply;
+
+        return $this->render('admin/apply-info.html.twig', $parameters);
+    }
+
+
+
+
+
+
+        /**
      * @Route("/admin/emails/{id}", name="emails")
      */
     /*public function adminMemberEmailsAction(Request $request, $id)

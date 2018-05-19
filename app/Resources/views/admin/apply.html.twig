@@ -1,0 +1,40 @@
+{% extends 'template/base.html.twig' %}
+
+
+
+
+{% block body %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <td> Utilisateur </td>
+                <td> Discord lié? </td>
+                <td> Corporation </td>
+                <td> Nombre de personnage </td>
+                <td> Action </td>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for apply in applys %}
+                <tr>
+                    <td><a href="{{ path('member', { 'id' : apply.user.getId() } ) }}"> {{ apply.user.getName()}} </a>  </td>
+
+                    <td> {% if apply.user.discordId == null %} Non {% else %} Oui {% endif %} </td>
+
+                    <td>{% if apply.user.corp is null %} Corporation inconue (erreur ESI) {% else %}{{ apply.user.corp.name}} {% endif %}  </td>
+
+                    <td>{% if apply.user.apis is null %} 0 {% else %} {{ apply.user.apis.count }} {% endif %}</td>
+
+                    <td><a href="{{ path('apply-info', { 'id' : apply.id } ) }}"> Voir l'application</a>  </td>
+
+                </tr>
+            {% else %}
+                Pas d'application.
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'template/base.html.twig' %}
+
+
+
+
+{% block body %}
+
+    <h3>Application de {{ apply.user.name }}</h3><br>
+
+    Micro+casque Discord/TS3 : {% if apply.mic %} oui {% else %} non {% endif %} <br>
+
+    Age : {{ apply.age }}<br>
+
+    Connaissance du 0.0 dans eve : {{ apply.eveKnowledge }}<br>
+
+
+    <br>
+
+
+
+    {% include 'template/api_list.html.twig' with {'apis': apply.user.apis} %}
+
+
+{% endblock %}
