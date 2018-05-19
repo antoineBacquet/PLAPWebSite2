@@ -55,3 +55,7 @@ color: #fff;
     font-size: 68px;
     font-family: "Roboto", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 }
+
+.form-select{
+    color: black;
+}

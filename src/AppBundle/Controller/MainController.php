@@ -10,14 +10,21 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\EsiException;
+use AppBundle\Entity\Recruitement;
+use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
+use Doctrine\DBAL\Types\BooleanType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -41,8 +48,6 @@ class MainController extends Controller
     }
 
     /**
-     *
-     *
      * This route is the recruitment
      *
      * @Route("/recruitment", name="recruitment")
@@ -52,6 +57,58 @@ class MainController extends Controller
         $parameters = ControllerUtil::before($this);
 
         return $this->render('default/recruitment.html.twig', $parameters);
+    }
+
+    /**
+     * This route is the recruitment
+     *
+     * @Route("/recruitment/apply", name="apply")
+     * @Security("has_role('ROLE_GUEST')")
+     */
+    public function applyAction(Request $request)
+    {
+        $parameters = ControllerUtil::before($this);
+
+        /**
+         * @var $user User
+         */
+        $user = $this->getUser();
+
+        $apply = $user->getRecruitment();
+
+        if($apply === null) $apply = new Recruitement();
+
+        $form = $this->createFormBuilder($apply)
+                ->add('mic', CheckboxType::class, array('label' => 'Micro+casque Discord/TS3 ?'))
+                ->add('age', ChoiceType::class,[
+                    'label' => 'Age ?',
+                    'multiple' => false,
+                    'expanded' => false,
+                    'attr' => array('class' => 'form-select'),
+                    'choices' => array('0-15' => '15-', '15-18' => '15-18', '18-25' => '18-25', '25-35' => '25-35', '35+' => '35+')])
+                ->add('eveKnowledge', ChoiceType::class,[
+                    'label' => 'Connaissance du 0.0 dans eve',
+                    'multiple' => false,
+                    'expanded' => false,
+                    'attr' => array('class' => 'form-select'),
+                    'choices' => array('Aucune' => 'Aucune', 'Modéré' => 'Modéré', 'Bonne' => 'Bonne', 'I am Elite' => 'I am Elite')])
+            ->add('save', SubmitType::class, array('label' => 'Postuler',  'attr' => array(
+                'class' => 'btn btn-primary')))
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $apply->setUser($user);
+            $this->getDoctrine()->getManager()->persist($apply);
+            $this->getDoctrine()->getManager()->flush();
+        }
+
+        $parameters['form']  = $form->createView();
+
+
+
+        return $this->render('default/apply.html.twig', $parameters);
     }
 
     /**
@@ -206,12 +263,14 @@ class MainController extends Controller
         $this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
 
 
-        if(UserUtil::hasRole($user, 'ROLE_MEMBRE')){
+
+        if(UserUtil::hasRole($user, 'ROLE_MEMBER')){
             return $this->redirect($this->generateUrl('profile'));
         }
         else{
             return $this->redirect($this->generateUrl('recruitment')); //TODO redirect to recruitment page
         }
+
     }
 
 

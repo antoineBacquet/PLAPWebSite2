@@ -33,7 +33,7 @@ class Recruitement
     /**
      * @var int
      *
-     * @ORM\Column(name="age", type="integer")
+     * @ORM\Column(name="age", type="string", length=255)
      */
     private $age;
 

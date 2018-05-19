@@ -6,7 +6,7 @@
         <tbody>
         {% for command in commands %}
 
-            {% if not command.important or user.isAdmin or user.isProdResp or user == command.issuer %}
+            {% if not command.important or is_granted('ROLE_ADMIN') or is_granted('ROLE_PROD') or user == command.issuer %}
 
                 <tr>
                     <td> {{ command.id }} </td>
@@ -20,7 +20,7 @@
                     <td> <a href="{{command.evepraisal }}"> Lien Evepraisal </a> </td>
 
                     <td>
-                        {% if (user.isAdmin or user == command.issuer) and command.state != "accepted" %}
+                        {% if (is_granted('ROLE_ADMIN') or user == command.issuer) and command.state != "accepted" %}
                         <a href="{{ path('removecommand', {'id' : command.id } ) }}"> Supprimer la commande </a> </td>
                     {% elseif command.state == "accepted" %}
                         Commande fini
