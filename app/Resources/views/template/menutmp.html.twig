@@ -7,19 +7,24 @@
             <a class="navbar-brand" href="http://plapcorp.com"><img class="logo"  src="/img/logo.png"></a>
         </div>
 
-            {% if is_granted('ROLE_MEMBER') %}
+        <li><a class="nav-link" href="{{ path('recruitment') }}" >Recrutement</a></li>
+
+            {% if is_granted('ROLE_MEMBER') or is_granted('ROLE_APPLY') %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Mon profil <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ path('profile') }}" >Mon profil</a></li>
                         <li><a class="dropdown-item" href="{{ path('myapis') }}" >Mes API</a></li>
-                        <li><a class="dropdown-item" href="{{ path('asset') }}" >Mes Asset</a></li>
+                        {% if is_granted('ROLE_MEMBER') %}
+                            <li><a class="dropdown-item" href="{{ path('asset') }}" >Mes Asset</a></li>
+                        {% endif %}
                     </ul>
                 </li>
-
-                <li>
-                <a href="{{ path('emailsmenu') }}"> Eve-mails </a>
-                </li>
+                 {% if is_granted('ROLE_MEMBER') %}
+                    <li>
+                        <a href="{{ path('emailsmenu') }}"> Eve-mails </a>
+                    </li>
+                 {% endif %}
 
             {% endif %}
 

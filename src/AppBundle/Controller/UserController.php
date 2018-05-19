@@ -16,6 +16,7 @@ use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
 use AppBundle\Entity\Notification;
+use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
@@ -41,7 +42,7 @@ class UserController extends Controller
      * This route de the profile page of a user
      *
      * @Route("/profile", name="profile")
-     * @Security("has_role('ROLE_MEMBER')")
+     * @Security("is_granted('ROLE_MEMBER') or is_granted('ROLE_APPLY')")
      */
     public function profileAction(Request $request)
     {
@@ -76,7 +77,7 @@ class UserController extends Controller
      * This route de the profile page of a user
      *
      * @Route("/profile/mainapi/{id}", name="set_main_api")
-     * @Security("has_role('ROLE_MEMBER')")
+     * @Security("is_granted('ROLE_MEMBER') or is_granted('ROLE_APPLY')")
      */
     public function profileMainApiAction(Request $request, $id)
     {
@@ -112,7 +113,7 @@ class UserController extends Controller
      * List every api of a user. One api per character
      *
      * @Route("/profile/apis", name="myapis")
-     * @Security("has_role('ROLE_MEMBER')")
+     * @Security("is_granted('ROLE_MEMBER') or is_granted('ROLE_APPLY')")
      */
     public function myApisAction(Request $request){
 
@@ -159,7 +160,7 @@ class UserController extends Controller
      * Show information from an api
      *
      * @Route("/profile/api/{id}", name="myapi")
-     * @Security("has_role('ROLE_MEMBER')")
+     * @Security("is_granted('ROLE_MEMBER') or is_granted('ROLE_APPLY')")
      */
     public function myApiAction(Request $request, $id)
     {
@@ -198,7 +199,7 @@ class UserController extends Controller
      * Basically generate the url to the ccp login page. This time with the scope needed.
      *
      * @Route("/profile/addapi", name="addapi")
-     * @Security("has_role('ROLE_MEMBER')")
+     * @Security("is_granted('ROLE_MEMBER') or is_granted('ROLE_APPLY')")
      */
     public function addApiAction(Request $request)
     {
@@ -219,7 +220,7 @@ class UserController extends Controller
      * This route manage the redirection after login on ccp server, create a CharacterApi and add this to the database
      *
      * @Route("/profile/ccpcallback", name="ccpcallbackapi")
-     * @Security("has_role('ROLE_MEMBER')")
+     * @Security("is_granted('ROLE_MEMBER') or is_granted('ROLE_APPLY')")
      */
     public function ccpCallBackApiAction(Request $request)
     {
@@ -308,7 +309,10 @@ class UserController extends Controller
 
         //character information-----------
 
-
+        /**
+         * @var $user User
+         */
+         $user = $this->getUser();
 
         try {
             $charInfo = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/', ['character_id' => $charID]);
@@ -323,7 +327,7 @@ class UserController extends Controller
         $api = $apiRep->findOneByCharId($charID);
 
 
-        if($api === null or $api->getUser() !== $this->getUser() )
+        if($api === null or $api->getUser() !==  $user)
             $api = new CharApi();
 
 
@@ -358,7 +362,14 @@ class UserController extends Controller
         }
 
 
+
+
         $doctrine->getManager()->persist($api);
+        if($user->getMainApi() === null){
+            $user->setMainApi($api);
+            $doctrine->getManager()->persist($user);
+        }
+
         $doctrine->getManager()->flush();
 
         return $this->redirect('/profile/apis');
@@ -369,7 +380,7 @@ class UserController extends Controller
      * Remove an api
      *
      * @Route("/profile/removeapi/{id}", name="removeapi")
-     * @Security("has_role('ROLE_MEMBER')")
+     * @Security("is_granted('ROLE_MEMBER') or is_granted('ROLE_APPLY')")
      */
     public function removeApiAction(Request $request, $id)
     {

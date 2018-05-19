@@ -76,7 +76,9 @@ class MainController extends Controller
 
         $apply = $user->getRecruitment();
 
-        if($apply === null) $apply = new Recruitement();
+        if($apply === null) {
+            $apply = new Recruitement();
+        }
 
         $form = $this->createFormBuilder($apply)
                 ->add('mic', CheckboxType::class, array('label' => 'Micro+casque Discord/TS3 ?'))
@@ -101,7 +103,23 @@ class MainController extends Controller
         if($form->isSubmitted() && $form->isValid()) {
             $apply->setUser($user);
             $this->getDoctrine()->getManager()->persist($apply);
+
+            $user->addRole('ROLE_APPLY');
+            $this->getDoctrine()->getManager()->persist($user);
             $this->getDoctrine()->getManager()->flush();
+
+            $token = new UsernamePasswordToken($user, null, 'main', $user->getRoles());
+
+            $this->get('security.token_storage')->setToken($token);
+            $this->get('session')->set('_security_main', serialize($token));
+
+
+
+            // Fire the login event manually
+            $event = new InteractiveLoginEvent($request, $token);
+            $this->get("event_dispatcher")->dispatch("security.interactive_login", $event);
+
+            return $this->redirect($this->generateUrl('profile'));
         }
 
         $parameters['form']  = $form->createView();

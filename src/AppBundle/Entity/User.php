@@ -81,8 +81,7 @@ class User implements UserInterface, \Serializable
     /**
      * @var int
      *
-     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Recruitement", mappedBy="id"))
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Recruitement", mappedBy="user"))
      */
     private $recruitment;
 
@@ -237,7 +236,9 @@ class User implements UserInterface, \Serializable
      */
     public function removeRole($role)
     {
-        $this->roles->removeElement($role);
+
+        if(array_search($role, $this->roles))
+            unset($this->roles[array_search($role, $this->roles)]);
 
     }
 

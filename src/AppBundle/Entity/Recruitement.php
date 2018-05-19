@@ -25,7 +25,7 @@ class Recruitement
     /**
      * @var int
      *
-     * @ORM\OneToOne(targetEntity="AppBundle\Entity\User")
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\User", inversedBy="recruitment")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $user;
