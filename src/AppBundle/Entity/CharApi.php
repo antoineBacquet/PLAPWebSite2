@@ -340,4 +340,11 @@ class CharApi
     {
         return $this->lastAssetUpdate;
     }
+
+    public function __toString()
+    {
+        return $this->charName;
+    }
+
+
 }
