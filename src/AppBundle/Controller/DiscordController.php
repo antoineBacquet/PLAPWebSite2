@@ -100,16 +100,12 @@ class DiscordController  extends Controller
              */
             $discordUser = $provider->getResourceOwner($token);
 
-            // Get the guilds and connections.
-            $guilds = $discordUser->guilds;
-            $connections = $discordUser->connections;
-
 
             /**
              * @var Invite $invite
              */
             // Accept an invite
-            $invite = $discordUser->acceptInvite('https://discord.gg/aBM2rwn'); //TODO Global variable
+            $discordUser->acceptInvite('https://discord.gg/aBM2rwn'); //TODO Global variable
 
             $user->setDiscordId($discordUser->getId());
             $em = $this->getDoctrine()->getManager();
@@ -165,7 +161,7 @@ class DiscordController  extends Controller
         $user = $rep->find($id);
 
         if($user == null){
-            //TODO error management
+            throw $this->createNotFoundException('Utilisateur non trouvé dans la base de données.');
         }
         else{
             DiscordUtil::updateRoles($this->getUser()); //TODO error management

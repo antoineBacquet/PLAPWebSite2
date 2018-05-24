@@ -30,6 +30,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -419,28 +420,44 @@ class UserController extends Controller
 
         $parameters = ControllerUtil::before($this);
 
-        die('nop');
+        //die('nop');
 
-        die('orders');
+        //die('orders');
+        $user = $this->getUser();
         $apis = $user->getApis();
 
-        $eveApi = new MarketApi();
+
+
+        $form = $this->createFormBuilder()
+            ->add('apis', ChoiceType::class,[
+                'choices' => $apis
+            ])
+        ->getForm();
+        $parameters['form'] = $form->createView();
 
         $orders = array();
+
         /**
          * @var $api CharApi
          */
         foreach ($apis as $api){
-            $eveApi->
-            $orders = array_merge($orders, $eveApi->getCharactersCharacterIdOrders($api->getCharId(), CCPConfig::$datasource, $api->getToken()));
+            $authentification = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
+            $esi = new Eseye($authentification);
+
+            try{
+                $ordersTmp = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/orders/', array('character_id' => $api->getCharId()) );
+
+                $orders = array_merge($orders, $ordersTmp->getArrayCopy());
+            }
+            catch (EsiException $e){
+                $parameters['esi_exception'] = $e;
+                return $this->render('error/esi.html.twig', $parameters);
+            }
         }
 
-        /**
-         * @var $order GetCharactersCharacterIdOrders200Ok
-         */
-        foreach ($orders as $order){
-            echo 'Type : ' . $order->getTypeId() . ', price : ' . $order->getPrice();
-        }
+        //dump($orders);
+        //die('lel');
+        return $this->render('profile/orders.html.twig', $parameters);
 
     }
 
