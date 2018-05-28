@@ -65,8 +65,7 @@ class User implements UserInterface, \Serializable
     /**
      * @var int
      *
-     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Notification", mappedBy="id", cascade={"persist"}))
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Notification", mappedBy="user"))
      */
     private $notification;
 

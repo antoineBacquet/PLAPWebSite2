@@ -151,9 +151,10 @@ class AdminController extends Controller
                     $webhook->username('Bot')->message('!ur <@' . $user->getDiscordId() .'>')->embed($embed)->send();
                 }
                 catch (\Exception $e){
-                    //TODO error management
+                    $parameters['feedback'] = false;
+                    $parameters['error'] = $e;
                 }
-                //TODO message de feedback
+                $parameters['feedback'] = true;
             }
         }
 

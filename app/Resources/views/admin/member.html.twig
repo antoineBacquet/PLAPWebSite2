@@ -4,8 +4,17 @@
 {% block body %}
     <h2>{{ member.getName()  }} </h2> <br>
 
-
-
+    {% if feedback is defined %}
+        {% if feedback %}
+            <div class="alert alert-success">
+                Demande de mise a jour des roles sur le discord envoyée avec succée
+            </div>
+        {% else %}
+            <div class="alert alert-danger">
+                Erreur lors de l'envoie de la demande de mise a jour des roles sur le discord
+            </div>
+        {% endif %}
+    {% endif %}
 
 
 <div class="jumbotron bouton">

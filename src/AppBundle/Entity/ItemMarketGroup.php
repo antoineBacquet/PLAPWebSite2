@@ -46,7 +46,6 @@ class ItemMarketGroup
     /**
      *
      * @ORM\OneToMany(targetEntity="Item" ,mappedBy="itemMarketGroup" )
-     * @ORM\JoinColumn(nullable=true)
      */
     private $items;
 

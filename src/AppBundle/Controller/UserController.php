@@ -430,7 +430,13 @@ class UserController extends Controller
 
         $form = $this->createFormBuilder()
             ->add('apis', ChoiceType::class,[
-                'choices' => $apis
+                'choices' => $apis,
+                'multiple' => true,
+                'expanded' => true,
+                'choice_label' => function($api, $key, $index) {
+                    /** @var CharApi $api */
+                    return $api->getCharName();
+                }
             ])
         ->getForm();
         $parameters['form'] = $form->createView();

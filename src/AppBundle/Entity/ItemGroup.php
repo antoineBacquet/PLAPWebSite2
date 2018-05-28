@@ -35,6 +35,12 @@ class ItemGroup
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $category;
+
+    /**
+     *
+     * @ORM\OneToMany(targetEntity="Item" ,mappedBy="itemGroup" )
+     */
+    private $items;
     
 
 

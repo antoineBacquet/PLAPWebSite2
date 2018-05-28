@@ -12,10 +12,9 @@ namespace AppBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Router;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authorization\AccessDeniedHandlerInterface;
 
 class AccessDeniedHandler implements AccessDeniedHandlerInterface
@@ -28,7 +27,7 @@ class AccessDeniedHandler implements AccessDeniedHandlerInterface
 
     private $tokenStorage;
 
-    public function __construct(Router $router, \Twig_Environment $twig, TokenStorage $tokenStorage)
+    public function __construct(RouterInterface $router, \Twig_Environment $twig, TokenStorageInterface $tokenStorage)
     {
         $this->router = $router;
 
