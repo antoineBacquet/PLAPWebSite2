@@ -7,11 +7,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\TestUtil;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

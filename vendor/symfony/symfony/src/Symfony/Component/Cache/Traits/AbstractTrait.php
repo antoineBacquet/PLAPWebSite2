@@ -190,6 +190,17 @@ trait AbstractTrait
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function reset()
+    {
+        if ($this->deferred) {
+            $this->commit();
+        }
+        $this->namespaceVersion = '';
+    }
+
+    /**
      * Like the native unserialize() function but throws an exception if anything goes wrong.
      *
      * @param string $value
@@ -230,7 +241,7 @@ trait AbstractTrait
         if (null === $this->maxIdLength) {
             return $this->namespace.$this->namespaceVersion.$key;
         }
-        if (strlen($id = $this->namespace.$this->namespaceVersion.$key) > $this->maxIdLength) {
+        if (\strlen($id = $this->namespace.$this->namespaceVersion.$key) > $this->maxIdLength) {
             $id = $this->namespace.$this->namespaceVersion.substr_replace(base64_encode(hash('sha256', $key, true)), ':', -22);
         }
 

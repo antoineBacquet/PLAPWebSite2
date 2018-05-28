@@ -14,6 +14,8 @@ namespace Symfony\Component\Cache\Simple;
 use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\Cache\Exception\InvalidArgumentException;
 use Symfony\Component\Cache\Traits\PhpArrayTrait;
+use Symfony\Component\Cache\PruneableInterface;
+use Symfony\Component\Cache\ResettableInterface;
 
 /**
  * Caches items at warm up time using a PHP array that is stored in shared memory by OPCache since PHP 7.0.
@@ -22,7 +24,7 @@ use Symfony\Component\Cache\Traits\PhpArrayTrait;
  * @author Titouan Galopin <galopintitouan@gmail.com>
  * @author Nicolas Grekas <p@tchwork.com>
  */
-class PhpArrayCache implements CacheInterface
+class PhpArrayCache implements CacheInterface, PruneableInterface, ResettableInterface
 {
     use PhpArrayTrait;
 
@@ -33,7 +35,7 @@ class PhpArrayCache implements CacheInterface
     public function __construct($file, CacheInterface $fallbackPool)
     {
         $this->file = $file;
-        $this->fallbackPool = $fallbackPool;
+        $this->pool = $fallbackPool;
         $this->zendDetectUnicode = ini_get('zend.detect_unicode');
     }
 
@@ -61,21 +63,21 @@ class PhpArrayCache implements CacheInterface
      */
     public function get($key, $default = null)
     {
-        if (!is_string($key)) {
+        if (!\is_string($key)) {
             throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', is_object($key) ? get_class($key) : gettype($key)));
         }
         if (null === $this->values) {
             $this->initialize();
         }
         if (!isset($this->values[$key])) {
-            return $this->fallbackPool->get($key, $default);
+            return $this->pool->get($key, $default);
         }
 
         $value = $this->values[$key];
 
         if ('N;' === $value) {
             $value = null;
-        } elseif (is_string($value) && isset($value[2]) && ':' === $value[1]) {
+        } elseif (\is_string($value) && isset($value[2]) && ':' === $value[1]) {
             try {
                 $e = null;
                 $value = unserialize($value);
@@ -97,11 +99,11 @@ class PhpArrayCache implements CacheInterface
     {
         if ($keys instanceof \Traversable) {
             $keys = iterator_to_array($keys, false);
-        } elseif (!is_array($keys)) {
+        } elseif (!\is_array($keys)) {
             throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given', is_object($keys) ? get_class($keys) : gettype($keys)));
         }
         foreach ($keys as $key) {
-            if (!is_string($key)) {
+            if (!\is_string($key)) {
                 throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', is_object($key) ? get_class($key) : gettype($key)));
             }
         }
@@ -117,14 +119,14 @@ class PhpArrayCache implements CacheInterface
      */
     public function has($key)
     {
-        if (!is_string($key)) {
+        if (!\is_string($key)) {
             throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', is_object($key) ? get_class($key) : gettype($key)));
         }
         if (null === $this->values) {
             $this->initialize();
         }
 
-        return isset($this->values[$key]) || $this->fallbackPool->has($key);
+        return isset($this->values[$key]) || $this->pool->has($key);
     }
 
     /**
@@ -132,14 +134,14 @@ class PhpArrayCache implements CacheInterface
      */
     public function delete($key)
     {
-        if (!is_string($key)) {
+        if (!\is_string($key)) {
             throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', is_object($key) ? get_class($key) : gettype($key)));
         }
         if (null === $this->values) {
             $this->initialize();
         }
 
-        return !isset($this->values[$key]) && $this->fallbackPool->delete($key);
+        return !isset($this->values[$key]) && $this->pool->delete($key);
     }
 
     /**
@@ -147,7 +149,7 @@ class PhpArrayCache implements CacheInterface
      */
     public function deleteMultiple($keys)
     {
-        if (!is_array($keys) && !$keys instanceof \Traversable) {
+        if (!\is_array($keys) && !$keys instanceof \Traversable) {
             throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given', is_object($keys) ? get_class($keys) : gettype($keys)));
         }
 
@@ -155,7 +157,7 @@ class PhpArrayCache implements CacheInterface
         $fallbackKeys = array();
 
         foreach ($keys as $key) {
-            if (!is_string($key)) {
+            if (!\is_string($key)) {
                 throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', is_object($key) ? get_class($key) : gettype($key)));
             }
 
@@ -170,7 +172,7 @@ class PhpArrayCache implements CacheInterface
         }
 
         if ($fallbackKeys) {
-            $deleted = $this->fallbackPool->deleteMultiple($fallbackKeys) && $deleted;
+            $deleted = $this->pool->deleteMultiple($fallbackKeys) && $deleted;
         }
 
         return $deleted;
@@ -181,14 +183,14 @@ class PhpArrayCache implements CacheInterface
      */
     public function set($key, $value, $ttl = null)
     {
-        if (!is_string($key)) {
+        if (!\is_string($key)) {
             throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', is_object($key) ? get_class($key) : gettype($key)));
         }
         if (null === $this->values) {
             $this->initialize();
         }
 
-        return !isset($this->values[$key]) && $this->fallbackPool->set($key, $value, $ttl);
+        return !isset($this->values[$key]) && $this->pool->set($key, $value, $ttl);
     }
 
     /**
@@ -196,7 +198,7 @@ class PhpArrayCache implements CacheInterface
      */
     public function setMultiple($values, $ttl = null)
     {
-        if (!is_array($values) && !$values instanceof \Traversable) {
+        if (!\is_array($values) && !$values instanceof \Traversable) {
             throw new InvalidArgumentException(sprintf('Cache values must be array or Traversable, "%s" given', is_object($values) ? get_class($values) : gettype($values)));
         }
 
@@ -204,7 +206,7 @@ class PhpArrayCache implements CacheInterface
         $fallbackValues = array();
 
         foreach ($values as $key => $value) {
-            if (!is_string($key) && !is_int($key)) {
+            if (!\is_string($key) && !\is_int($key)) {
                 throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', is_object($key) ? get_class($key) : gettype($key)));
             }
 
@@ -216,7 +218,7 @@ class PhpArrayCache implements CacheInterface
         }
 
         if ($fallbackValues) {
-            $saved = $this->fallbackPool->setMultiple($fallbackValues, $ttl) && $saved;
+            $saved = $this->pool->setMultiple($fallbackValues, $ttl) && $saved;
         }
 
         return $saved;
@@ -232,7 +234,7 @@ class PhpArrayCache implements CacheInterface
 
                 if ('N;' === $value) {
                     yield $key => null;
-                } elseif (is_string($value) && isset($value[2]) && ':' === $value[1]) {
+                } elseif (\is_string($value) && isset($value[2]) && ':' === $value[1]) {
                     try {
                         yield $key => unserialize($value);
                     } catch (\Error $e) {
@@ -249,7 +251,7 @@ class PhpArrayCache implements CacheInterface
         }
 
         if ($fallbackKeys) {
-            foreach ($this->fallbackPool->getMultiple($fallbackKeys, $default) as $key => $item) {
+            foreach ($this->pool->getMultiple($fallbackKeys, $default) as $key => $item) {
                 yield $key => $item;
             }
         }

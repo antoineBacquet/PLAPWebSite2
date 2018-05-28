@@ -139,11 +139,11 @@ class MarkdownDescriptor extends Descriptor
             $service = $this->resolveServiceDefinition($builder, $serviceId);
 
             if ($service instanceof Alias) {
-                if ($showPrivate || $service->isPublic()) {
+                if ($showPrivate || ($service->isPublic() && !$service->isPrivate())) {
                     $services['aliases'][$serviceId] = $service;
                 }
             } elseif ($service instanceof Definition) {
-                if (($showPrivate || $service->isPublic())) {
+                if (($showPrivate || ($service->isPublic() && !$service->isPrivate()))) {
                     $services['definitions'][$serviceId] = $service;
                 }
             } else {
@@ -182,7 +182,7 @@ class MarkdownDescriptor extends Descriptor
     protected function describeContainerDefinition(Definition $definition, array $options = array())
     {
         $output = '- Class: `'.$definition->getClass().'`'
-            ."\n".'- Public: '.($definition->isPublic() ? 'yes' : 'no')
+            ."\n".'- Public: '.($definition->isPublic() && !$definition->isPrivate() ? 'yes' : 'no')
             ."\n".'- Synthetic: '.($definition->isSynthetic() ? 'yes' : 'no')
             ."\n".'- Lazy: '.($definition->isLazy() ? 'yes' : 'no')
             ."\n".'- Shared: '.($definition->isShared() ? 'yes' : 'no')
@@ -191,8 +191,11 @@ class MarkdownDescriptor extends Descriptor
             ."\n".'- Autoconfigured: '.($definition->isAutoconfigured() ? 'yes' : 'no')
         ;
 
-        foreach ($definition->getAutowiringTypes(false) as $autowiringType) {
-            $output .= "\n".'- Autowiring Type: `'.$autowiringType.'`';
+        // forward compatibility with DependencyInjection component in version 4.0
+        if (method_exists($definition, 'getAutowiringTypes')) {
+            foreach ($definition->getAutowiringTypes(false) as $autowiringType) {
+                $output .= "\n".'- Autowiring Type: `'.$autowiringType.'`';
+            }
         }
 
         if (isset($options['show_arguments']) && $options['show_arguments']) {
@@ -243,7 +246,7 @@ class MarkdownDescriptor extends Descriptor
     protected function describeContainerAlias(Alias $alias, array $options = array(), ContainerBuilder $builder = null)
     {
         $output = '- Service: `'.$alias.'`'
-            ."\n".'- Public: '.($alias->isPublic() ? 'yes' : 'no');
+            ."\n".'- Public: '.($alias->isPublic() && !$alias->isPrivate() ? 'yes' : 'no');
 
         if (!isset($options['id'])) {
             return $this->write($output);

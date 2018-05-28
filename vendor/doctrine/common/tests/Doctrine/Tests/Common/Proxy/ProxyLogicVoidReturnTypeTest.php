@@ -59,10 +59,6 @@ class ProxyLogicVoidReturnTypeTest extends PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        if (PHP_VERSION_ID < 70100) {
-            $this->markTestSkipped('Void return type is only supported in PHP >= 7.1.0.');
-        }
-
         $this->proxyLoader = $loader      = $this->getMockBuilder(stdClass::class)->setMethods(['load'])->getMock();
         $this->initializerCallbackMock    = $this->getMockBuilder(stdClass::class)->setMethods(['__invoke'])->getMock();
         $this->lazyLoadableObjectMetadata = $metadata = new LazyLoadableObjectWithVoidClassMetadata();
@@ -71,7 +67,7 @@ class ProxyLogicVoidReturnTypeTest extends PHPUnit_Framework_TestCase
 
         // creating the proxy class
         if (!class_exists($proxyClassName, false)) {
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $proxyFileName = $proxyGenerator->getProxyFileName($metadata->getName());
             $proxyGenerator->generateProxyClass($metadata, $proxyFileName);
             require_once $proxyFileName;
@@ -125,7 +121,7 @@ class ProxyLogicVoidReturnTypeTest extends PHPUnit_Framework_TestCase
      * @param array $callParamsMatch an ordered array of parameters to be expected
      * @param callable $callbackClosure a return callback closure
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|
+     * @return \PHPUnit_Framework_MockObject_MockObject
      */
     private function configureInitializerMock(
         $expectedCallCount = 0,

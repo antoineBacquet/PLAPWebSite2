@@ -194,7 +194,7 @@ class TextDescriptor extends Descriptor
             $definition = $this->resolveServiceDefinition($builder, $serviceId);
             if ($definition instanceof Definition) {
                 // filter out private services unless shown explicitly
-                if (!$showPrivate && !$definition->isPublic()) {
+                if (!$showPrivate && (!$definition->isPublic() || $definition->isPrivate())) {
                     unset($serviceIds[$key]);
                     continue;
                 }
@@ -212,7 +212,7 @@ class TextDescriptor extends Descriptor
                     }
                 }
             } elseif ($definition instanceof Alias) {
-                if (!$showPrivate && !$definition->isPublic()) {
+                if (!$showPrivate && (!$definition->isPublic() || $definition->isPrivate())) {
                     unset($serviceIds[$key]);
                     continue;
                 }
@@ -302,7 +302,7 @@ class TextDescriptor extends Descriptor
             $tableRows[] = array('Calls', implode(', ', $callInformation));
         }
 
-        $tableRows[] = array('Public', $definition->isPublic() ? 'yes' : 'no');
+        $tableRows[] = array('Public', $definition->isPublic() && !$definition->isPrivate() ? 'yes' : 'no');
         $tableRows[] = array('Synthetic', $definition->isSynthetic() ? 'yes' : 'no');
         $tableRows[] = array('Lazy', $definition->isLazy() ? 'yes' : 'no');
         $tableRows[] = array('Shared', $definition->isShared() ? 'yes' : 'no');
@@ -310,7 +310,8 @@ class TextDescriptor extends Descriptor
         $tableRows[] = array('Autowired', $definition->isAutowired() ? 'yes' : 'no');
         $tableRows[] = array('Autoconfigured', $definition->isAutoconfigured() ? 'yes' : 'no');
 
-        if ($autowiringTypes = $definition->getAutowiringTypes(false)) {
+        // forward compatibility with DependencyInjection component in version 4.0
+        if (method_exists($definition, 'getAutowiringTypes') && $autowiringTypes = $definition->getAutowiringTypes(false)) {
             $tableRows[] = array('Autowiring Types', implode(', ', $autowiringTypes));
         }
 

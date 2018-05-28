@@ -55,7 +55,7 @@ class FormExtension extends AbstractExtension implements InitRuntimeInterface
     {
         if ($this->renderer instanceof TwigRendererInterface) {
             $this->renderer->setEnvironment($environment);
-        } elseif (null !== $this->renderer) {
+        } elseif (is_array($this->renderer)) {
             $this->renderer[2] = $environment;
         }
     }
@@ -85,7 +85,7 @@ class FormExtension extends AbstractExtension implements InitRuntimeInterface
             new TwigFunction('form', null, array('node_class' => 'Symfony\Bridge\Twig\Node\RenderBlockNode', 'is_safe' => array('html'))),
             new TwigFunction('form_start', null, array('node_class' => 'Symfony\Bridge\Twig\Node\RenderBlockNode', 'is_safe' => array('html'))),
             new TwigFunction('form_end', null, array('node_class' => 'Symfony\Bridge\Twig\Node\RenderBlockNode', 'is_safe' => array('html'))),
-            new TwigFunction('csrf_token', array('Symfony\Bridge\Twig\Form\TwigRenderer', 'renderCsrfToken')),
+            new TwigFunction('csrf_token', array('Symfony\Component\Form\FormRenderer', 'renderCsrfToken')),
         );
     }
 
@@ -95,7 +95,8 @@ class FormExtension extends AbstractExtension implements InitRuntimeInterface
     public function getFilters()
     {
         return array(
-            new TwigFilter('humanize', array('Symfony\Bridge\Twig\Form\TwigRenderer', 'humanize')),
+            new TwigFilter('humanize', array('Symfony\Component\Form\FormRenderer', 'humanize')),
+            new TwigFilter('form_encode_currency', array('Symfony\Component\Form\FormRenderer', 'encodeCurrency'), array('is_safe' => array('html'), 'needs_environment' => true)),
         );
     }
 
@@ -120,7 +121,7 @@ class FormExtension extends AbstractExtension implements InitRuntimeInterface
 
             if (is_array($this->renderer)) {
                 $renderer = $this->renderer[0]->get($this->renderer[1]);
-                if (isset($this->renderer[2])) {
+                if (isset($this->renderer[2]) && $renderer instanceof TwigRendererInterface) {
                     $renderer->setEnvironment($this->renderer[2]);
                 }
                 $this->renderer = $renderer;

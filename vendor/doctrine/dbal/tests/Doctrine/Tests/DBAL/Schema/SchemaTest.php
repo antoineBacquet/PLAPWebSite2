@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -26,7 +24,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($schema->hasTable($tableName));
     }
 
-    public function testTableMatchingCaseInsenstive()
+    public function testTableMatchingCaseInsensitive()
     {
         $table = new Table("Foo");
 
@@ -351,7 +349,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     public function testVisitsVisitor()
     {
         $schema = new Schema();
-        $visitor = $this->getMock('Doctrine\DBAL\Schema\Visitor\Visitor');
+        $visitor = $this->createMock('Doctrine\DBAL\Schema\Visitor\Visitor');
 
         $schema->createNamespace('foo');
         $schema->createNamespace('bar');
@@ -365,9 +363,6 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $visitor->expects($this->once())
             ->method('acceptSchema')
             ->with($schema);
-
-        $visitor->expects($this->never())
-            ->method('acceptNamespace');
 
         $visitor->expects($this->at(1))
             ->method('acceptTable')
@@ -400,7 +395,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     public function testVisitsNamespaceVisitor()
     {
         $schema = new Schema();
-        $visitor = $this->getMock('Doctrine\DBAL\Schema\Visitor\AbstractVisitor');
+        $visitor = $this->createMock('Doctrine\DBAL\Schema\Visitor\AbstractVisitor');
 
         $schema->createNamespace('foo');
         $schema->createNamespace('bar');

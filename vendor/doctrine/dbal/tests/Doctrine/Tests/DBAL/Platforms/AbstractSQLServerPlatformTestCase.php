@@ -143,6 +143,11 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->assertTrue($this->_platform->supportsIdentityColumns());
     }
 
+    public function testSupportsCreateDropDatabase()
+    {
+        $this->assertTrue($this->_platform->supportsCreateDropDatabase());
+    }
+
     public function testSupportsSchemas()
     {
         $this->assertTrue($this->_platform->supportsSchemas());
@@ -622,7 +627,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table->addColumn('comment_float_0', 'integer', array('comment' => 0.0));
         $table->addColumn('comment_string_0', 'integer', array('comment' => '0'));
         $table->addColumn('comment', 'integer', array('comment' => 'Doctrine 0wnz you!'));
-        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitely quoted columns!'));
+        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'));
         $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
@@ -636,7 +641,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_float_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_string_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz you!', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment",
-                "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz comments for explicitely quoted columns!', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [comment_quoted]",
+                "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz comments for explicitly quoted columns!', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [comment_quoted]",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz comments for reserved keyword columns!', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [create]",
                 "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine array type.(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type_with_comment",
@@ -661,7 +666,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table->addColumn('comment_float_0', 'integer', array('comment' => 0.0));
         $table->addColumn('comment_string_0', 'integer', array('comment' => '0'));
         $table->addColumn('comment', 'integer', array('comment' => 'Doctrine 0wnz you!'));
-        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitely quoted columns!'));
+        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'));
         $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
@@ -1416,5 +1421,24 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             '',
             true
         );
+    }
+
+    /**
+     * @group 2859
+     */
+    public function testGetDefaultValueDeclarationSQLForDateType() : void
+    {
+        $currentDateSql = $this->_platform->getCurrentDateSQL();
+        foreach (['date', 'date_immutable'] as $type) {
+            $field = [
+                'type'    => Type::getType($type),
+                'default' => $currentDateSql,
+            ];
+
+            self::assertSame(
+                " DEFAULT '" . $currentDateSql . "'",
+                $this->_platform->getDefaultValueDeclarationSQL($field)
+            );
+        }
     }
 }

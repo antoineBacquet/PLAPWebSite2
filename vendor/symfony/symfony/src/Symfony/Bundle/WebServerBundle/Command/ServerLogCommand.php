@@ -30,6 +30,8 @@ class ServerLogCommand extends Command
     private $el;
     private $handler;
 
+    protected static $defaultName = 'server:log';
+
     public function isEnabled()
     {
         if (!class_exists(ConsoleFormatter::class)) {
@@ -46,8 +48,6 @@ class ServerLogCommand extends Command
 
     protected function configure()
     {
-        $this->setName('server:log');
-
         if (!class_exists(ConsoleFormatter::class)) {
             return;
         }

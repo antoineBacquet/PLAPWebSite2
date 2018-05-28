@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -37,7 +35,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
     public function createPlatform($unsafe = false)
     {
-        $platform = $this->getMock('Doctrine\Tests\DBAL\Mocks\MockPlatform');
+        $platform = $this->createMock('Doctrine\Tests\DBAL\Mocks\MockPlatform');
         $platform->expects($this->exactly(1))
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')

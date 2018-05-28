@@ -144,6 +144,63 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $this->assertEquals(array('CREATE TABLE autoinc_table (id SERIAL NOT NULL)'), $this->_platform->getCreateTableSQL($table));
     }
 
+    public static function serialTypes() : array
+    {
+        return [
+            ['integer', 'SERIAL'],
+            ['bigint', 'BIGSERIAL'],
+        ];
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testGenerateTableWithAutoincrementDoesNotSetDefault(string $type, string $definition) : void
+    {
+        $table  = new \Doctrine\DBAL\Schema\Table('autoinc_table_notnull');
+        $column = $table->addColumn('id', $type);
+        $column->setAutoIncrement(true);
+        $column->setNotNull(false);
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+
+        self::assertEquals(["CREATE TABLE autoinc_table_notnull (id $definition)"], $sql);
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testCreateTableWithAutoincrementAndNotNullAddsConstraint(string $type, string $definition) : void
+    {
+        $table  = new \Doctrine\DBAL\Schema\Table('autoinc_table_notnull_enabled');
+        $column = $table->addColumn('id', $type);
+        $column->setAutoIncrement(true);
+        $column->setNotNull(true);
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+
+        self::assertEquals(["CREATE TABLE autoinc_table_notnull_enabled (id $definition NOT NULL)"], $sql);
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testGetDefaultValueDeclarationSQLIgnoresTheDefaultKeyWhenTheFieldIsSerial(string $type) : void
+    {
+        $sql = $this->_platform->getDefaultValueDeclarationSQL(
+            [
+                'autoincrement' => true,
+                'type'          => Type::getType($type),
+                'default'       => 1,
+            ]
+        );
+
+        self::assertSame('', $sql);
+    }
+
     public function testGeneratesTypeDeclarationForIntegers()
     {
         $this->assertEquals(
@@ -311,7 +368,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      * @dataProvider pgBooleanProvider
      *
      * @param string $databaseValue
-     * @param string $prepareStatementValue
+     * @param string $preparedStatementValue
      * @param integer $integerValue
      * @param boolean $booleanValue
      */
@@ -346,7 +403,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      * @dataProvider pgBooleanProvider
      *
      * @param string $databaseValue
-     * @param string $prepareStatementValue
+     * @param string $preparedStatementValue
      * @param integer $integerValue
      * @param boolean $booleanValue
      */
@@ -803,6 +860,15 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         return array(
             'ALTER INDEX idx_foo RENAME TO idx_foo_renamed',
         );
+    }
+
+    /**
+     * @group DBAL-1142
+     */
+    public function testInitializesTsvectorTypeMapping()
+    {
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('tsvector'));
+        $this->assertEquals('text', $this->_platform->getDoctrineTypeMapping('tsvector'));
     }
 
     /**

@@ -35,7 +35,7 @@ use stdClass;
 class ProxyLogicTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass
      */
     protected $proxyLoader;
 
@@ -64,7 +64,8 @@ class ProxyLogicTest extends PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->proxyLoader = $loader      = $this->getMockBuilder(stdClass::class)->setMethods(['load'])->getMock();
+        /** @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $loader */
+        $loader = $this->proxyLoader      = $this->getMockBuilder(stdClass::class)->setMethods(['load'])->getMock();
         $this->initializerCallbackMock    = $this->getMockBuilder(stdClass::class)->setMethods(['__invoke'])->getMock();
         $identifier                       = $this->identifier;
         $this->lazyLoadableObjectMetadata = $metadata = new LazyLoadableObjectClassMetadata();
@@ -72,6 +73,7 @@ class ProxyLogicTest extends PHPUnit_Framework_TestCase
         // emulating what should happen in a proxy factory
         $cloner = function (LazyLoadableObject $proxy) use ($loader, $identifier, $metadata) {
             /* @var $proxy LazyLoadableObject|Proxy */
+            $proxy = $proxy;
             if ($proxy->__isInitialized()) {
                 return;
             }
@@ -98,7 +100,7 @@ class ProxyLogicTest extends PHPUnit_Framework_TestCase
 
         // creating the proxy class
         if (!class_exists($proxyClassName, false)) {
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $proxyFileName = $proxyGenerator->getProxyFileName($metadata->getName());
             $proxyGenerator->generateProxyClass($metadata, $proxyFileName);
             require_once $proxyFileName;
@@ -240,6 +242,7 @@ class ProxyLogicTest extends PHPUnit_Framework_TestCase
             ->method('cb')
             ->will($this->returnCallback(function (LazyLoadableObject $proxy) use ($lazyObject, $test) {
                 /* @var $proxy LazyLoadableObject|Proxy */
+                $proxy = $proxy;
                 $test->assertNotSame($proxy, $lazyObject);
                 $proxy->__setInitializer(null);
                 $proxy->publicAssociation = 'clonedAssociation';
@@ -594,10 +597,6 @@ class ProxyLogicTest extends PHPUnit_Framework_TestCase
 
     public function testCallingVariadicMethodCausesLazyLoading()
     {
-        if (PHP_VERSION_ID < 50600) {
-            $this->markTestSkipped('`...` is only supported in PHP >=5.6.0');
-        }
-
         $proxyClassName = 'Doctrine\Tests\Common\ProxyProxy\__CG__\Doctrine\Tests\Common\Proxy\VariadicTypeHintClass';
 
         /* @var $metadata ClassMetadata|\PHPUnit_Framework_MockObject_MockObject */
@@ -614,7 +613,7 @@ class ProxyLogicTest extends PHPUnit_Framework_TestCase
 
         // creating the proxy class
         if (!class_exists($proxyClassName, false)) {
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $proxyGenerator->generateProxyClass($metadata);
             require_once $proxyGenerator->getProxyFileName($metadata->getName());
         }
@@ -667,7 +666,7 @@ class ProxyLogicTest extends PHPUnit_Framework_TestCase
      * @param array $callParamsMatch an ordered array of parameters to be expected
      * @param callable $callbackClosure a return callback closure
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|
+     * @return \PHPUnit_Framework_MockObject_MockObject
      */
     protected function configureInitializerMock(
         $expectedCallCount = 0,
@@ -723,6 +722,7 @@ class ProxyLogicTest extends PHPUnit_Framework_TestCase
 
         return function (LazyLoadableObject $proxy) use ($loader, $identifier) {
             /* @var $proxy LazyLoadableObject|Proxy */
+            $proxy = $proxy;
             $proxy->__setInitializer(null);
             $proxy->__setCloner(null);
 

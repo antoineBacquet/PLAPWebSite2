@@ -1556,7 +1556,7 @@ abstract class AbstractBootstrap3LayoutTest extends AbstractLayoutTest
 
         $this->assertWidgetMatchesXpath($form->createView(), array('attr' => array('class' => 'my&class')),
 '/input
-    [@type="datetime"]
+    [@type="datetime-local"]
     [@name="name"]
     [@class="my&class form-control"]
     [@value="2011-02-03T04:05:06Z"]
@@ -1577,7 +1577,7 @@ abstract class AbstractBootstrap3LayoutTest extends AbstractLayoutTest
 
         $this->assertWidgetMatchesXpath($form->createView(), array('attr' => array('class' => 'my&class')),
 '/input
-    [@type="datetime"]
+    [@type="datetime-local"]
     [@name="name"]
     [@class="my&class form-control"]
     [@value="2011-02-03T04:05:06Z"]
@@ -2486,5 +2486,35 @@ abstract class AbstractBootstrap3LayoutTest extends AbstractLayoutTest
 
         // foo="foo"
         $this->assertSame('<button type="button" id="button" name="button" foo="foo" class="btn-default btn">[trans]Button[/trans]</button>', $html);
+    }
+
+    public function testTel()
+    {
+        $tel = '0102030405';
+        $form = $this->factory->createNamed('name', 'Symfony\Component\Form\Extension\Core\Type\TelType', $tel);
+
+        $this->assertWidgetMatchesXpath($form->createView(), array('attr' => array('class' => 'my&class')),
+            '/input
+    [@type="tel"]
+    [@name="name"]
+    [@class="my&class form-control"]
+    [@value="0102030405"]
+'
+        );
+    }
+
+    public function testColor()
+    {
+        $color = '#0000ff';
+        $form = $this->factory->createNamed('name', 'Symfony\Component\Form\Extension\Core\Type\ColorType', $color);
+
+        $this->assertWidgetMatchesXpath($form->createView(), array('attr' => array('class' => 'my&class')),
+            '/input
+    [@type="color"]
+    [@name="name"]
+    [@class="my&class form-control"]
+    [@value="#0000ff"]
+'
+        );
     }
 }

@@ -325,6 +325,9 @@ class InlineServiceDefinitionsPassTest extends TestCase
         $this->assertSame('inline', (string) $values[0]);
     }
 
+    /**
+     * @group legacy
+     */
     public function testGetInlinedServiceIdData()
     {
         $container = new ContainerBuilder();

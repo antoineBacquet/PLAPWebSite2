@@ -58,7 +58,7 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->metadata       = new LazyLoadableObjectClassMetadata();
-        $this->proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+        $this->proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
 
         if (class_exists($this->proxyClass, false)) {
             return;
@@ -111,7 +111,7 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\SleepClass', false)) {
             $className = SleepClass::class;
             $metadata = $this->createClassMetadata($className, ['id']);
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
 
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
@@ -130,7 +130,7 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\StaticPropertyClass', false)) {
             $className = StaticPropertyClass::class;
             $metadata = $this->createClassMetadata($className, []);
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
 
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
@@ -153,7 +153,7 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
             $className = CallableTypeHintClass::class;
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -168,7 +168,7 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
             $className = VariadicTypeHintClass::class;
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -179,16 +179,13 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, substr_count($classCode, 'parent::addType(...$types)'));
     }
 
-    /**
-     * @requires PHP 7.0
-     */
     public function testClassWithScalarTypeHintsOnProxiedMethods()
     {
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\ScalarTypeHintsClass', false)) {
             $className = ScalarTypeHintsClass::class;
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -202,16 +199,13 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, substr_count($classCode, 'function withDefaultValueNull(int $foo = NULL)'));
     }
 
-    /**
-     * @requires PHP 7.0
-     */
     public function testClassWithReturnTypesOnProxiedMethods()
     {
         $className = ReturnTypesClass::class;
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\ReturnTypesClass', false)) {
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -226,16 +220,13 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, substr_count($classCode, 'function returnsInterface(): \Countable'));
     }
 
-    /**
-     * @requires PHP 7.1
-     */
     public function testClassWithNullableTypeHintsOnProxiedMethods()
     {
+        $className = NullableTypeHintsClass::class;
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\NullableTypeHintsClass', false)) {
-            $className = NullableTypeHintsClass::class;
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -249,16 +240,13 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, substr_count($classCode, 'function notNullableTypeHintWithDefaultNull(int $param = NULL)'));
     }
 
-    /**
-     * @requires PHP 7.1
-     */
     public function testClassWithNullableReturnTypesOnProxiedMethods()
     {
         $className = NullableTypeHintsClass::class;
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\NullableTypeHintsClass', false)) {
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -271,8 +259,6 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
 
     /**
      * @group #751
-     *
-     * @requires PHP 7.0
      */
     public function testClassWithNullableOptionalNonLastParameterOnProxiedMethods()
     {
@@ -281,7 +267,7 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\NullableNonOptionalHintClass', false)) {
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -298,8 +284,6 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
 
     /**
      * @group #751
-     *
-     * @requires PHP 7.1
      */
     public function testClassWithPhp71NullableOptionalNonLastParameterOnProxiedMethods()
     {
@@ -308,7 +292,7 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\Php71NullableDefaultedNonOptionalHintClass', false)) {
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -324,16 +308,13 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @requires PHP 7.1
-     */
     public function testClassWithVoidReturnType()
     {
         $className = VoidReturnTypeClass::class;
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\VoidReturnTypeClass', false)) {
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -342,20 +323,13 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, substr_count($classCode, 'function returnsVoid(): void'));
     }
 
-    /**
-     * @requires PHP 7.0
-     */
     public function testClassWithIterableTypeHint()
     {
-        if (PHP_VERSION_ID < 70100) {
-            $this->expectException(UnexpectedValueException::class);
-        }
-
         $className = IterableTypeHintClass::class;
         if (!class_exists('Doctrine\Tests\Common\ProxyProxy\__CG__\IterableTypeHintClass', false)) {
             $metadata = $this->createClassMetadata($className, ['id']);
 
-            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+            $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
             $this->generateAndRequire($proxyGenerator, $metadata);
         }
 
@@ -369,7 +343,7 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
     {
         $className = InvalidTypeHintClass::class;
         $metadata = $this->createClassMetadata($className, ['id']);
-        $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+        $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
 
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage(
@@ -379,14 +353,11 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
         $proxyGenerator->generateProxyClass($metadata);
     }
 
-    /**
-     * @requires PHP 7.0
-     */
     public function testClassWithInvalidReturnTypeOnProxiedMethod()
     {
         $className = InvalidReturnTypeClass::class;
         $metadata = $this->createClassMetadata($className, ['id']);
-        $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+        $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
 
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage(
@@ -417,13 +388,31 @@ class ProxyGeneratorTest extends PHPUnit_Framework_TestCase
 
     public function testUseEvalIfNoFilenameIsGiven()
     {
-        $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy', true);
+        $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
 
         $proxyGenerator->generateProxyClass($this->createClassMetadata(EvalBase::class, ['id']));
 
         $reflClass = new ReflectionClass('Doctrine\Tests\Common\ProxyProxy\__CG__\Doctrine\Tests\Common\Proxy\EvalBase');
 
         $this->assertContains("eval()'d code", $reflClass->getFileName());
+    }
+
+    public function testAbstractClassThrowsException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unable to create a proxy for an abstract class "' . AbstractClass::class . '".');
+
+        $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
+        $proxyGenerator->generateProxyClass($this->createClassMetadata(AbstractClass::class, []));
+    }
+
+    public function testFinalClassThrowsException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unable to create a proxy for a final class "' . FinalClass::class . '".');
+
+        $proxyGenerator = new ProxyGenerator(__DIR__ . '/generated', __NAMESPACE__ . 'Proxy');
+        $proxyGenerator->generateProxyClass($this->createClassMetadata(FinalClass::class, []));
     }
 
     /**

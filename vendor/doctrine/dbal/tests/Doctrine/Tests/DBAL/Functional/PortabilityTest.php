@@ -7,8 +7,6 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 /**
  * @group DBAL-56
  */
@@ -16,7 +14,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     private $portableConnection;
 
-    public function tearDown()
+    protected function tearDown()
     {
         if ($this->portableConnection) {
             $this->portableConnection->close();
@@ -132,7 +130,9 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
             'portability' => $portability
         );
 
-        $driverMock = $this->getMock('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver', array('connect'));
+        $driverMock = $this->getMockBuilder('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver')
+            ->setMethods(array('connect'))
+            ->getMock();
 
         $driverMock->expects($this->once())
                    ->method('connect')

@@ -10,14 +10,14 @@ abstract class BaseFileCacheTest extends CacheTest
 {
     protected $directory;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         do {
             $this->directory = sys_get_temp_dir() . '/doctrine_cache_'. uniqid();
         } while (file_exists($this->directory));
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         if ( ! is_dir($this->directory)) {
             return;
@@ -36,7 +36,7 @@ abstract class BaseFileCacheTest extends CacheTest
         @rmdir($this->directory);
     }
 
-    public function testFlushAllRemovesBalancingDirectories()
+    public function testFlushAllRemovesBalancingDirectories() : void
     {
         $cache = $this->_getCacheDriver();
 
@@ -49,38 +49,32 @@ abstract class BaseFileCacheTest extends CacheTest
         $this->assertCount(0, $iterator);
     }
 
-    protected function isSharedStorage()
+    protected function isSharedStorage() : bool
     {
         return false;
     }
 
-    public function getPathLengthsToTest()
+    public function getPathLengthsToTest() : array
     {
         // Windows officially supports 260 bytes including null terminator
         // 258 bytes available to use due to php bug #70943
         // Windows officially supports 260 bytes including null terminator
         // 259 characters is too large due to PHP bug (https://bugs.php.net/bug.php?id=70943)
         // 260 characters is too large - null terminator is included in allowable length
-        return array(
-            array(257, false),
-            array(258, false),
-            array(259, true),
-            array(260, true)
-        );
+        return [
+            [257, false],
+            [258, false],
+            [259, true],
+            [260, true]
+        ];
     }
 
-    private static function getBasePathForWindowsPathLengthTests($pathLength)
+    private static function getBasePathForWindowsPathLengthTests(int $pathLength) : string
     {
         return FileCacheTest::getBasePathForWindowsPathLengthTests($pathLength);
     }
 
-    /**
-     * @param int    $length
-     * @param string $basePath
-     *
-     * @return array
-     */
-    private static function getKeyAndPathFittingLength($length, $basePath)
+    private static function getKeyAndPathFittingLength(int $length, string $basePath) : array
     {
         $baseDirLength = strlen($basePath);
         $extensionLength = strlen('.doctrine.cache');
@@ -111,16 +105,13 @@ abstract class BaseFileCacheTest extends CacheTest
             . '_' . $keyHash
             . '.doctrine.cache';
 
-        return array($key, $keyPath, $hashedKeyPath);
+        return [$key, $keyPath, $hashedKeyPath];
     }
 
     /**
      * @dataProvider getPathLengthsToTest
-     *
-     * @param int  $length
-     * @param bool $pathShouldBeHashed
      */
-    public function testWindowsPathLengthLimitIsCorrectlyHandled($length, $pathShouldBeHashed)
+    public function testWindowsPathLengthLimitIsCorrectlyHandled(int $length, bool $pathShouldBeHashed) : void
     {
         $this->directory = self::getBasePathForWindowsPathLengthTests($length);
 

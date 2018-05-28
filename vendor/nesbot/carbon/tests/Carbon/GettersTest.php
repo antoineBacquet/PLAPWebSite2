@@ -75,18 +75,81 @@ class GettersTest extends AbstractTestCase
 
     public function testMicroGetterWithDefaultNow()
     {
-        if (version_compare(PHP_VERSION, '7.1.0', '>=')) {
-            $this->markTestSkipped();
+        $now = Carbon::getTestNow();
+        Carbon::setTestNow(null);
+
+        $this->assertTrue(Carbon::isMicrosecondsFallbackEnabled());
+
+        $start = microtime(true);
+        usleep(10000);
+        $d = Carbon::now();
+        usleep(10000);
+        $end = microtime(true);
+        $microTime = $d->getTimestamp() + $d->micro / 1000000;
+
+        $this->assertGreaterThan($start, $microTime);
+        $this->assertLessThan($end, $microTime);
+
+        Carbon::useMicrosecondsFallback(false);
+
+        $this->assertFalse(Carbon::isMicrosecondsFallbackEnabled());
+        $start = microtime(true);
+        usleep(10000);
+        $d = Carbon::now();
+        usleep(10000);
+        $end = microtime(true);
+        $microTime = $d->getTimestamp() + $d->micro / 1000000;
+
+        if (version_compare(PHP_VERSION, '7.1.0-dev', '<')
+            ||
+            version_compare(PHP_VERSION, '7.1.3-dev', '>=') && version_compare(PHP_VERSION, '7.1.4-dev', '<')
+        ) {
+            $this->assertSame(0, $d->micro);
+        } else {
+            $this->assertGreaterThan($start, $microTime);
+            $this->assertLessThan($end, $microTime);
         }
 
-        $d = Carbon::now();
-        $this->assertSame(0, $d->micro);
+        Carbon::useMicrosecondsFallback();
+        $this->assertTrue(Carbon::isMicrosecondsFallbackEnabled());
+
+        Carbon::setTestNow($now);
     }
 
-    public function testDayOfWeeGetter()
+    public function testDayOfWeekGetter()
     {
         $d = Carbon::create(2012, 5, 7, 7, 8, 9);
         $this->assertSame(Carbon::MONDAY, $d->dayOfWeek);
+        $d = Carbon::create(2012, 5, 8, 7, 8, 9);
+        $this->assertSame(Carbon::TUESDAY, $d->dayOfWeek);
+        $d = Carbon::create(2012, 5, 9, 7, 8, 9);
+        $this->assertSame(Carbon::WEDNESDAY, $d->dayOfWeek);
+        $d = Carbon::create(2012, 5, 10, 0, 0, 0);
+        $this->assertSame(Carbon::THURSDAY, $d->dayOfWeek);
+        $d = Carbon::create(2012, 5, 11, 23, 59, 59);
+        $this->assertSame(Carbon::FRIDAY, $d->dayOfWeek);
+        $d = Carbon::create(2012, 5, 12, 12, 0, 0);
+        $this->assertSame(Carbon::SATURDAY, $d->dayOfWeek);
+        $d = Carbon::create(2012, 5, 13, 12, 0, 0);
+        $this->assertSame(Carbon::SUNDAY, $d->dayOfWeek);
+    }
+
+    public function testDayOfWeekIsoGetter()
+    {
+        $d = Carbon::create(2012, 5, 7, 7, 8, 9);
+        $this->assertSame(1, $d->dayOfWeekIso);
+        $d = Carbon::create(2012, 5, 8, 7, 8, 9);
+        $this->assertSame(2, $d->dayOfWeekIso);
+        $d = Carbon::create(2012, 5, 9, 7, 8, 9);
+        $this->assertSame(3, $d->dayOfWeekIso);
+        $d = Carbon::create(2012, 5, 10, 0, 0, 0);
+        $this->assertSame(4, $d->dayOfWeekIso);
+        $d = Carbon::create(2012, 5, 11, 23, 59, 59);
+        $this->assertSame(5, $d->dayOfWeekIso);
+        $d = Carbon::create(2012, 5, 12, 12, 0, 0);
+        $this->assertSame(6, $d->dayOfWeekIso);
+        $d = Carbon::create(2012, 5, 13, 12, 0, 0);
+        $this->assertSame(7, $d->dayOfWeekIso);
     }
 
     public function testDayOfYearGetter()
@@ -218,6 +281,12 @@ class GettersTest extends AbstractTestCase
         $this->assertTrue(Carbon::createFromDate(2012, 7, 1, 'America/Toronto')->dst);
     }
 
+    public function testGetMidDayAt()
+    {
+        $d = Carbon::now();
+        $this->assertSame(12, $d->getMidDayAt());
+    }
+
     public function testOffsetForTorontoWithDST()
     {
         $this->assertSame(-18000, Carbon::createFromDate(2012, 1, 1, 'America/Toronto')->offset);
@@ -275,6 +344,19 @@ class GettersTest extends AbstractTestCase
         $this->assertSame(3, Carbon::createFromDate(2012, 9, 20)->weekOfMonth);
         $this->assertSame(2, Carbon::createFromDate(2012, 9, 8)->weekOfMonth);
         $this->assertSame(1, Carbon::createFromDate(2012, 9, 1)->weekOfMonth);
+    }
+
+    public function testWeekNumberInMonthIsNotFromTheBeginning()
+    {
+        $this->assertSame(5, Carbon::createFromDate(2017, 2, 28)->weekNumberInMonth);
+        $this->assertSame(5, Carbon::createFromDate(2017, 2, 27)->weekNumberInMonth);
+        $this->assertSame(4, Carbon::createFromDate(2017, 2, 26)->weekNumberInMonth);
+        $this->assertSame(4, Carbon::createFromDate(2017, 2, 20)->weekNumberInMonth);
+        $this->assertSame(3, Carbon::createFromDate(2017, 2, 19)->weekNumberInMonth);
+        $this->assertSame(3, Carbon::createFromDate(2017, 2, 13)->weekNumberInMonth);
+        $this->assertSame(2, Carbon::createFromDate(2017, 2, 12)->weekNumberInMonth);
+        $this->assertSame(2, Carbon::createFromDate(2017, 2, 6)->weekNumberInMonth);
+        $this->assertSame(1, Carbon::createFromDate(2017, 2, 1)->weekNumberInMonth);
     }
 
     public function testWeekOfYearFirstWeek()

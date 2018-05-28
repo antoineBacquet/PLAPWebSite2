@@ -9,7 +9,6 @@ php:
   - hhvm
 
 sudo: false
-dist: trusty
 
 cache:
   directories:

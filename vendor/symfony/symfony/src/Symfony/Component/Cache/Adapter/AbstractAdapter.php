@@ -17,12 +17,13 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Cache\Exception\InvalidArgumentException;
+use Symfony\Component\Cache\ResettableInterface;
 use Symfony\Component\Cache\Traits\AbstractTrait;
 
 /**
  * @author Nicolas Grekas <p@tchwork.com>
  */
-abstract class AbstractAdapter implements AdapterInterface, LoggerAwareInterface
+abstract class AbstractAdapter implements AdapterInterface, LoggerAwareInterface, ResettableInterface
 {
     use AbstractTrait;
 
@@ -236,7 +237,7 @@ abstract class AbstractAdapter implements AdapterInterface, LoggerAwareInterface
             if (true === $e || array() === $e) {
                 continue;
             }
-            if (is_array($e) || 1 === count($values)) {
+            if (\is_array($e) || 1 === \count($values)) {
                 foreach (is_array($e) ? $e : array_keys($values) as $id) {
                     $ok = false;
                     $v = $values[$id];

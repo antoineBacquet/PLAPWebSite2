@@ -7,13 +7,11 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     static private $generated = false;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -242,7 +240,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchNoResult()
     {
         self::assertFalse(
-            $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int = ?', array(-1))->fetch()
+            $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])->fetch()
         );
     }
 
@@ -542,11 +540,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('2010-01-08', date('Y-m-d', strtotime($row['add_weeks'])), "Adding week should end up on 2010-01-08");
         $this->assertEquals('2009-12-25', date('Y-m-d', strtotime($row['sub_weeks'])), "Subtracting week should end up on 2009-12-25");
         $this->assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");
-        $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Substracting month should end up on 2009-11-01");
+        $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Subtracting month should end up on 2009-11-01");
         $this->assertEquals('2010-10-01', date('Y-m-d', strtotime($row['add_quarters'])), "Adding quarters should end up on 2010-04-01");
-        $this->assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), "Substracting quarters should end up on 2009-10-01");
+        $this->assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), "Subtracting quarters should end up on 2009-10-01");
         $this->assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])), "Adding years should end up on 2016-01-01");
-        $this->assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), "Substracting years should end up on 2004-01-01");
+        $this->assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), "Subtracting years should end up on 2004-01-01");
     }
 
     public function testLocateExpression()
@@ -592,7 +590,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testBitComparisonExpressionSupport()
     {
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->exec('DELETE FROM fetch_table');
         $platform = $this->_conn->getDatabasePlatform();
         $bitmap   = array();
 
@@ -646,6 +644,37 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $row = array_keys($stmt->fetch());
         $this->assertEquals(0, count( array_filter($row, function($v) { return ! is_numeric($v); })), "should be no non-numerical elements in the result.");
+    }
+
+    /**
+     * @group DBAL-1091
+     */
+    public function testFetchAllStyleObject()
+    {
+        $this->setupFixture();
+
+        $sql = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
+        $stmt = $this->_conn->prepare($sql);
+
+        $stmt->execute();
+
+        $results = $stmt->fetchAll(\PDO::FETCH_OBJ);
+
+        $this->assertCount(1, $results);
+        $this->assertInstanceOf('stdClass', $results[0]);
+
+        $this->assertEquals(
+            1,
+            property_exists($results[0], 'test_int') ? $results[0]->test_int : $results[0]->TEST_INT
+        );
+        $this->assertEquals(
+            'foo',
+            property_exists($results[0], 'test_string') ? $results[0]->test_string : $results[0]->TEST_STRING
+        );
+        $this->assertStringStartsWith(
+            '2010-01-01 10:10:10',
+            property_exists($results[0], 'test_datetime') ? $results[0]->test_datetime : $results[0]->TEST_DATETIME
+        );
     }
 
     /**
@@ -742,7 +771,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testEmptyFetchColumnReturnsFalse()
     {
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->exec('DELETE FROM fetch_table');
         $this->assertFalse($this->_conn->fetchColumn('SELECT test_int FROM fetch_table'));
         $this->assertFalse($this->_conn->query('SELECT test_int FROM fetch_table')->fetchColumn());
     }
@@ -817,7 +846,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     private function setupFixture()
     {
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->exec('DELETE FROM fetch_table');
         $this->_conn->insert('fetch_table', array(
             'test_int'      => 1,
             'test_string'   => 'foo',

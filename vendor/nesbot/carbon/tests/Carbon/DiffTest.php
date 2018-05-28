@@ -23,6 +23,12 @@ class DiffTest extends AbstractTestCase
         parent::wrapWithTestNow($func, $dt ?: Carbon::createFromDate(2012, 1, 1));
     }
 
+    public function testDiffAsCarbonInterval()
+    {
+        $dt = Carbon::createFromDate(2000, 1, 1);
+        $this->assertCarbonInterval($dt->diffAsCarbonInterval($dt->copy()->addYear()), 1, 0, 0, 0, 0, 0);
+    }
+
     public function testDiffInYearsPositive()
     {
         $dt = Carbon::createFromDate(2000, 1, 1);
@@ -395,13 +401,32 @@ class DiffTest extends AbstractTestCase
         $this->assertSame(1, $dt->diffInHours($dt->copy()->addHour()->addMinutes(31)));
     }
 
+    public function testDiffInHoursWithTimezones()
+    {
+        Carbon::setTestNow();
+        $dtToronto = Carbon::create(2012, 1, 1, 0, 0, 0, 'America/Toronto');
+        $dtVancouver = Carbon::create(2012, 1, 1, 0, 0, 0, 'America/Vancouver');
+
+        $this->assertSame(3, $dtVancouver->diffInHours($dtToronto), 'Midnight in Toronto is 3 hours from midnight in Vancouver');
+
+        $dtToronto = Carbon::createFromDate(2012, 1, 1, 'America/Toronto');
+        $dtVancouver = Carbon::createFromDate(2012, 1, 1, 'America/Vancouver');
+
+        $this->assertSame(0, $dtVancouver->diffInHours($dtToronto) % 24);
+
+        $dtToronto = Carbon::createMidnightDate(2012, 1, 1, 'America/Toronto');
+        $dtVancouver = Carbon::createMidnightDate(2012, 1, 1, 'America/Vancouver');
+
+        $this->assertSame(3, $dtVancouver->diffInHours($dtToronto), 'Midnight in Toronto is 3 hours from midnight in Vancouver');
+    }
+
     public function testDiffInMinutesPositive()
     {
         $dt = Carbon::createFromDate(2000, 1, 1);
         $this->assertSame(62, $dt->diffInMinutes($dt->copy()->addHour()->addMinutes(2)));
     }
 
-    public function testDiffInMinutesPositiveAlot()
+    public function testDiffInMinutesPositiveALot()
     {
         $dt = Carbon::createFromDate(2000, 1, 1);
         $this->assertSame(1502, $dt->diffInMinutes($dt->copy()->addHours(25)->addMinutes(2)));
@@ -439,7 +464,7 @@ class DiffTest extends AbstractTestCase
         $this->assertSame(62, $dt->diffInSeconds($dt->copy()->addMinute()->addSeconds(2)));
     }
 
-    public function testDiffInSecondsPositiveAlot()
+    public function testDiffInSecondsPositiveALot()
     {
         $dt = Carbon::createFromDate(2000, 1, 1);
         $this->assertSame(7202, $dt->diffInSeconds($dt->copy()->addHours(2)->addSeconds(2)));
@@ -918,6 +943,30 @@ class DiffTest extends AbstractTestCase
         });
     }
 
+    public function testDiffForHumansOverWeekWithDefaultPartsCount()
+    {
+        $scope = $this;
+        $this->wrapWithTestNow(function () use ($scope) {
+            $scope->assertSame('1 week ago', Carbon::now()->subDays(8)->diffForHumans());
+        });
+    }
+
+    public function testDiffForHumansOverWeekWithPartsCount1()
+    {
+        $scope = $this;
+        $this->wrapWithTestNow(function () use ($scope) {
+            $scope->assertSame('1 week ago', Carbon::now()->subDays(8)->diffForHumans(null, false, false, 1));
+        });
+    }
+
+    public function testDiffForHumansOverWeekWithPartsCount2()
+    {
+        $scope = $this;
+        $this->wrapWithTestNow(function () use ($scope) {
+            $scope->assertSame('1 week 1 day ago', Carbon::now()->subDays(8)->diffForHumans(null, false, false, 2));
+        });
+    }
+
     public function testDiffForHumansOtherAndWeek()
     {
         $scope = $this;
@@ -1212,5 +1261,130 @@ class DiffTest extends AbstractTestCase
         $feb15 = Carbon::parse('2015-02-15');
         $mar15 = Carbon::parse('2015-03-15');
         $this->assertSame('1 month after', $mar15->diffForHumans($feb15));
+    }
+
+    public function testDiffForHumansWithDateTimeInstance()
+    {
+        $feb15 = new \DateTime('2015-02-15');
+        $mar15 = Carbon::parse('2015-03-15');
+        $this->assertSame('1 month after', $mar15->diffForHumans($feb15));
+    }
+
+    public function testDiffForHumansWithDateString()
+    {
+        $mar13 = Carbon::parse('2018-03-13');
+        $this->assertSame('1 month before', $mar13->diffForHumans('2018-04-13'));
+    }
+
+    public function testDiffForHumansWithDateTimeString()
+    {
+        $mar13 = Carbon::parse('2018-03-13');
+        $this->assertSame('1 month before', $mar13->diffForHumans('2018-04-13 08:00:00'));
+    }
+
+    public function testDiffWithString()
+    {
+        $dt1 = Carbon::createFromDate(2000, 1, 25)->endOfDay();
+
+        $this->assertSame(383, $dt1->diffInHours('2000-01-10'));
+    }
+
+    public function testDiffWithDateTime()
+    {
+        $dt1 = Carbon::createFromDate(2000, 1, 25)->endOfDay();
+        $dt2 = new \DateTime('2000-01-10');
+
+        $this->assertSame(383, $dt1->diffInHours($dt2));
+    }
+
+    public function testDiffOptions()
+    {
+        $this->assertSame(1, Carbon::NO_ZERO_DIFF);
+        $this->assertSame(2, Carbon::JUST_NOW);
+        $this->assertSame(4, Carbon::ONE_DAY_WORDS);
+        $this->assertSame(8, Carbon::TWO_DAY_WORDS);
+
+        $options = Carbon::getHumanDiffOptions();
+        $this->assertSame(1, $options);
+
+        $date = Carbon::create(2018, 3, 12, 2, 5, 6, 'UTC');
+        $this->assertSame('1 second before', $date->diffForHumans($date));
+
+        Carbon::setHumanDiffOptions(0);
+        $this->assertSame(0, Carbon::getHumanDiffOptions());
+
+        $this->assertSame('0 seconds before', $date->diffForHumans($date));
+
+        Carbon::setLocale('fr');
+        $this->assertSame('0 seconde avant', $date->diffForHumans($date));
+
+        Carbon::setLocale('en');
+        Carbon::setHumanDiffOptions(Carbon::JUST_NOW);
+        $this->assertSame(2, Carbon::getHumanDiffOptions());
+        $this->assertSame('0 seconds before', $date->diffForHumans($date));
+        $this->assertSame('just now', Carbon::now()->diffForHumans());
+
+        Carbon::setHumanDiffOptions(Carbon::ONE_DAY_WORDS | Carbon::TWO_DAY_WORDS | Carbon::NO_ZERO_DIFF);
+        $this->assertSame(13, Carbon::getHumanDiffOptions());
+
+        $oneDayAfter = Carbon::create(2018, 3, 13, 2, 5, 6, 'UTC');
+        $oneDayBefore = Carbon::create(2018, 3, 11, 2, 5, 6, 'UTC');
+        $twoDayAfter = Carbon::create(2018, 3, 14, 2, 5, 6, 'UTC');
+        $twoDayBefore = Carbon::create(2018, 3, 10, 2, 5, 6, 'UTC');
+
+        $this->assertSame('1 day after', $oneDayAfter->diffForHumans($date));
+        $this->assertSame('1 day before', $oneDayBefore->diffForHumans($date));
+        $this->assertSame('2 days after', $twoDayAfter->diffForHumans($date));
+        $this->assertSame('2 days before', $twoDayBefore->diffForHumans($date));
+
+        $this->assertSame('tomorrow', Carbon::now()->addDay()->diffForHumans());
+        $this->assertSame('yesterday', Carbon::now()->subDay()->diffForHumans());
+        $this->assertSame('after tomorrow', Carbon::now()->addDays(2)->diffForHumans());
+        $this->assertSame('before yesterday', Carbon::now()->subDays(2)->diffForHumans());
+
+        Carbon::disableHumanDiffOption(Carbon::TWO_DAY_WORDS);
+        $this->assertSame(5, Carbon::getHumanDiffOptions());
+        Carbon::disableHumanDiffOption(Carbon::TWO_DAY_WORDS);
+        $this->assertSame(5, Carbon::getHumanDiffOptions());
+
+        $this->assertSame('tomorrow', Carbon::now()->addDay()->diffForHumans());
+        $this->assertSame('yesterday', Carbon::now()->subDay()->diffForHumans());
+        $this->assertSame('2 days from now', Carbon::now()->addDays(2)->diffForHumans());
+        $this->assertSame('2 days ago', Carbon::now()->subDays(2)->diffForHumans());
+
+        Carbon::enableHumanDiffOption(Carbon::JUST_NOW);
+        $this->assertSame(7, Carbon::getHumanDiffOptions());
+        Carbon::enableHumanDiffOption(Carbon::JUST_NOW);
+        $this->assertSame(7, Carbon::getHumanDiffOptions());
+
+        Carbon::setHumanDiffOptions($options);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Expected null, string, DateTime or DateTimeInterface, integer given
+     */
+    public function testDiffWithInvalidType()
+    {
+        Carbon::createFromDate(2000, 1, 25)->diffInHours(10);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Expected null, string, DateTime or DateTimeInterface, Carbon\CarbonInterval given
+     */
+    public function testDiffWithInvalidObject()
+    {
+        Carbon::createFromDate(2000, 1, 25)->diffInHours(new CarbonInterval());
+    }
+
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Failed to parse time string (2018-04-13-08:00:00) at position 16
+     */
+    public function testDiffForHumansWithIncorrectDateTimeStringWhichIsNotACarbonInstance()
+    {
+        $mar13 = Carbon::parse('2018-03-13');
+        $mar13->diffForHumans('2018-04-13-08:00:00');
     }
 }

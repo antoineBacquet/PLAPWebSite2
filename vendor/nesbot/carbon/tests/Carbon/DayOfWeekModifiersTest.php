@@ -21,6 +21,16 @@ class DayOfWeekModifiersTest extends AbstractTestCase
         $this->assertSame(array(Carbon::SATURDAY, Carbon::SUNDAY), Carbon::getWeekendDays());
     }
 
+    public function testSetWeekendDays()
+    {
+        Carbon::setWeekendDays(array(Carbon::THURSDAY, Carbon::FRIDAY));
+        $this->assertSame(array(Carbon::THURSDAY, Carbon::FRIDAY), Carbon::getWeekendDays());
+        $this->assertTrue(Carbon::createFromDate(2018, 2, 16)->isWeekend());
+        Carbon::setWeekendDays(array(Carbon::SATURDAY, Carbon::SUNDAY));
+        $this->assertSame(array(Carbon::SATURDAY, Carbon::SUNDAY), Carbon::getWeekendDays());
+        $this->assertFalse(Carbon::createFromDate(2018, 2, 16)->isWeekend());
+    }
+
     public function testGetWeekEndsAt()
     {
         Carbon::setWeekEndsAt(Carbon::SATURDAY);
@@ -217,7 +227,7 @@ class DayOfWeekModifiersTest extends AbstractTestCase
         $this->assertCarbon($d, 1975, 10, 3, 0, 0, 0);
     }
 
-    public function testFirstOfQuarterFromADayThatWillNotExistIntheFirstMonth()
+    public function testFirstOfQuarterFromADayThatWillNotExistInTheFirstMonth()
     {
         $d = Carbon::createFromDate(2014, 5, 31)->firstOfQuarter();
         $this->assertCarbon($d, 2014, 4, 1, 0, 0, 0);
@@ -241,7 +251,7 @@ class DayOfWeekModifiersTest extends AbstractTestCase
         $this->assertCarbon($d, 1975, 9, 26, 0, 0, 0);
     }
 
-    public function testLastOfQuarterFromADayThatWillNotExistIntheLastMonth()
+    public function testLastOfQuarterFromADayThatWillNotExistInTheLastMonth()
     {
         $d = Carbon::createFromDate(2014, 5, 31)->lastOfQuarter();
         $this->assertCarbon($d, 2014, 6, 30, 0, 0, 0);
@@ -257,7 +267,7 @@ class DayOfWeekModifiersTest extends AbstractTestCase
         $this->assertFalse(Carbon::createFromDate(1975, 1, 5)->nthOfQuarter(55, Carbon::MONDAY));
     }
 
-    public function testNthOfQuarterFromADayThatWillNotExistIntheFirstMonth()
+    public function testNthOfQuarterFromADayThatWillNotExistInTheFirstMonth()
     {
         $d = Carbon::createFromDate(2014, 5, 31)->nthOfQuarter(2, Carbon::MONDAY);
         $this->assertCarbon($d, 2014, 4, 14, 0, 0, 0);

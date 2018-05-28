@@ -59,6 +59,60 @@ class ReflectionExtractorTest extends TestCase
             ),
             $this->extractor->getProperties('Symfony\Component\PropertyInfo\Tests\Fixtures\Dummy')
         );
+
+        $this->assertNull($this->extractor->getProperties('Symfony\Component\PropertyInfo\Tests\Fixtures\NoProperties'));
+    }
+
+    public function testGetPropertiesWithCustomPrefixes()
+    {
+        $customExtractor = new ReflectionExtractor(array('add', 'remove'), array('is', 'can'));
+
+        $this->assertSame(
+            array(
+                'bal',
+                'parent',
+                'collection',
+                'B',
+                'Guid',
+                'g',
+                'emptyVar',
+                'foo',
+                'foo2',
+                'foo3',
+                'foo4',
+                'foo5',
+                'files',
+                'c',
+                'd',
+                'e',
+                'f',
+            ),
+            $customExtractor->getProperties('Symfony\Component\PropertyInfo\Tests\Fixtures\Dummy')
+        );
+    }
+
+    public function testGetPropertiesWithNoPrefixes()
+    {
+        $noPrefixExtractor = new ReflectionExtractor(array(), array(), array());
+
+        $this->assertSame(
+            array(
+                'bal',
+                'parent',
+                'collection',
+                'B',
+                'Guid',
+                'g',
+                'emptyVar',
+                'foo',
+                'foo2',
+                'foo3',
+                'foo4',
+                'foo5',
+                'files',
+            ),
+            $noPrefixExtractor->getProperties('Symfony\Component\PropertyInfo\Tests\Fixtures\Dummy')
+        );
     }
 
     /**

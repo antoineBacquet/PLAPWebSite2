@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\DependencyInjection\DoctrineExtension;
 use Doctrine\Bundle\DoctrineBundle\Tests\DependencyInjection\TestType;
 use Doctrine\Common\Annotations\AnnotationReader;
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ResolveChildDefinitionsPass;
 use Symfony\Component\DependencyInjection\Compiler\ResolveDefinitionTemplatesPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,9 +17,11 @@ class TestCase extends BaseTestCase
 {
     protected function setUp()
     {
-        if (! class_exists('Doctrine\\Common\\Version')) {
-            $this->markTestSkipped('Doctrine is not available.');
+        if (class_exists('Doctrine\\Common\\Version')) {
+            return;
         }
+
+        $this->markTestSkipped('Doctrine is not available.');
     }
 
     public function createYamlBundleTestContainer()
@@ -65,12 +68,36 @@ class TestCase extends BaseTestCase
         ],
         ], $container);
 
-        $container->setDefinition('my.platform', new Definition('Doctrine\DBAL\Platforms\MySqlPlatform'));
+        $container->setDefinition('my.platform', new Definition('Doctrine\DBAL\Platforms\MySqlPlatform'))->setPublic(true);
 
         $container->getCompilerPassConfig()->setOptimizationPasses([class_exists(ResolveChildDefinitionsPass::class) ? new ResolveChildDefinitionsPass() : new ResolveDefinitionTemplatesPass()]);
         $container->getCompilerPassConfig()->setRemovingPasses([]);
+        // make all Doctrine services public, so we can fetch them in the test
+        $container->getCompilerPassConfig()->addPass(new TestCaseAllPublicCompilerPass());
         $container->compile();
 
         return $container;
+    }
+}
+
+class TestCaseAllPublicCompilerPass implements CompilerPassInterface
+{
+    public function process(ContainerBuilder $container)
+    {
+        foreach ($container->getDefinitions() as $id => $definition) {
+            if (strpos($id, 'doctrine') === false) {
+                continue;
+            }
+
+            $definition->setPublic(true);
+        }
+
+        foreach ($container->getAliases() as $id => $alias) {
+            if (strpos($id, 'doctrine') === false) {
+                continue;
+            }
+
+            $alias->setPublic(true);
+        }
     }
 }

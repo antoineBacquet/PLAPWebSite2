@@ -4,19 +4,18 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-
-require_once __DIR__ . '/../../TestInit.php';
 
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         $this->resetSharedConn();
         parent::setUp();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         parent::tearDown();
         $this->resetSharedConn();
@@ -47,7 +46,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 throw new \Exception;
                 $this->_conn->commit(); // never reached
             } catch (\Exception $e) {
-                $this->_conn->rollback();
+                $this->_conn->rollBack();
                 $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
                 //no rethrow
             }
@@ -57,7 +56,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->fail('Transaction commit after failed nested transaction should fail.');
         } catch (ConnectionException $e) {
             $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
@@ -83,7 +82,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 throw new \Exception;
                 $this->_conn->commit(); // never reached
             } catch (\Exception $e) {
-                $this->_conn->rollback();
+                $this->_conn->rollBack();
                 $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
                 //no rethrow
             }
@@ -97,7 +96,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->commit(); // should not throw exception
         } catch (ConnectionException $e) {
             $this->fail('Transaction commit after failed nested transaction should not fail when using savepoints.');
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
         }
     }
 
@@ -171,7 +170,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->commit(); // never reached
         } catch (\Exception $e) {
             $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
@@ -183,7 +182,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
             $this->_conn->commit();
         } catch (\Exception $e) {
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
 
@@ -198,7 +197,26 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new \RuntimeException("Ooops!");
             });
+            $this->fail('Expected exception');
         } catch (\RuntimeException $expected) {
+            $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
+        }
+    }
+
+    public function testTransactionalWithThrowable()
+    {
+        if (version_compare(PHP_VERSION, '7.0', '<')) {
+            $this->markTestSkipped('Only for PHP 7.0 and above.');
+        }
+
+        try {
+            $this->_conn->transactional(function($conn) {
+                /* @var $conn \Doctrine\DBAL\Connection */
+                $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
+                throw new \Error("Ooops!");
+            });
+            $this->fail('Expected exception');
+        } catch (\Error $expected) {
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
@@ -209,6 +227,14 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             /* @var $conn \Doctrine\DBAL\Connection */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
+    }
+
+    public function testTransactionalReturnValue()
+    {
+        $res = $this->_conn->transactional(function($conn) {
+            return 42;
+        });
+        $this->assertEquals(42, $res);
     }
 
     /**
@@ -244,6 +270,31 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         );
 
         $this->assertTrue($connection->connect());
+
+        $connection->close();
+    }
+
+    /**
+     * @group DBAL-990
+     */
+    public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase()
+    {
+        if (in_array($this->_conn->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+            $this->markTestSkipped('Platform does not support connecting without database name.');
+        }
+
+        $params = $this->_conn->getParams();
+        $params['dbname'] = 'foo_bar';
+
+        $connection = DriverManager::getConnection(
+            $params,
+            $this->_conn->getConfiguration(),
+            $this->_conn->getEventManager()
+        );
+
+        $this->assertInstanceOf(AbstractPlatform::class, $connection->getDatabasePlatform());
+        $this->assertFalse($connection->isConnected());
+        $this->assertSame($params, $connection->getParams());
 
         $connection->close();
     }
