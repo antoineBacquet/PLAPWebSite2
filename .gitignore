@@ -1,12 +1,10 @@
 app/config/config.yml
 app/config/parameters.yml
 .idea/
-var/cache/
-var/logs/
+var/
 src/AppBundle/CCP/CCPConfig.php
 src/AppBundle/Discord/DiscordConfig.php
 script
-var/sessions/
 web/cache/
 logs/
 cache/
