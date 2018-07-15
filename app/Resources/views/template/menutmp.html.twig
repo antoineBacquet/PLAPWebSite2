@@ -17,13 +17,14 @@
                         <li><a class="dropdown-item" href="{{ path('myapis') }}" >Mes API</a></li>
                         {% if is_granted('ROLE_MEMBER') %}
                             <li><a class="dropdown-item" href="{{ path('asset') }}" >Mes Asset</a></li>
+                            <li> <a href="{{ path('emailsmenu') }}"> Eve-mails </a> </li>
                         {% endif %}
                     </ul>
                 </li>
                  {% if is_granted('ROLE_MEMBER') %}
-                    <li>
-                        <a href="{{ path('emailsmenu') }}"> Eve-mails </a>
-                    </li>
+                     <li>
+                         <a href="{{ path('discutea_forum_homepage') }}"> Forum </a>
+                     </li>
                  {% endif %}
 
             {% endif %}
