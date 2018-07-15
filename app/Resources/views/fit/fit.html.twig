@@ -8,6 +8,7 @@
 {% block body %}
     <h2> Detail du fit {{ fit.name }}</h2>
     {% set slot = -1 %}
+    <div class="col-lg-8">
     <div class="panel panel-default">
         <div class="panel-heading">
 
@@ -59,6 +60,29 @@
         </div>
 
     </div>
+
+    </div>
+    {% set slot = -1 %}
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">EFT/Export</h3>
+            </div>
+            <div class="panel-body">
+
+                    <textarea class="form-control" rows="25" spellcheck="false" onclick="this.focus();this.select()" readonly="">[{{ fit.ship.name }}, {{ fit.name }}]
+{% for fitData in fit.fitDatas %}{% if fitData.slot != slot  %}{% set slot = fitData.slot %}
+
+{% endif %}
+{{ fitData.item.name }} x{{ fitData.quantity }}
+{% endfor %}
+                    </textarea>
+
+
+            </div>
+        </div>
+    </div>
+
 
 
 
