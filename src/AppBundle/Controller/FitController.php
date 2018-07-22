@@ -133,6 +133,8 @@ class FitController extends Controller
 
 
 
+
+
     /**
      *
      * This route is the homepage
@@ -141,6 +143,23 @@ class FitController extends Controller
      * @ParamConverter(name="fit")
      */
     public function fitAction(Request $request, Fit $fit)
+    {
+        $parameters = ControllerUtil::before($this);
+        $parameters['fit'] = $fit;
+
+
+        return $this->render('fit/fit.html.twig', $parameters);
+    }
+
+
+    /**
+     *
+     * This route is the homepage
+     *
+     * @Route("/fit/{id}/skill", name="fit-details")
+     * @ParamConverter(name="fit")
+     */
+    public function fitSkillMappingAction(Request $request, Fit $fit)
     {
         $parameters = ControllerUtil::before($this);
         $parameters['fit'] = $fit;

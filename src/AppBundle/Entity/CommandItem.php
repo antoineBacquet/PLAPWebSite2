@@ -25,6 +25,7 @@ class CommandItem
      * @var int
      *
      * @ORM\ManyToOne(targetEntity="Item")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $item;
 
