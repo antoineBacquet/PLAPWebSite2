@@ -8,3 +8,5 @@ script
 web/cache/
 logs/
 cache/
+/logs/eseye.log
+/web/app.php

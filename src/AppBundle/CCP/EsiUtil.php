@@ -10,12 +10,14 @@ namespace AppBundle\CCP;
 
 
 use AppBundle\Entity\CharApi;
+use Seat\Eseye\Configuration;
 use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
 use Seat\Eseye\Exceptions\InvalidAuthencationException;
 use Seat\Eseye\Exceptions\InvalidConfigurationException;
 use Seat\Eseye\Exceptions\RequestFailedException;
+use Twig\Cache\NullCache;
 
 class EsiUtil
 {
@@ -70,6 +72,7 @@ class EsiUtil
      * @return \Seat\Eseye\Containers\EsiResponse
      */
     public static function callESI(Eseye $esi, string $method,  string $route, array $params = array(), array $queryParams = array(), array $body = array()){
+
 
 
        $esi->setQueryString($queryParams);

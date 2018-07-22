@@ -1,0 +1,92 @@
+{% extends 'template/base.html.twig' %}
+
+{%  block css %}
+    <link rel="stylesheet" href="{{ asset('css/table_fit.css') }}" />
+{% endblock %}
+
+
+{% block body %}
+    <h2> Detail du fit {{ fit.name }}</h2>
+    {% set slot = -1 %}
+    <div class="col-lg-8">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+
+            <h3 class="panel-title">{{ fit.ship.name }}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="col-lg-3">
+                <img src="https://image.eveonline.com/InventoryType/16227_64.png" class="img-responsive">
+            </div>
+            <div class="col-lg-9">
+                <p>Hull: <b>TODO</b></p>
+                <p>Ship: <b>{{ fit.ship.name }}</b></p>
+
+                <p>Estimated price: <b>TODO</b></p>
+            </div>
+
+            <table class="table table-condensed table-hover">
+
+
+                <tr class="info">
+                    <td></td><td><b>Ship</b></td>
+                </tr>
+
+                <tr>
+                    <td><img src="https://image.eveonline.com/render/{{ fit.ship.id }}_32.png" class="img-responsive"></td>
+                    <td> 1x {{ fit.ship.name }}</td>
+                </tr>
+
+                {% for fitData in fit.fitDatas %}
+
+                    {% if fitData.slot != slot  %}
+                        <tr class="info">
+                            <td></td><td><b>ModuleLowPower</b></td>
+                        </tr>
+                        {% set slot = fitData.slot %}
+                    {% endif %}
+
+                    <tr>
+                        <td><img src="https://image.eveonline.com/InventoryType/{{ fitData.item.id }}_32.png" class="img-responsive"></td>
+                        <td> {{ fitData.quantity }}x {{ fitData.item.name }}</td>
+                    </tr>
+
+                {% endfor %}
+
+
+
+
+            </table>
+        </div>
+
+    </div>
+
+    </div>
+    {% set slot = -1 %}
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">EFT/Export</h3>
+            </div>
+            <div class="panel-body">
+
+                    <textarea class="form-control" rows="25" spellcheck="false" onclick="this.focus();this.select()" readonly="">[{{ fit.ship.name }}, {{ fit.name }}]
+{% for fitData in fit.fitDatas %}{% if fitData.slot != slot  %}{% set slot = fitData.slot %}
+
+{% endif %}
+{{ fitData.item.name }} x{{ fitData.quantity }}
+{% endfor %}
+                    </textarea>
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+{% endblock %}

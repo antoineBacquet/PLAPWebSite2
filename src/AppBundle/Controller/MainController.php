@@ -10,6 +10,9 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\EsiException;
+use AppBundle\Entity\Fit;
+use AppBundle\Entity\FitData;
+use AppBundle\Entity\Item;
 use AppBundle\Entity\Recruitement;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
@@ -25,6 +28,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -302,6 +307,8 @@ class MainController extends Controller
      */
     public function testAction(Request $request)
     {
+
+
 
         die('what are you looking for?');
 

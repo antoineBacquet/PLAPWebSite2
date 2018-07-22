@@ -1,0 +1,10 @@
+.table > tbody > tr > td{
+    background-color: white;
+    border-top: 1px solid #dddddd;
+    padding: 1px 6px;
+    color: black;
+}
+
+.panel-body{
+    color: black;
+}

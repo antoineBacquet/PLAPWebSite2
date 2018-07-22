@@ -1,0 +1,16 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+    <h2> Liste des fits </h2>
+
+    {% for fit in fits %}
+        <li><a href="{{ path('fit-details', { 'id' : fit.getId() } ) }}">{{ fit.name }}</a></li>
+    {% else %}
+        Le membre n'as aucune API.
+    {% endfor %}
+
+
+
+
+{% endblock %}
