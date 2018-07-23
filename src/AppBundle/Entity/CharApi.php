@@ -67,7 +67,7 @@ class CharApi
      * @var int
      *
      * @ORM\ManyToOne(targetEntity="User", inversedBy="apis")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $user;
 

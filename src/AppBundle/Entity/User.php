@@ -65,7 +65,7 @@ class User implements UserInterface, \Serializable
     /**
      * @var int
      *
-     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Notification", mappedBy="user"))
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Notification", mappedBy="user"), cascade={"persist"})
      */
     private $notification;
 

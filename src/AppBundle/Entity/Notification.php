@@ -26,7 +26,7 @@ class Notification
     /**
      * @var int
      *
-     * @ORM\OneToOne(targetEntity="AppBundle\Entity\User", inversedBy="notification",)
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\User", inversedBy="notification",cascade={"persist"})
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $user;
