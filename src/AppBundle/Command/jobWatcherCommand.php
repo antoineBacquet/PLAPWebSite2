@@ -140,7 +140,7 @@ class jobWatcherCommand extends ContainerAwareCommand
                         ->setRuns($job->runs);
                     if(isset($job->product_type_id))$jobToAdd->setProductType($itemRep->find($job->product_type_id));
 
-                    //$doctrine->getManager()->persist($jobToAdd);
+                    $doctrine->getManager()->persist($jobToAdd);
 
 
                     if($needToSendNotification)$this->addNotification($jobToAdd);
