@@ -24,7 +24,7 @@ class ItemSkillCommand extends ContainerAwareCommand
     {
         $this
             // the name of the command (the part after "bin/console")
-            ->setName('app:itemskill')
+            ->setName('app:update:item:skill')
 
             // the short description shown while running "php bin/console list"
             ->setDescription('Test.')
@@ -53,41 +53,44 @@ class ItemSkillCommand extends ContainerAwareCommand
             $skillRep = $doctrine->getManager()->getRepository(Skill::class);
 
 
-            $dogmas = $itemData->dogma_attributes;
+            if(isset($itemData->dogma_attributes)){
+                $dogmas = $itemData->dogma_attributes;
 
-            $skillsMapping = array();
-            $skillsMapping['skill1'] = array();
-            $skillsMapping['skill2'] = array();
-            $skillsMapping['skill3'] = array();
+                $skillsMapping = array();
+                $skillsMapping['skill1'] = array();
+                $skillsMapping['skill2'] = array();
+                $skillsMapping['skill3'] = array();
 
-            foreach ($dogmas as $dogma){
-                if( $dogma->attribute_id == CCPConfig::$skill1DogmaLevel) $skillsMapping['skill1']['level'] = $dogma->value;
-                if( $dogma->attribute_id == CCPConfig::$skill2DogmaLevel) $skillsMapping['skill2']['level'] = $dogma->value;
-                if( $dogma->attribute_id == CCPConfig::$skill3DogmaLevel) $skillsMapping['skill3']['level'] = $dogma->value;
+                foreach ($dogmas as $dogma){
+                    if( $dogma->attribute_id == CCPConfig::$skill1DogmaLevel) $skillsMapping['skill1']['level'] = $dogma->value;
+                    if( $dogma->attribute_id == CCPConfig::$skill2DogmaLevel) $skillsMapping['skill2']['level'] = $dogma->value;
+                    if( $dogma->attribute_id == CCPConfig::$skill3DogmaLevel) $skillsMapping['skill3']['level'] = $dogma->value;
 
-                if( $dogma->attribute_id == CCPConfig::$skill1DogmaId) $skillsMapping['skill1']['id'] = $dogma->value;
-                if( $dogma->attribute_id == CCPConfig::$skill2DogmaId) $skillsMapping['skill2']['id'] = $dogma->value;
-                if( $dogma->attribute_id == CCPConfig::$skill3DogmaId) $skillsMapping['skill3']['id'] = $dogma->value;
+                    if( $dogma->attribute_id == CCPConfig::$skill1DogmaId) $skillsMapping['skill1']['id'] = $dogma->value;
+                    if( $dogma->attribute_id == CCPConfig::$skill2DogmaId) $skillsMapping['skill2']['id'] = $dogma->value;
+                    if( $dogma->attribute_id == CCPConfig::$skill3DogmaId) $skillsMapping['skill3']['id'] = $dogma->value;
+                }
+
+                if(count($skillsMapping['skill1']) == 2 ){
+                    $item->setSkill1($skillRep->find($skillsMapping['skill1']['id']));
+                    $item->setSkill1Level($skillsMapping['skill1']['level']);
+                }
+
+                if(count($skillsMapping['skill2']) == 2 ){
+                    $item->setSkill2($skillRep->find($skillsMapping['skill2']['id']));
+                    $item->setSkill2Level($skillsMapping['skill2']['level']);
+                }
+
+                if(count($skillsMapping['skill3']) == 2 ){
+                    $item->setSkill3($skillRep->find($skillsMapping['skill3']['id']));
+                    $item->setSkill3Level($skillsMapping['skill3']['level']);
+                }
+
+                $doctrine->getManager()->persist($item);
+                $doctrine->getManager()->flush();
+                $output->writeln(date("Y-m-d h:i:s") . ' : update de ' . $item->getId() . ' -> ' . $item->getName());
             }
 
-            if(count($skillsMapping['skill1']) == 2 ){
-                $item->setSkill1($skillRep->find($skillsMapping['skill1']['id']));
-                $item->setSkill1Level($skillsMapping['skill1']['level']);
-            }
-
-            if(count($skillsMapping['skill2']) == 2 ){
-                $item->setSkill2($skillRep->find($skillsMapping['skill2']['id']));
-                $item->setSkill2Level($skillsMapping['skill2']['level']);
-            }
-
-            if(count($skillsMapping['skill3']) == 2 ){
-                $item->setSkill3($skillRep->find($skillsMapping['skill3']['id']));
-                $item->setSkill3Level($skillsMapping['skill3']['level']);
-            }
-
-            $doctrine->getManager()->persist($item);
-            $doctrine->getManager()->flush();
-            $output->writeln(date("Y-m-d h:i:s") . ' : update de ' . $item->getId() . ' -> ' . $item->getName());
 
         }
     }
