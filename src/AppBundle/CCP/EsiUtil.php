@@ -70,6 +70,7 @@ class EsiUtil
      * @param array|null $queryParams
      * @param array $body
      * @return \Seat\Eseye\Containers\EsiResponse
+     * @throws EsiException
      */
     public static function callESI(Eseye $esi, string $method,  string $route, array $params = array(), array $queryParams = array(), array $body = array()){
 
