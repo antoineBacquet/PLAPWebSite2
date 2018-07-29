@@ -18,10 +18,12 @@ use AppBundle\Entity\ItemGroup;
 use AppBundle\Entity\Skill;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
+use Seat\Eseye\Configuration;
 use Seat\Eseye\Eseye;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Twig\Cache\NullCache;
 
 class SkillMappingCommand extends ContainerAwareCommand
 {
@@ -41,6 +43,12 @@ class SkillMappingCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
+
+        ini_set('memory_limit', '512M');
+
+        $configuration = Configuration::getInstance();
+        $configuration->__set('cache', NullCache::class);
 
         $doctrine = $this->getContainer()->get('doctrine');
         $itemRep = $doctrine->getManager()->getRepository(Item::class);
