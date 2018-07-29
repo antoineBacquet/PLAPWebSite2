@@ -11,7 +11,102 @@
 
 
 {% block body %}
+<h1 class="text-center">Forum PLAP</h1>
 
+{% for category in categories if is_granted('CanReadCategory', category) %}
+
+
+
+
+        {% for forum in category.forums %}
+
+            <h2 class="forum-category-title">
+                {{ forum.name }}
+            </h2>
+
+            <table class="table-forum">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>
+                        Sujets
+                    </th>
+                    <th class="tcenter tdh">
+                        Réponses
+                    </th>
+                    <th class="tdh">
+                        Dernier message
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for topic in forum.topics %}
+                {% set lastTopic = dfLastTopicInForum(forum) %}
+                    <tr class="topic">
+                        <td class="tcenter">
+                            <img class="icon" src="{{ asset('img/note.png') }}">
+                        </td>
+                        <td>
+                            <div class="topic_name">
+                                <a href="{{ path('discutea_forum_post', {'slug': topic.slug}) }}"> {{ topic.title }} </a>
+                            </div>
+                            {% if topic.user is not null %}
+                                {% set username = topic.user.username %}
+                            {% else %}
+                                {% set username = 'discutea.forum.deleted.user'|trans %}
+                            {% endif %}
+                            <div class="topic_meta">
+                                {{ 'discutea.forum.by'|trans }}  <strong>{{ username }}</strong>,
+                                <abbr class="timeago">{{ 'discutea.forum.on'|trans }} {{ topic.date|date("Y-m-d H:i:s") }}</abbr>
+                            </div>
+                        </td>
+                        <td class="tcenter tdh">
+                            {% set posts_count = topic.posts|length %}
+                            {{ posts_count }} {{ posts_count > 1 ? 'discutea.forum.posts'|trans : 'discutea.forum.post'|trans }}
+                        </td>
+                        <td class="topic_post tdh">
+                            {% if topic.posts.last.poster is not null %}
+                                {% set username = topic.posts.last.poster.username %}
+                            {% else %}
+                                {% set username = 'discutea.forum.deleted.user'|trans %}
+                            {% endif %}
+                            {{ 'discutea.forum.lastpostby'|trans }} <strong>{{ username }}</strong>
+                            <div class="topic_meta">
+                                <abbr class="timeago">{{ 'discutea.forum.on'|trans }} {{ topic.posts.last.date|date("Y-m-d H:i:s") }}</abbr>
+                            </div>
+                        </td>
+                    </tr>
+                    <p>
+                        {% if topic.resolved == true %}<br />{{ 'discutea.forum.label.issolved'|trans }}{% endif %}
+                        {% if topic.pinned == true %}<br />{{ 'discutea.forum.label.ispinned'|trans }}{% endif %}
+                        {% if topic.closed == true %}<br />{{ 'discutea.forum.label.isclosed'|trans }}{% endif %}
+                    </p>
+
+                {% else %}
+                    <tr class="topic">
+                        <td class="tcenter">
+                            <img class="icon" src="{{ asset('img/note.png') }}">
+                        </td>
+                        <td class="center">
+                            aucun topics
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        {% endfor %}
+            <br><p class="text-center"><a class="btn btn-primary" href="{{ path('discutea_forum_create_forum', {'id': category.id}) }}">{{ 'discutea.forum.category.addforum'|trans }}</a></p>
+        {% endfor %}
+
+
+
+<!--
 <h1 class="text-center">{{ 'discutea.forum.forumlist'|trans }}</h1>
 
 <div class="container">

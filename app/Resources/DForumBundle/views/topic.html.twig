@@ -3,6 +3,81 @@
 {% block title %}{{ forum.name }}{% endblock %}
 
 {% block body %}
+    <div class="col-s-12 col-m-9">
+        <h1 class="title tcenter m-left">
+            {{ forum.name }}
+            <small>({{ pagination.getTotalItemCount }} topics)</small>
+        </h1>
+    </div>
+
+    <table class="table-forum">
+        <thead>
+        <tr>
+            <th></th>
+            <th>
+                Sujets
+            </th>
+            <th class="tcenter tdh">
+                Réponses
+            </th>
+            <th class="tdh">
+                Dernier message
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {{ knp_pagination_render(pagination) }}
+        {% for topic in pagination %}
+        <tr class="topic">
+            <td class="tcenter">
+                <img class="icon" src="{{ asset('img/note.png') }}">
+            </td>
+            <td>
+                <div class="topic_name">
+                    <a href="{{ path('discutea_forum_post', {'slug': topic.slug}) }}"> {{ topic.title }} </a>
+                </div>
+                {% if topic.user is not null %}
+                    {% set username = topic.user.username %}
+                {% else %}
+                    {% set username = 'discutea.forum.deleted.user'|trans %}
+                {% endif %}
+                <div class="topic_meta">
+                    {{ 'discutea.forum.by'|trans }}  <strong>{{ username }}</strong>,
+                    <abbr class="timeago">{{ 'discutea.forum.on'|trans }} {{ topic.date|date("Y-m-d H:i:s") }}</abbr>
+                </div>
+            </td>
+            <td class="tcenter tdh">
+                {% set posts_count = topic.posts|length %}
+                {{ posts_count }} {{ posts_count > 1 ? 'discutea.forum.posts'|trans : 'discutea.forum.post'|trans }}
+            </td>
+            <td class="topic_post tdh">
+                {% if topic.posts.last.poster is not null %}
+                    {% set username = topic.posts.last.poster.username %}
+                {% else %}
+                    {% set username = 'discutea.forum.deleted.user'|trans %}
+                {% endif %}
+                 {{ 'discutea.forum.lastpostby'|trans }} <strong>{{ username }}</strong>
+                <div class="topic_meta">
+                    <abbr class="timeago">{{ 'discutea.forum.on'|trans }} {{ topic.posts.last.date|date("Y-m-d H:i:s") }}</abbr>
+                </div>
+            </td>
+        </tr>
+            <p>
+                {% if topic.resolved == true %}<br />{{ 'discutea.forum.label.issolved'|trans }}{% endif %}
+                {% if topic.pinned == true %}<br />{{ 'discutea.forum.label.ispinned'|trans }}{% endif %}
+                {% if topic.closed == true %}<br />{{ 'discutea.forum.label.isclosed'|trans }}{% endif %}
+            </p>
+
+         {% endfor %}
+        </tbody>
+
+
+    </table>
+
+    {% if form is not null %}{% include 'DForumBundle:Form:Topic.html.twig' %}{% endif %}
+
+    <!--
     <h1 class="text-center">{{ forum.name }} <small>({{ pagination.getTotalItemCount }} topics)</small></h1>
     <p class="text-center">{{ forum.description }}</p>
     {{ knp_pagination_render(pagination) }}
@@ -61,4 +136,6 @@
   {{ knp_pagination_render(pagination) }}
   
   {% if form is not null %}{% include 'DForumBundle:Form:Topic.html.twig' %}{% endif %}
+
+  -->
 {% endblock %}

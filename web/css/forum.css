@@ -1,0 +1,94 @@
+.table-forum {
+    width: 100%;
+    border: 1px solid #ededed;
+    background-color: #fff;
+    text-align: left;
+    border-collapse: collapse;
+    border-radius: 3px;
+    background-clip: padding-box;
+    box-shadow: 0 4px 4px hsla(0,0%,95%,.56);
+    color: #404852;
+    border-spacing: 2px;
+}
+
+body {
+    color: #404852;
+}
+
+table, tbody, td, th, thead{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+}
+
+.table-forum tr:nth-child(2n) {
+    background-color: #f9f9f9;
+}
+
+.table-forum td, .table th {
+    padding: 7px 13px;
+    border: 1px solid #f1f1f1;
+    border-top: none;
+    vertical-align: middle;
+}
+
+.icon{
+    height: 32px;
+    width: 32px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tcenter {
+    text-align: center;
+}
+
+.forum-post {
+    position: relative;
+    margin-bottom: 1.875rem;
+    font-size: 15px;
+    text-align: left;
+    color: #404852;
+}
+
+.forum-post a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.forum-post_body {
+    border: 1px solid #ededed;
+    background-color: #fff;
+    padding: 20px 20px 0;
+    margin: 0 10px 0 70px;
+    border-radius: 3px;
+}
+
+.forum-post_avatar {
+    position: absolute;
+    padding: 3px;
+    top: 10px;
+    left: 10px;
+    width: 54px;
+    height: 54px;
+    background-color: #fff;
+    border-radius: 54px;
+    box-shadow: 0 1px 9px #e0e0e0, inset 0 0 2px hsla(0,0%,84%,.75);
+}
+
+.forum-post_author {
+    font-weight: 700;
+}
+.forum-post_text {
+    margin: 1rem 0;
+}
+
+.forum-title > h1 {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
