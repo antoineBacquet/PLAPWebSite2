@@ -32,13 +32,14 @@ class Skill
      * @var Skill
      *
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill")
+     * @ORM\JoinColumn(nullable=true)
      */
     private $skill1;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="skill1Level", type="smallint")
+     * @ORM\Column(name="skill1Level", type="smallint", nullable=true)
      */
     private $skill1Level;
 
@@ -46,13 +47,14 @@ class Skill
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill")
+     * @ORM\JoinColumn(nullable=true)
      */
     private $skill2;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="skill2Level", type="smallint")
+     * @ORM\Column(name="skill2Level", type="smallint", nullable=true)
      */
     private $skill2Level;
 
@@ -60,13 +62,14 @@ class Skill
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill")
+     * @ORM\JoinColumn(nullable=true)
      */
     private $skill3;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="skill3Level", type="smallint")
+     * @ORM\Column(name="skill3Level", type="smallint", nullable=true)
      */
     private $skill3Level;
 
