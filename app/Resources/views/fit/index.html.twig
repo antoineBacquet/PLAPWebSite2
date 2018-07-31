@@ -4,12 +4,41 @@
 {% block body %}
     <h2> Liste des fits </h2>
 
-    {% for fit in fits %}
-        <li><a href="{{ path('fit-details', { 'id' : fit.getId() } ) }}">{{ fit.name }}</a></li>
-    {% else %}
-        Le membre n'as aucune API.
-    {% endfor %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <td></td>
 
+                <td>Nom du fit</td>
+
+                <td>Ship</td>
+
+                {% if is_granted('ROLE_ADMIN') %}
+                    <td> Action</td>
+                {% endif %}
+
+            </tr>
+
+    {% for fit in fits %}
+        <tr>
+
+            <td><img src="https://image.eveonline.com/render/{{ fit.ship.id }}_32.png" class="img-responsive"></td>
+
+            <td><a href="{{ path('fit-details', { 'id' : fit.getId() } ) }}">{{ fit.name }}</a></td>
+
+            <td> {{ fit.ship.name }} </td>
+
+            {% if is_granted('ROLE_ADMIN') %}
+            <td> <a href="{{ path('fit-remove', {'id' : fit.getId()} ) }}">Supprimer</a></td>
+            {% endif %}
+
+        </tr>
+
+    {% else %}
+        IL n'y a aucun fit.
+    {% endfor %}
+        </table>
+    </div>
 
 
 
