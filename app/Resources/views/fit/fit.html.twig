@@ -16,7 +16,7 @@
         </div>
         <div class="panel-body">
             <div class="col-lg-3">
-                <img src="https://image.eveonline.com/InventoryType/16227_64.png" class="img-responsive">
+                <img src="https://image.eveonline.com/render/{{ fit.ship.id }}_128.png" class="img-responsive">
             </div>
             <div class="col-lg-9">
                 <p>Hull: <b>TODO</b></p>
@@ -80,6 +80,26 @@
 
 
             </div>
+        </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+
+            <h3 class="panel-title">Voir si je peux le piloter?</h3>
+        </div>
+        <div class="panel-body">
+
+            <table class="table table-condensed table-hover">
+                <tr class="info">
+                <th>Personnage</th><th>Action</th>
+                </tr>
+            {% for api in user.apis %}
+                <tr>
+                    <td>{{ api.charName }}</td>
+                    <td><a href="{{ path('fit-skill-api', { 'id' : fit.getId(), 'api_id' : api.getId() } ) }}">{{ fit.name }}</a></td>
+                </tr>
+            {% endfor%}
+
+            </table>
         </div>
     </div>
 

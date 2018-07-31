@@ -148,7 +148,7 @@ class FitData
     /**
      * Get item
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Item
      */
     public function getItem()
     {
