@@ -297,7 +297,10 @@ class AjaxController extends Controller
             ->orWhere('i.name like \'%' . $request->get('text') . '%\'')
             ->orWhere('g.name like \'%' . $request->get('text') . '%\'')
             ->orWhere('c.name like \'%' . $request->get('text') . '%\'')
+            ->andWhere('a.owner =' . $api->getId())
             ->getQuery()->execute();
+
+        //dump($qb->getQuery()->getSQL());
 
         if(count($resultsDB) === 0) return $this->json(array('text' => 'Aucun resultat'));
         $results = array();
