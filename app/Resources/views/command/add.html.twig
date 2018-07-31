@@ -9,10 +9,10 @@
 
     <h3> Ajouter une commande</h3>
 
-    <input id="search" type="text" name="search" placeholder="Search.." autocomplete="off" onkeyup="search(this)" class="auto-suggest"
+    <input id="search" type="text" name="search" placeholder="Search.." autocomplete="off" onkeyup="search(this)" class="auto-suggest" style="color: black"
            onfocus="document.getElementById('searchresultlist').style.cssText = 'display:block;'"
            onblur="document.getElementById('searchresultlist').style.cssText = 'display:none;'">
-    <ul style="display: none" id="searchresultlist" class="suggestions"></ul>
+    <ul style="display: none;" id="searchresultlist" class="suggestions"></ul>
 
 
     {{ form_start(form) }}
