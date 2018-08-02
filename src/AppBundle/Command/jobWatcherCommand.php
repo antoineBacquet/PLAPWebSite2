@@ -75,11 +75,13 @@ class jobWatcherCommand extends ContainerAwareCommand
 
                 $oldJobs = $jobRep->findByOwner($api);
 
+                $jobs = EsiUtil::callESI($auth, 'get', '/characters/{character_id}/industry/jobs/', ['character_id' => $api->getCharId()]);
+
                 foreach ($oldJobs as $oldJob)
                     $doctrine->getManager()->remove($oldJob);
                 $doctrine->getManager()->flush();
 
-                $jobs = EsiUtil::callESI($auth, 'get', '/characters/{character_id}/industry/jobs/', ['character_id' => $api->getCharId()]);
+
 
 
                 foreach ($jobs as $job){
@@ -160,6 +162,9 @@ class jobWatcherCommand extends ContainerAwareCommand
             }
             catch (EsiException $e){
                 $output->writeln('[ ' . date('Y-m-d H:i:s') . ' ] ' . '----ESI Error for ' . $api->getCharName() . ' : ' . $e->getDetail() );
+            }
+            catch (\Exception $e){
+                $output->writeln('[ ' . date('Y-m-d H:i:s') . ' ] ' . '----Exeption on api : ' . $api->getCharName() . ' message:  ' . $e->getMessage() );
             }
 
         }
