@@ -134,7 +134,7 @@ class UserUtil
         $notification = new Notification();
         $notification->setUser($user);
         $user->setNotification($notification);
-        $em->persist($user);
+        $em->persist($notification);
         $em->flush();
     }
 
