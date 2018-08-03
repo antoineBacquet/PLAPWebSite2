@@ -14,6 +14,7 @@ use AppBundle\Entity\CommandItem;
 use AppBundle\Entity\Item;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
+use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\Util;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -98,7 +99,11 @@ class CommandController extends Controller
                 $commandItem->setCommand($command);
                 $doctrine->getManager()->persist($commandItem);
                 $doctrine->getManager()->flush();
+                $command->addItem($commandItem);
             }
+
+            $url = $request->getScheme() . '://' . $request->getHttpHost() . $this->generateUrl('commandinfo', array('id' => $command->getId()));
+            DiscordUtil::sendNewCommand($command, $url);
 
             return $this->redirect($this->generateUrl('commandlist'));
         }

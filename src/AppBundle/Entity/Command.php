@@ -48,7 +48,7 @@ class Command
     /**
      * @var int
      *
-     * @ORM\OneToMany(targetEntity="CommandItem", mappedBy="command")
+     * @ORM\OneToMany(targetEntity="CommandItem", mappedBy="command", cascade={"persist"})
      *
      */
     private $items;
@@ -175,7 +175,7 @@ class Command
     /**
      * Get contractor
      *
-     * @return string
+     * @return User
      */
     public function getContractor()
     {
@@ -199,7 +199,7 @@ class Command
     /**
      * Get items
      *
-     * @return string
+     * @return array
      */
     public function getItems()
     {
@@ -209,11 +209,11 @@ class Command
     /**
      * Add item
      *
-     * @param \AppBundle\Entity\Item $item
+     * @param \AppBundle\Entity\CommandItem $item
      *
      * @return Command
      */
-    public function addItem(\AppBundle\Entity\Item $item)
+    public function addItem(CommandItem $item)
     {
         $this->items[] = $item;
     
@@ -223,9 +223,9 @@ class Command
     /**
      * Remove item
      *
-     * @param \AppBundle\Entity\Item $item
+     * @param \AppBundle\Entity\CommandItem $item
      */
-    public function removeItem(\AppBundle\Entity\Item $item)
+    public function removeItem(CommandItem $item)
     {
         $this->items->removeElement($item);
     }

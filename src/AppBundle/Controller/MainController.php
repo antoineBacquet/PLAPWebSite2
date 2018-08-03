@@ -10,6 +10,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\EsiException;
+use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\Fit;
 use AppBundle\Entity\FitData;
 use AppBundle\Entity\Item;
@@ -17,6 +18,7 @@ use AppBundle\Entity\Recruitement;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
+use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
@@ -308,9 +310,16 @@ class MainController extends Controller
     public function testAction(Request $request)
     {
 
+        die('What are you looking for???');
 
 
-        die('what are you looking for?');
+        $webhook = new Client(DiscordConfig::$webhook_command);
+        $webhook->username('Command bot');
+        $webhook->message('test @here');
+
+        //$webhook->send();
+
+        die($request->getHttpHost() . $this->generateUrl('commandinfo', array('id' => 1)));
 
     }
 

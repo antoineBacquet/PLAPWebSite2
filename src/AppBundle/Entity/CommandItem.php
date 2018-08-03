@@ -33,7 +33,7 @@ class CommandItem
      * @var int
      *
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
-     * @ORM\ManyToOne(targetEntity="Command", inversedBy="items")
+     * @ORM\ManyToOne(targetEntity="Command", inversedBy="items", cascade={"persist"})
      */
     private $command;
 
