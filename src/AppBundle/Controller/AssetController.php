@@ -169,7 +169,7 @@ class AssetController extends Controller
         $em->flush();
 
 
-        return $this->redirect($this->generateUrl('asset'));
+        return $this->redirect($this->generateUrl('asset-list', array('id' => $api->getId())));
     }
 
     /**
