@@ -12,6 +12,10 @@
                 <td>Mails</td>
             {% endif %}
 
+            {% if is_granted('ROLE_MEMBER') %}
+                <td>Skills</td>
+            {% endif %}
+
             <td>Toujour valable?</td>
             <td>Action</td>
         </tr>
@@ -29,6 +33,10 @@
 
                 {% if is_granted('ROLE_MEMBER') %}
                     <td><a href="{{ path('emailsNoLabel', { 'id' : api.id } ) }}">Voir les mails</a></td>
+                {% endif %}
+
+                {% if is_granted('ROLE_MEMBER') %}
+                    <td><a href="{{ path('api-skills', { 'id' : api.id } ) }}">Voir les skills</a></td>
                 {% endif %}
                 <td>  {% if api.isValid %} oui {% else %} non {% endif %}  </td>
 

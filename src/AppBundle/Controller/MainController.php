@@ -10,11 +10,14 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\CCPConfig;
 use AppBundle\CCP\EsiException;
+use AppBundle\CCP\EsiUtil;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\Fit;
 use AppBundle\Entity\FitData;
 use AppBundle\Entity\Item;
+use AppBundle\Entity\ItemGroup;
 use AppBundle\Entity\Recruitement;
+use AppBundle\Entity\Skill;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\Core;
@@ -24,6 +27,7 @@ use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
 use Doctrine\DBAL\Types\BooleanType;
+use Seat\Eseye\Eseye;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -310,7 +314,62 @@ class MainController extends Controller
     public function testAction(Request $request)
     {
 
+
+
         die('What are you looking for???');
+        $parameters = ControllerUtil::before($this);
+
+        $skillRep = $this->getDoctrine()->getRepository(Skill::class);
+
+        $api = $this->getUser()->getApis()[0];
+
+        $qb = $skillRep->createQueryBuilder('s');
+        $skillsData = $qb->where($qb->expr()->isNotNull('s.group'))->orderBy('s.name')->getQuery()->execute();
+
+        $groups = array();
+        $skills = array();
+
+        foreach ($skillsData as $skill){
+
+            if(!isset($groups[$skill->getGroup()->getid()])){
+                $groups[$skill->getGroup()->getid()] = array();
+                $groups[$skill->getGroup()->getid()]['group'] = $skill->getGroup();
+                $groups[$skill->getGroup()->getid()]['skills'] = array();
+            }
+            $groups[$skill->getGroup()->getid()]['skills'][] = $skill;
+
+            $skills[$skill->getId()] = $skill;
+
+            $skill->level = 0;
+
+        }
+
+        dump($skills);
+
+        $auth = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
+        $esi = new Eseye($auth);
+
+        try{
+            $apiSkills = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/skills/', array('character_id' => $api->getCharId()))->getArrayCopy();
+            dump($apiSkills);
+        }
+        catch (EsiException $e){
+            die($e);
+        }
+
+        foreach ($apiSkills['skills'] as $apiSkill){
+
+            if(isset($skills[$apiSkill->skill_id]))
+                $skills[$apiSkill->skill_id]->level = $apiSkill->trained_skill_level;
+        }
+
+
+
+        //dump($groups);
+
+        $parameters['groups'] = $groups;
+
+        return $this->render('profile/skills.html.twig',$parameters);
 
 
         $webhook = new Client(DiscordConfig::$webhook_command);

@@ -64,6 +64,9 @@ class DiscordUtil
         $webhook->embed($embed);
 
         $webhook->send();
+
+
+
     }
 
 }

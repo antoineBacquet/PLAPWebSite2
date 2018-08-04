@@ -16,6 +16,7 @@ use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
 use AppBundle\Entity\Notification;
+use AppBundle\Entity\Skill;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\GroupUtil;
@@ -25,6 +26,7 @@ use nullx27\ESI\Models\GetCharactersCharacterIdOrders200Ok;
 use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -464,6 +466,70 @@ class UserController extends Controller
         //dump($orders);
         //die('lel');
         return $this->render('profile/orders.html.twig', $parameters);
+
+    }
+
+    /**
+     * Show an API's skill
+     *
+     * @Route("/profile/skills/{id}", name="api-skills")
+     * @Security("has_role('ROLE_MEMBER')")
+     * @ParamConverter(name="api")
+     *
+     */
+    public function showApiSkillsAction(Request $request, CharApi $api)
+    {
+        $parameters = ControllerUtil::before($this);
+        $user = $this->getUser();
+
+        if($api->getUser()->getId() ==! $user->getId() and !$this->isGranted('ROLE_ADMIN')){
+            throw $this->createAccessDeniedException('Cette api ne t\'apartient pas.');
+        }
+
+
+        $skillRep = $this->getDoctrine()->getRepository(Skill::class);
+
+        $qb = $skillRep->createQueryBuilder('s');
+        $skillsData = $qb->where($qb->expr()->isNotNull('s.group'))->orderBy('s.name')->getQuery()->execute();
+
+        $groups = array();
+        $skills = array();
+
+        foreach ($skillsData as $skill){
+
+            if(!isset($groups[$skill->getGroup()->getid()])){
+                $groups[$skill->getGroup()->getid()] = array();
+                $groups[$skill->getGroup()->getid()]['group'] = $skill->getGroup();
+                $groups[$skill->getGroup()->getid()]['skills'] = array();
+            }
+            $groups[$skill->getGroup()->getid()]['skills'][$skill->getId()] = $skill;
+
+            $skills[$skill->getId()] = $skill;
+
+            $skill->level = 0;
+
+        }
+
+        $auth = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
+        $esi = new Eseye($auth);
+
+        try{
+            $apiSkills = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/skills/', array('character_id' => $api->getCharId()))->getArrayCopy();
+        }
+        catch (EsiException $e){
+            $parameters['esi_exception'] = $e;
+            return $this->render('error/esi.html.twig', $parameters);
+        }
+
+        foreach ($apiSkills['skills'] as $apiSkill){
+
+            if(isset($skills[$apiSkill->skill_id]))
+                $skills[$apiSkill->skill_id]->level = $apiSkill->trained_skill_level;
+        }
+
+        $parameters['groups'] = $groups;
+
+        return $this->render('profile/skills.html.twig', $parameters);
 
     }
 
