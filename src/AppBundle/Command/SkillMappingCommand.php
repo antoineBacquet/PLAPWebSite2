@@ -106,6 +106,8 @@ class SkillMappingCommand extends ContainerAwareCommand
 
             //dump($dogma);
 
+            $skill->setGroup($skillItem->getItemGroup());
+
 
             $doctrine->getManager()->persist($skill);
 
