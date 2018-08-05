@@ -29,6 +29,25 @@
 
             {% endif %}
 
+        {% if is_granted('ROLE_MEMBER') %}
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Fit <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ path('fit-list') }}" >Liste des doctrines</a></li>
+                    {% if is_granted('ROLE_FIT') %}
+                        <li><a class="dropdown-item" href="{{ path('fit-add') }}" >Ajouter un fit</a></li>
+                        <li><a class="dropdown-item" href="{{ path('fit-admin') }}" >Gestion des doctrines</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% if is_granted('ROLE_MEMBER') %}
+                <li>
+                    <a href="{{ path('discutea_forum_homepage') }}"> Forum </a>
+                </li>
+            {% endif %}
+
+        {% endif %}
+
             {% if is_granted('ROLE_MEMBER') %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Commandes Prod. <span class="caret"></span></a>
@@ -41,7 +60,7 @@
             {% endif %}
 
 
-            {% if is_granted('ROLE_MEMBER') == true %}
+            {% if is_granted('ROLE_MEMBER')%}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Services <span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -53,7 +72,7 @@
             {% endif %}
 
 
-            {% if is_granted('ROLE_ADMIN') == true %}
+            {% if is_granted('ROLE_ADMIN')%}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Administration <span class="caret"></span></a>
                     <ul class="dropdown-menu">
