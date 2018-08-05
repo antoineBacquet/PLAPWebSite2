@@ -1,0 +1,93 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+    <h2> Gestion des fits </h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <td></td>
+
+                <td>Nom de la categorie</td>
+
+                <td>Nombre de doctrines</td>
+
+                {% if is_granted('ROLE_FIT') %}
+                    <td> Action</td>
+                {% endif %}
+
+            </tr>
+
+
+            {% for category in categories %}
+                <tr>
+
+                    <td>TODO image</td>
+
+                    <td><a href="#">{{ category.name }}</a></td>
+
+                    <td> {{ category.doctrines|length }} </td>
+
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <td> TODO </td>
+                    {% endif %}
+
+                </tr>
+
+            {% else %}
+                IL n'y a aucune category.
+            {% endfor %}
+        </table>
+    </div>
+
+    {{ form_start(catForm) }}
+    {{ form_widget(catForm) }}
+    {{ form_end(catForm) }}
+
+    <br>
+    <br>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <td></td>
+
+                <td>Nom de la doctrine</td>
+
+                <td>Nombre de fits</td>
+
+                {% if is_granted('ROLE_FIT') %}
+                    <td> Action</td>
+                {% endif %}
+
+            </tr>
+
+
+            {% for doctrine in doctrines %}
+                <tr>
+
+                    <td>TODO image</td>
+
+                    <td><a href="#">{{ doctrine.name }}</a></td>
+
+                    <td> {{ doctrine.fits|length }} </td>
+
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <td> TODO </td>
+                    {% endif %}
+
+                </tr>
+
+            {% else %}
+                IL n'y a aucune doctrine.
+            {% endfor %}
+        </table>
+    </div>
+    {{ form_start(doctrineForm) }}
+    {{ form_widget(doctrineForm) }}
+    {{ form_end(doctrineForm) }}
+
+
+
+{% endblock %}

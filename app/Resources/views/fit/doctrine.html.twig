@@ -1,0 +1,46 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+    <h2> Liste des fits de la doctrine {{ doctrine.name }}</h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <td></td>
+
+                <td>Nom du fit</td>
+
+                <td>Ship</td>
+
+                {% if is_granted('ROLE_ADMIN') %}
+                    <td> Action</td>
+                {% endif %}
+
+            </tr>
+
+
+            {% for fit in doctrine.fits %}
+                <tr>
+
+                    <td><img src="https://image.eveonline.com/render/{{ fit.ship.id }}_64.png" class="img-responsive"></td>
+
+                    <td><a href="{{ path('fit-details', { 'id' : fit.getId() } ) }}">{{ fit.name }}</a></td>
+
+                    <td> {{ fit.ship.name }} </td>
+
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <td> <a href="{{ path('fit-remove', {'id' : fit.getId()} ) }}">Supprimer</a></td>
+                    {% endif %}
+
+                </tr>
+
+            {% else %}
+                IL n'y a aucun fit.
+            {% endfor %}
+        </table>
+    </div>
+
+
+
+{% endblock %}

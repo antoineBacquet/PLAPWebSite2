@@ -1,0 +1,17 @@
+{% extends 'template/base.html.twig' %}
+
+{% block body %}
+
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+
+
+    <br>
+    <div>
+        {{ data }}
+    </div>
+
+
+{% endblock %}

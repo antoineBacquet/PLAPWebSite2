@@ -10,17 +10,23 @@ namespace AppBundle\Controller;
 
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\CharApi;
+use AppBundle\Entity\Doctrine;
 use AppBundle\Entity\Fit;
+use AppBundle\Entity\FitCategory;
 use AppBundle\Entity\FitData;
 use AppBundle\Entity\Item;
+use AppBundle\Entity\SkillSet;
+use AppBundle\Entity\SkillSetData;
 use AppBundle\Util\ControllerUtil;
 use Seat\Eseye\Eseye;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
 class FitController extends Controller
@@ -39,14 +45,31 @@ class FitController extends Controller
     {
         $parameters = ControllerUtil::before($this);
 
-        $fitRep = $this->getDoctrine()->getRepository(Fit::class);
+        $categoryRep = $this->getDoctrine()->getRepository(FitCategory::class);
 
-        $fits = $fitRep->findAll();
+        $categories = $categoryRep->findAll();
 
-        $parameters['fits'] = $fits;
+        $parameters['categories'] = $categories;
 
         return $this->render('fit/index.html.twig', $parameters);
 
+    }
+
+    /**
+     *
+     * This route is the homepage
+     *
+     * @Route("/fit/doctrine/{id}", name="fit-doctrine")
+     *
+     * @ParamConverter(name="doctrine")
+     */
+    public function doctrineAction(Request $request, Doctrine $doctrine){
+
+        $parameters = ControllerUtil::before($this);
+
+        $parameters['doctrine'] = $doctrine;
+
+        return $this->render('fit/doctrine.html.twig', $parameters);
     }
 
 
@@ -61,7 +84,21 @@ class FitController extends Controller
     public function addAction(Request $request){
         $parameters = ControllerUtil::before($this);
 
+        $em = $this->getDoctrine()->getManager();
+        $doctrineRep = $em->getRepository(Doctrine::class);
+
+        $doctrines = $doctrineRep->findAll();
+
+
         $form = $this->createFormBuilder()
+            ->add('doctrine', ChoiceType::class,
+                array(
+                    'choices' => $doctrines,
+                    'choice_label' => function($doctrine, $key, $value) {
+                        /** @var Doctrine $doctrine */
+                        return strtoupper($doctrine->getName() . ' (' . $doctrine->getCategory()->getName() . ')');
+                    },
+                    'attr' => array('style' => 'color: black;')))
             ->add('data', TextareaType::class,
                 array(
                     'label' => 'EFT fit',
@@ -85,6 +122,7 @@ class FitController extends Controller
             dump($dataTable);
 
             $fit = new Fit();
+            $fit->setDoctrine($doctrineRep->find($data['doctrine']));
 
             $patern = "/ x\d+/";
 
@@ -137,7 +175,86 @@ class FitController extends Controller
 
         $parameters['form']  = $form->createView();
 
-        return $this->render('default/test.html.twig', $parameters); //TODO
+        return $this->render('fit/add.html.twig', $parameters); //TODO
+    }
+
+    /**
+     *
+     * This route is the homepage
+     *
+     * @Route("/fit/admin", name="fit-admin")
+     * @Security("has_role('ROLE_FIT')")
+     */
+    public function fitAdminAction(Request $request)
+    {
+        $parameters = ControllerUtil::before($this);
+
+        $em = $this->getDoctrine()->getManager();
+        $catRep = $em->getRepository(FitCategory::class);
+        $doctrineRep = $em->getRepository(Doctrine::class);
+
+        $cat = new FitCategory();
+        $doctrine = new Doctrine();
+
+        $categories = $catRep->findAll();
+
+        $catForm = $this->createFormBuilder($cat)
+            ->add('name', TextType::class,
+                array(
+                    'label' => 'Nom de la category',
+                    'attr' => array('style' => 'color: black;', 'id' =>'catName'))
+            )
+            ->add('catSave', SubmitType::class, array('label' => 'Ajouter',  'attr' => array(
+                'class' => 'btn btn-primary')))
+            ->getForm();
+
+        $doctrineForm = $this->createFormBuilder($doctrine)
+            ->add('name', TextType::class,
+                array(
+                    'label' => 'Nom de la doctrine',
+                    'attr' => array('style' => 'color: black;'))
+            )
+            ->add('category', ChoiceType::class,
+                array(
+                    'choices' => $categories,
+                    'choice_label' => function($category, $key, $value) {
+                        /** @var FitCategory $category */
+                        return strtoupper($category->getName());
+                    },
+                    'attr' => array('style' => 'color: black;')))
+            ->add('doctSave', SubmitType::class, array('label' => 'Ajouter',  'attr' => array(
+                'class' => 'btn btn-primary')))
+            ->getForm();
+
+
+
+        $catForm->handleRequest($request);
+        $doctrineForm->handleRequest($request);
+
+        if($catForm->isSubmitted() && $catForm->isValid()) {
+            dump('lel');
+            $em->persist($cat);
+            $em->flush();
+        }
+
+        if($doctrineForm->isSubmitted() && $doctrineForm->isValid()) {
+            $em->persist($doctrine);
+            $em->flush();
+        }
+
+
+        $categories = $catRep->findAll();
+        $doctrines = $doctrineRep->findAll();
+
+        $parameters['catForm'] = $catForm->createView();
+        $parameters['doctrineForm'] = $doctrineForm->createView();
+        $parameters['categories'] = $categories;
+        $parameters['doctrines'] = $doctrines;
+
+
+        return $this->render('fit/admin.html.twig', $parameters);
+
+
     }
 
     /**
@@ -146,7 +263,7 @@ class FitController extends Controller
      *
      * @Route("/fit/remove/{id}", name="fit-remove")
      * @ParamConverter(name="fit")
-     * @Security("has_role('ROLE_ADMIN')")
+     * @Security("has_role('ROLE_FIT')")
      */
     public function fitRemoveAction(Request $request, Fit $fit)
     {
@@ -253,12 +370,82 @@ class FitController extends Controller
      *
      * This route is the homepage
      *
-     * @Route("/fit/slillset/{id}", name="fit-skill-set")
+     * @Route("/fit/skillset/{id}", name="fit-skill-set")
      * @ParamConverter(name="fit")
      */
     public function fitSkillSetAction(Request $request, Fit $fit)
     {
         $parameters = ControllerUtil::before($this);
+
+        $em = $this->getDoctrine()->getManager();
+
+        if($fit->getSkillsSet() == null){
+
+            $skillSet = new SkillSet();
+            $skillSet->setFit($fit);
+
+            $skills = array();
+
+            /**
+             * @var FitData $fitData
+             */
+            foreach ($fit->getFitDatas() as $fitData){
+
+                $item = $fitData->getItem();
+
+                if($fitData->getItem()->getSkill1() != null){
+                    if(!isset($skills[$item->getSkill1()->getId()])) {
+                        $skills[$item->getSkill1()->getId()] = array();
+                        $skills[$item->getSkill1()->getId()]['level'] = $item->getSkill1Level();
+                        $skills[$item->getSkill1()->getId()]['skill'] = $item->getSkill1();
+                    }
+                    if($skills[$item->getSkill1()->getId()]['level'] < $item->getSkill1Level())
+                        $skills[$item->getSkill1()->getId()]['level'] = $item->getSkill1Level();
+
+                }
+
+                if($fitData->getItem()->getSkill2() != null){
+                    if(!isset($skills[$item->getSkill2()->getId()])) {
+                        $skills[$item->getSkill2()->getId()] = array();
+                        $skills[$item->getSkill2()->getId()]['level'] = $item->getSkill2Level();
+                        $skills[$item->getSkill2()->getId()]['skill'] = $item->getSkill2();
+                    }
+                    if($skills[$item->getSkill2()->getId()]['level'] < $item->getSkill2Level())
+                        $skills[$item->getSkill2()->getId()]['level'] = $item->getSkill2Level();
+
+                }
+
+                if($fitData->getItem()->getSkill3() != null){
+                    if(!isset($skills[$item->getSkill3()->getId()])) {
+                        $skills[$item->getSkill3()->getId()] = array();
+                        $skills[$item->getSkill3()->getId()]['level'] = $item->getSkill3Level();
+                        $skills[$item->getSkill3()->getId()]['skill'] = $item->getSkill3();
+                    }
+                    if($skills[$item->getSkill3()->getId()]['level'] < $item->getSkill3level())
+                        $skills[$item->getSkill3()->getId()]['level'] = $item->getSkill3Level();
+
+                }
+            }
+
+            foreach ($skills as $skill){
+                $skillSetData = new SkillSetData();
+                $skillSetData->setLevel($skill['level'])->setSkill($skill['skill'])->setSkillSet($skillSet);
+                $em->persist($skillSetData);
+            }
+
+            $em->persist($skillSet);
+            $fit->setSkillsSet($skillSet);
+            $em->persist($fit);
+            $em->flush();
+        }
+
+        //$form = $this->createFormBuilder()
+
+        foreach ($skillSet->getSkills() as $skillData){
+
+        }
+
+        $parameters['fit'] = $fit;
 
 
 
