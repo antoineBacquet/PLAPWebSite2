@@ -13,11 +13,14 @@ use AppBundle\CCP\EsiException;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\Asset;
 use AppBundle\Entity\CharApi;
+use AppBundle\Entity\Fit;
+use AppBundle\Entity\FitData;
 use AppBundle\Entity\Item;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\UserUtil;
 use Seat\Eseye\Eseye;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -170,6 +173,104 @@ class AssetController extends Controller
 
 
         return $this->redirect($this->generateUrl('asset-list', array('id' => $api->getId())));
+    }
+
+    /**
+     *
+     *
+     * @Route("/asset/ship/{id}", name="asset-ship")
+     * @Security("has_role('ROLE_MEMBER')")
+     * @ParamConverter(name="ship")
+     */
+    public function assetShipAction(Request $request, Asset $ship)
+    {
+        $parameters = ControllerUtil::before($this);
+        $user = $this->getUser();
+
+
+        if($ship->getOwner()->getUser() !== $user and !$this->isGranted('ROLE_ADMIN')){
+            throw $this->createAccessDeniedException('Tu n\'as pas le droit de voir les ships des autres');
+        }
+
+        if(!$ship->getItem()->getItemGroup()->getCategory()->getId() == 6){  //TODO
+            //TODO error management
+        }
+
+        $fit = new Fit();
+        $fit->setName($ship->getName())->setShip($ship->getItem());
+
+        $modules = array();
+
+        /**
+         * @var Asset $child
+         */
+        foreach ($ship->getChilds() as $child){
+            if(substr( $child->getLocationFlag(), 0, 6 ) === "HiSlot"){
+                if(!isset($modules[0])) $modules[0] = array();
+                $modules[0][] = $child;
+            }
+
+            if(substr( $child->getLocationFlag(), 0, 7 ) === "MedSlot"){
+                if(!isset($modules[1])) $modules[1] = array();
+                $modules[1][] = $child;
+            }
+
+            if(substr( $child->getLocationFlag(), 0, 6 ) === "LoSlot"){
+                if(!isset($modules[2])) $modules[2] = array();
+                $modules[2][] = $child;
+            }
+
+            if(substr( $child->getLocationFlag(), 0, 7 ) === "RigSlot"){
+                if(!isset($modules[3])) $modules[3] = array();
+                $modules[3][] = $child;
+            }
+
+            if( $child->getLocationFlag() === "DroneBay"){
+                if(!isset($modules[4])) $modules[4] = array();
+                $modules[4][] = $child;
+            }
+
+            if( $child->getLocationFlag() === "FighterBay"){
+                if(!isset($modules[5])) $modules[5] = array();
+                $modules[5][] = $child;
+            }
+
+            if( $child->getLocationFlag() === "Cargo"){
+                if(!isset($modules[6])) $modules[6] = array();
+                $modules[6][] = $child;
+            }
+
+            if( $child->getLocationFlag() === "FleetHangar"){
+                if(!isset($modules[7])) $modules[7] = array();
+                $modules[7][] = $child;
+            }
+
+            /*
+            if( $child->getLocationFlag() === "Cargo"){ //TODO ship hangar
+                if(!isset($modules[6]) $modules[6] = array();
+                $modules[6][] = $child;
+            }
+            */
+        }
+
+
+        foreach ($modules as $id => $modulesSlot){
+
+            foreach ($modulesSlot as $module){
+                $fitData = new FitData();
+                $fitData->setSlot($id)->setQuantity($module->getQuantity())->setItem($module->getItem());
+
+                $fit->addFitData($fitData);
+            }
+
+        }
+
+        $parameters['fit'] = $fit;
+
+
+        return $this->render('asset/ship.html.twig', $parameters);
+
+
     }
 
     /**

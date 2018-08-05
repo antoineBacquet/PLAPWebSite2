@@ -242,16 +242,27 @@ class AjaxController extends Controller
             }
 
 
+
+            $a_attr = null;
             $hasChildren = true;
             $children = $assetRep->findByLocation($asset->getId());
             if(count($children) === 0) $hasChildren = false;
-            if($asset->getItem() !== null)$icon = CCPConfig::$imageServer . $asset->getItem()->getId().'_32.png';
+            if($asset->getItem() !== null){
+                $icon = CCPConfig::$imageServer . $asset->getItem()->getId().'_32.png';
+                if($asset->getItem()->getItemGroup() != null and $asset->getItem()->getItemGroup()->getCategory()->getId() == 6){
+                    $a_attr = array();
+                    $a_attr['href'] = $this->generateUrl('asset-ship', array('id' => $asset->getId()));
+                }
+            }
             else $icon = false;
 
             $assetsJson[] = array('id' => $asset->getId(),
                 'text' => $itemName . ' x ' . $asset->getQuantity() . ($asset->getName() === null? "" : ' - ' . $asset->getName()),
                 'is_location' => false,
-                'children' => $hasChildren, 'icon' => $icon);
+                'children' => $hasChildren, 'icon' => $icon,
+                'a_attr' => $a_attr,
+
+            );
 
         }
 
