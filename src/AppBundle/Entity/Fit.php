@@ -45,11 +45,21 @@ class Fit
     private $fitDatas;
 
     /**
-     * @var array
+     * @var SkillSet
      *
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\FitSkill", mappedBy="id")
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\SkillSet", mappedBy="id")
+     * @ORM\JoinColumn(onDelete="SET NULL", nullable=true)
      */
-    private $skillsNeeded;
+    private $skillsSet;
+
+
+    /**
+     * @var Doctrine
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Doctrine", inversedBy="fits" )
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private $doctrine;
 
 
     /**
@@ -151,37 +161,56 @@ class Fit
         return $this->ship;
     }
 
+
+
+
+
     /**
-     * Add skillsNeeded
+     * Set skillsSet
      *
-     * @param \AppBundle\Entity\Skill $skillsNeeded
+     * @param \AppBundle\Entity\SkillSet $skillsSet
      *
      * @return Fit
      */
-    public function addSkillsNeeded(\AppBundle\Entity\Skill $skillsNeeded)
+    public function setSkillsSet(\AppBundle\Entity\SkillSet $skillsSet = null)
     {
-        $this->skillsNeeded[] = $skillsNeeded;
+        $this->skillsSet = $skillsSet;
     
         return $this;
     }
 
     /**
-     * Remove skillsNeeded
+     * Get skillsSet
      *
-     * @param \AppBundle\Entity\Skill $skillsNeeded
+     * @return \AppBundle\Entity\SkillSet
      */
-    public function removeSkillsNeeded(\AppBundle\Entity\Skill $skillsNeeded)
+    public function getSkillsSet()
     {
-        $this->skillsNeeded->removeElement($skillsNeeded);
+        return $this->skillsSet;
+    }
+
+
+    /**
+     * Set doctrine
+     *
+     * @param \AppBundle\Entity\Doctrine $doctrine
+     *
+     * @return Fit
+     */
+    public function setDoctrine(\AppBundle\Entity\Doctrine $doctrine = null)
+    {
+        $this->doctrine = $doctrine;
+    
+        return $this;
     }
 
     /**
-     * Get skillsNeeded
+     * Get doctrine
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return \AppBundle\Entity\Doctrine
      */
-    public function getSkillsNeeded()
+    public function getDoctrine()
     {
-        return $this->skillsNeeded;
+        return $this->doctrine;
     }
 }
