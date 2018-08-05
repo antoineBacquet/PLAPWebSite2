@@ -48,11 +48,15 @@
                     "variant" : "large"
                 }
 
-            }});
+            }})
+            .bind("select_node.jstree", function (e, data) {
+                var href = data.node.a_attr.href;
+                document.location.href = href;
+            });
 
 
         function search(e) {
-            if(event.key === 'Enter' && e.value.length > 3) {
+            if(event.key === 'Enter' && e.value.length > 2) {
 
                 $.ajax({
                     url: '{{ (path('asset-search')) }}',
