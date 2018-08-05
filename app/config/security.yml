@@ -35,4 +35,6 @@ security:
     role_hierarchy:
         ROLE_APPLY:       ROLE_GUEST
         ROLE_MEMBER:      ROLE_GUEST
-        ROLE_ADMIN:       [ROLE_MEMBER, ROLE_MODERATOR]
+        ROLE_PROD:        ROLE_MEMBER
+        ROLE_FIT:         ROLE_MEMBER
+        ROLE_ADMIN:       [ROLE_MEMBER, ROLE_MODERATOR, ROLE_FIT, ROLE_PROD]
