@@ -119,7 +119,6 @@ class FitController extends Controller
 
             $regex = '/\r\n/';
             $dataTable = preg_split($regex, $data['data']);
-            dump($dataTable);
 
             $fit = new Fit();
             $fit->setDoctrine($doctrineRep->find($data['doctrine']));
@@ -136,7 +135,6 @@ class FitController extends Controller
                     $ship = $itemRep->findOneByName($headerData[1]);
                     $fitName = $headerData[2];// TODO error manegement
                     $fit->setShip($ship)->setName($fitName);
-                    //dump($headerData);
 
                 }else{
                     if(!$dataTable[$i] == "") {
@@ -155,7 +153,6 @@ class FitController extends Controller
                             $fitData->setItem($item)->setQuantity($number)->setSlot($slotNum)->setFit($fit);
                             $fit->addFitData($fitData);
                         }
-                        //dump($item);
 
                     }
                     else  if(!$newBlock and $dataTable[$i] === "") {
@@ -232,7 +229,6 @@ class FitController extends Controller
         $doctrineForm->handleRequest($request);
 
         if($catForm->isSubmitted() && $catForm->isValid()) {
-            dump('lel');
             $em->persist($cat);
             $em->flush();
         }
@@ -289,9 +285,6 @@ class FitController extends Controller
         $parameters = ControllerUtil::before($this);
         $parameters['fit'] = $fit;
 
-
-
-
         return $this->render('fit/fit.html.twig', $parameters);
     }
 
@@ -329,14 +322,11 @@ class FitController extends Controller
         $apiSkillsData = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/skills/', array('character_id' => $api->getCharId()));
 
 
-        dump($apiSkillsData->getArrayCopy());
         $apiSkills = array();
 
         foreach ($apiSkillsData->getArrayCopy()['skills'] as $apiSkillData){
             $apiSkills[$apiSkillData->skill_id] = $apiSkillData->trained_skill_level;
         }
-
-        dump($apiSkills);
 
         /**
          * @var FitData $fitData
