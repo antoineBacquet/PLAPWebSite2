@@ -73,6 +73,10 @@ class CommandController extends Controller
 
             if(count($data['items']) == 0) return $this->redirect($this->generateUrl('commandadd'));
 
+            //TODO error feedback
+            for ( $i=0 ; $i<count($data['items']) ; $i++)
+                if($data['quantity'][$i] == null or $data['quantity'][$i] <1)
+                    $data['quantity'][$i] = 1;
 
             $command = new Command();
 
@@ -103,7 +107,7 @@ class CommandController extends Controller
             }
 
             $url = $request->getScheme() . '://' . $request->getHttpHost() . $this->generateUrl('commandinfo', array('id' => $command->getId()));
-            DiscordUtil::sendNewCommand($command, $url);
+            //DiscordUtil::sendNewCommand($command, $url);
 
             return $this->redirect($this->generateUrl('commandlist'));
         }
