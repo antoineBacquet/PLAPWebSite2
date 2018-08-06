@@ -43,7 +43,7 @@ class DiscordUtil
         $webhook = new Client(DiscordConfig::$webhook_command);
         $webhook->username('Command bot');
 
-        $webhook->message('<@211493008108027905>');
+        $webhook->message('<@475727462064586756>'); //TODO global
 
         $embed = new Embed();
         $embed->title('Nouvelle commande de ' . $c->getIssuer()->getName() . '. Prix estimé : ' . number_format($c->getEstimatedPrice()) . ' isk'); //TODO

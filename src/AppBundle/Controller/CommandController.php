@@ -107,7 +107,7 @@ class CommandController extends Controller
             }
 
             $url = $request->getScheme() . '://' . $request->getHttpHost() . $this->generateUrl('commandinfo', array('id' => $command->getId()));
-            //DiscordUtil::sendNewCommand($command, $url);
+            DiscordUtil::sendNewCommand($command, $url);
 
             return $this->redirect($this->generateUrl('commandlist'));
         }
