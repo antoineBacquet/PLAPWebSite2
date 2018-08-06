@@ -21,11 +21,6 @@
                         {% endif %}
                     </ul>
                 </li>
-                 {% if is_granted('ROLE_MEMBER') %}
-                     <li>
-                         <a href="{{ path('discutea_forum_homepage') }}"> Forum </a>
-                     </li>
-                 {% endif %}
 
             {% endif %}
 
@@ -40,11 +35,9 @@
                     {% endif %}
                 </ul>
             </li>
-            {% if is_granted('ROLE_MEMBER') %}
-                <li>
-                    <a href="{{ path('discutea_forum_homepage') }}"> Forum </a>
-                </li>
-            {% endif %}
+            <li>
+                <a href="{{ path('discutea_forum_homepage') }}"> Forum </a>
+            </li>
 
         {% endif %}
 
@@ -83,12 +76,23 @@
 
 
             {% endif %}
-
-
-        {% if app.user %}
-            <li><a class="nav-link" href="{{ path('logout') }}" >Se déconnecter</a></li>
-        {% else %}
-            <li><a class="nav-link" href="{{ path('login') }}" >Se connecter</a></li>
-        {% endif %}
     </ul>
+        <ul class="nav navbar-nav navbar-right">
+            {% if app.user %}
+                <li  class="dropdown">
+
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <img src="https://imageserver.eveonline.com/Character/{{ app.user.charId }}_32.jpg">
+                        {{ app.user.name }} <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="{{ path('logout') }}" >Se deconnecter</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <li><a class="nav-link" href="{{ path('login') }}" >Se connecter</a></li>
+            {% endif %}
+        </ul>
+
+
 </div>
