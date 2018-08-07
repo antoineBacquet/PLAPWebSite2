@@ -23,6 +23,10 @@ security:
                 path: /logout
                 target: /
 
+
+            form_login:
+                login_path:  /login
+
             access_denied_handler: access_denied.handler
 
             logout_on_user_change: true
