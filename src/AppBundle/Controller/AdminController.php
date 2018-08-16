@@ -16,20 +16,18 @@ use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Command;
 use AppBundle\Entity\Recruitement;
-use AppBundle\Entity\Role;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\UserUtil;
+use AppBundle\Util\Util;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
 use Seat\Eseye\Eseye;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
 
@@ -75,6 +73,49 @@ class AdminController extends Controller
 
         $parameters['members'] = $users;
         return $this->render('admin/members.html.twig', $parameters);
+
+    }
+
+    /**
+     * @Route("/members/missing", name="members-missing")
+     */
+    public function adminMemberMissingListAction(Request $request)
+    {
+
+        $parameters = ControllerUtil::before($this);
+
+        $em = $this->getDoctrine()->getManager();
+        $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
+
+        /**
+         * User $user
+         */
+        $user = $this->getUser();
+
+        $api = $user->getApis()[0]; //TODO error management
+
+
+        $auth = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
+        $esi = new Eseye($auth);
+
+        $membersId = EsiUtil::callESI($esi, 'get', '/corporations/{corporation_id}/members/', array('corporation_id' => Util::$corpId));
+
+        $missingApis = array();
+
+        foreach ($membersId as $id){
+
+            $apiTmp = $apiRep->findOneByCharId($id);
+            if($apiTmp == null){
+                $memberData = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/', array('character_id' => $id));
+                $memberData->id = $id;
+                $missingApis[] = $memberData;
+            }
+        }
+
+
+        $parameters['missingApis'] = $missingApis;
+
+        return $this->render('admin/members-missing.html.twig', $parameters);
 
     }
 
@@ -136,6 +177,7 @@ class AdminController extends Controller
         $groupForm->handleRequest($request);
 
         if ($groupForm->isSubmitted() && $groupForm->isValid()) {
+            dump($groupForm->getData()->GetRoles());
             $user->setRoles( $groupForm->getData()->GetRoles());
 
             $doctrine->getManager()->persist($user);

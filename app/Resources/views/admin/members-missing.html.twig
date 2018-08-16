@@ -1,0 +1,33 @@
+{% extends 'template/base.html.twig' %}
+
+
+
+
+{% block body %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <td> Portrait </td>
+                <td> Nom </td>
+                <td>  </td>
+            </tr>
+            </thead>
+            {% for missingApi in missingApis %}
+                <tr>
+                    <td>  <img src="https://image.eveonline.com/Character/{{ missingApi.id }}_32.jpg" class="img-responsive">  </td>
+
+                    <td>  {{ missingApi.name }} </td>
+
+                    <td> </td>
+
+                </tr>
+            {% else %}
+                Il ne manque aucune API \o/
+            {% endfor %}
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
