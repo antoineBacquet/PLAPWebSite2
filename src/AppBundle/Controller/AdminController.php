@@ -77,6 +77,20 @@ class AdminController extends Controller
     }
 
     /**
+     * @Route("/member/remove/{id}", name="member-remove")
+     */
+    public function adminMemberRemoveAction(Request $request, User $member)
+    {
+        ControllerUtil::before($this);
+
+        $this->getDoctrine()->getManager()->remove($member);
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->redirect($this->generateUrl('members'));
+
+    }
+
+    /**
      * @Route("/members/missing", name="members-missing")
      */
     public function adminMemberMissingListAction(Request $request)

@@ -26,7 +26,7 @@ class Command
      * @var int
      *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $issuer;
 
@@ -41,6 +41,7 @@ class Command
      * @var int
      *
      * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      *
      */
     private $contractor;

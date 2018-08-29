@@ -15,6 +15,7 @@
                     <td> Discord lié? </td>
                     <td> Corporation </td>
                     <td> Nombre de personnage </td>
+                    <td> Action </td>
                 </tr>
             </thead>
 
@@ -30,6 +31,7 @@
                         <td>{% if member.corp is null %} Corporation inconue (erreur ESI) {% else %}{{ member.corp.name}} {% endif %}  </td>
 
                         <td>{% if member.apis is null %} 0 {% else %} {{ member.apis.count }} {% endif %}</td>
+                        <td><a href="{{ path('member-remove', { 'id' : member.getId() } ) }}"> SUPPRIMER </a></td>
 
                     </tr>
                 {% else %}
