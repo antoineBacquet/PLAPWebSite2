@@ -10,8 +10,10 @@ namespace AppBundle\Command;
 
 
 use AppBundle\CCP\EsiUtil;
+use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\User;
+use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\Util;
 use Seat\Eseye\Eseye;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -91,6 +93,7 @@ class UpdateUserDataCommand extends ContainerAwareCommand
                     $user->addRole('ROLE_MEMBER');
                     $em->persist($user);
                     $output->writeln(date("Y-m-d h:i:s") . ' : Adding role \'ROLE_MEMBER\' to user ' . $user->getName() . '.');
+                    DiscordUtil::updateRoles($user);
                 }
             }
 
