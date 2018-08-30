@@ -269,6 +269,9 @@ class AdminController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
+        $apply->getUser()->removeRole('ROLE_APPLY');
+        $em->persist($apply->getUser());
+
         $em->remove($apply);
         $em->flush();
 
