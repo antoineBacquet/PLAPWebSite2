@@ -38,7 +38,6 @@ class UpdateUserDataCommand extends ContainerAwareCommand
     {
 
         $doctrine = $this->getContainer()->get('doctrine');
-        $authChecker = $this->getContainer()->get('security.authorization_checker');
         $em = $doctrine->getManager();
         $userRep = $em->getRepository(User::class);
 
@@ -56,10 +55,11 @@ class UpdateUserDataCommand extends ContainerAwareCommand
 
             if($userData->corporation_id == Util::$corpId) $isPLAP = true;
 
-            if($userData->corporation_id != $user->getCorpId())
-                //$user->setCorpId($userData->corporation_id);
-                //$em->persist($user);
+            if($userData->corporation_id != $user->getCorpId()) {
+                $user->setCorpId($userData->corporation_id);
+                $em->persist($user);
                 $output->writeln(date("Y-m-d h:i:s") . ' : User ' . $user->getName() . ' has changed corp.');
+            }
 
             /**
              * @var CharApi $api
@@ -71,12 +71,15 @@ class UpdateUserDataCommand extends ContainerAwareCommand
 
             }
 
+            if(!$isPLAP)
+                foreach ($user->getRoles() as $role)
+                    if($role == "ROLE_MEMBER"){
+                        $user->removeRole('ROLE_MEMBER');
+                        $em->persist($user);
+                        $output->writeln(date("Y-m-d h:i:s") . ' : User ' . $user->getName() . ' is not a PLAP anymore :( .');
+                    }
 
-            if(!$isPLAP and $authChecker->isGranted('ROLE_MEMBER')){
-                $user->removeRole('ROLE_MEMBER');
-                $output->writeln(date("Y-m-d h:i:s") . ' : User ' . $user->getName() . ' is not a PLAP anymore :( .');
-            }
-
+            $em->flush();
         }
     }
 }
