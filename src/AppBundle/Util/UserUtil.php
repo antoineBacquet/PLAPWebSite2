@@ -35,7 +35,14 @@ class UserUtil
 
 
 
-    public static $roleMapping = array('Invité' => 'ROLE_GUEST', 'Membre' => 'ROLE_MEMBER', 'Admin' => 'ROLE_ADMIN');
+    public static $roleMapping = array(
+        'Role apply  ' => 'ROLE_APPLY',
+        'Membre  ' => 'ROLE_MEMBER',
+        'Responsable de prod  ' =>'ROLE_PROD',
+        'Gestion des fits  ' => 'ROLE_FIT',
+        'Role Supercaps  ' => 'ROLE_SUPER',
+        'Admin  ' => 'ROLE_ADMIN'
+    );
 
     /**
      * @var User

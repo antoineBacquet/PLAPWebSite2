@@ -21,8 +21,11 @@ class DiscordUtil
 {
 
 
-
-
+    /**
+     * @param User $user
+     * @return bool
+     * @throws \Exception
+     */
     public static function updateRoles(User $user){
 
         if($user->getDiscordId() == null)return false;

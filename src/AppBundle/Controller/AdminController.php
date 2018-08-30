@@ -18,6 +18,7 @@ use AppBundle\Entity\Command;
 use AppBundle\Entity\Recruitement;
 use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
+use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\UserUtil;
 use AppBundle\Util\Util;
 use DiscordWebhooks\Client;
@@ -182,7 +183,7 @@ class AdminController extends Controller
             ->add('Roles', ChoiceType::class, [
                 'multiple' => true,
                 'expanded' => true, // render check-boxes
-                'choices' => UserUtil::$roleMapping,
+                'choices' => UserUtil::$roleMapping
             ])
             ->add('save', SubmitType::class, array('label' => 'Changer les roles',  'attr' => array(
                 'class' => 'btn-admin')))
@@ -192,12 +193,31 @@ class AdminController extends Controller
         $groupForm->handleRequest($request);
 
         if ($groupForm->isSubmitted() && $groupForm->isValid()) {
-            dump($groupForm->getData()->GetRoles());
-            $user->setRoles( $groupForm->getData()->GetRoles());
+            //dump($groupForm->getData()->GetRoles());
 
+            foreach ($groupForm->getData()->GetRoles() as $roleData){
+                $rolesArray[] = $roleData;
+            }
+
+            //dump($rolesArray);
+
+
+            $user->setRoles( $rolesArray);
             $doctrine->getManager()->persist($user);
             $doctrine->getManager()->flush();
 
+
+            try{
+                DiscordUtil::updateRoles($user);
+                $parameters['feedback'] = true;
+            }
+            catch (\Exception $e){
+                $parameters['feedback'] = false;
+                $parameters['error'] = $e;
+                dump($e);
+            }
+
+            /*
             if($user->getDiscordId() != null){
                 $webhook = new Client(DiscordConfig::$webhook_url);
                 $embed = new Embed();
@@ -212,7 +232,7 @@ class AdminController extends Controller
                     $parameters['error'] = $e;
                 }
                 $parameters['feedback'] = true;
-            }
+            }*/
         }
 
         $commandRep = $doctrine->getRepository(Command::class);
