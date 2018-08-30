@@ -59,6 +59,7 @@ class User implements UserInterface, \Serializable
 
     /**
      * @ORM\OneToMany(targetEntity="CharApi", mappedBy="user")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $apis;
 
@@ -88,7 +89,7 @@ class User implements UserInterface, \Serializable
      * @var int
      *
      * @ORM\OneToOne(targetEntity="CharApi")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $mainApi;
 
