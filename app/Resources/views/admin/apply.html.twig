@@ -13,6 +13,7 @@
                 <td> Corporation </td>
                 <td> Nombre de personnage </td>
                 <td> Action </td>
+                <td> Supprimer </td>
             </tr>
             </thead>
 
@@ -28,6 +29,8 @@
                     <td>{% if apply.user.apis is null %} 0 {% else %} {{ apply.user.apis.count }} {% endif %}</td>
 
                     <td><a href="{{ path('apply-info', { 'id' : apply.id } ) }}"> Voir l'application</a>  </td>
+
+                    <td><a href="{{ path('apply-remove', { 'id' : apply.id } ) }}"> Supprimer l'application</a>  </td>
 
                 </tr>
             {% else %}

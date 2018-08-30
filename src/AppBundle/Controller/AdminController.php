@@ -23,6 +23,7 @@ use AppBundle\Util\Util;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
 use Seat\Eseye\Eseye;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -257,6 +258,23 @@ class AdminController extends Controller
 
         return $this->render('admin/apply.html.twig', $parameters);
     }
+
+    /**
+     * @Route("/admin/apply/remove/{id}", name="apply-remove")
+     * @ParamConverter(name="apply")
+     */
+    public function adminApplyRemoveAction(Request $request, Recruitement $apply)
+    {
+        $parameters = ControllerUtil::before($this);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $em->remove($apply);
+        $em->flush();
+
+        return $this->redirect($this->generateUrl('apply-list'));
+    }
+
     /**
      * @Route("/admin/apply/{id}", name="apply-info")
      */
