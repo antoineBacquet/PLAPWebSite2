@@ -71,15 +71,31 @@ class UpdateUserDataCommand extends ContainerAwareCommand
 
             }
 
-            if(!$isPLAP)
-                foreach ($user->getRoles() as $role)
+            if(!$isPLAP){
+                foreach ($user->getRoles() as $role){
                     if($role == "ROLE_MEMBER"){
                         $user->removeRole('ROLE_MEMBER');
                         $em->persist($user);
                         $output->writeln(date("Y-m-d h:i:s") . ' : User ' . $user->getName() . ' is not a PLAP anymore :( .');
                     }
+                }
 
-            $em->flush();
+            }
+            else{
+                $hasRole = false;
+                foreach ($user->getRoles() as $role){
+                    if($role == "ROLE_MEMBER")
+                        $hasRole = true;
+                }
+                if(!$hasRole) {
+                    $user->addRole('ROLE_MEMBER');
+                    $em->persist($user);
+                    $output->writeln(date("Y-m-d h:i:s") . ' : Adding role \'ROLE_MEMBER\' to user ' . $user->getName() . '.');
+                }
+            }
+
         }
+
+        $em->flush();
     }
 }
