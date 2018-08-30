@@ -92,7 +92,7 @@ class MainController extends Controller
         }
 
         $form = $this->createFormBuilder($apply)
-                ->add('mic', CheckboxType::class, array('label' => 'Micro+casque Discord/TS3 ?'))
+                ->add('mic', CheckboxType::class, array('label' => 'Micro+casque Discord/TS3 ?', 'required' => false))
                 ->add('age', ChoiceType::class,[
                     'label' => 'Age ?',
                     'multiple' => false,
