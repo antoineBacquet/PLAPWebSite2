@@ -74,7 +74,8 @@
 {% for fitData in fit.fitDatas %}{% if fitData.slot != slot  %}{% set slot = fitData.slot %}
 
 {% endif %}
-{{ fitData.item.name }} x{{ fitData.quantity }}
+
+{{ fitData.item.name }} {% if fitData.slot > 3 %}x{{ fitData.quantity }}{% endif %}
 {% endfor %}
                     </textarea>
 
