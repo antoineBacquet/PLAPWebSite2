@@ -467,6 +467,7 @@ class FitController extends Controller
 
         return $this->render('fit/fit-skill-set.html.twig', $parameters);
 
+
     }
 
     /**
