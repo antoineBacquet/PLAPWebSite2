@@ -17,15 +17,15 @@
     {% endif %}
 
 
-<div class="jumbotron bouton">
+
     {{ form_start(group_form) }}
     {{ form_widget(group_form) }}
     {{ form_end(group_form) }}
         <br>
         {% if member.discordId == null %} Pas de liaison avec le discord {% else %} <a class="button"> Mettre a jour les roles sur discord</a> {% endif %}
-</div>
 
-        <h2>Liste des APIs</h2>
+
+        <h2>Liste des API</h2>
 
         {% include('template/api_list.html.twig') %}
 
