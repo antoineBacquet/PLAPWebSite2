@@ -55,46 +55,12 @@ class Item
     private $iconId;
 
     /**
-     * @var Skill
-     *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill")
+     * @var SkillLevel
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\SkillLevelItem", mappedBy="item")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    private $skill1;
+    private $skills;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="skill1Level", type="smallint", nullable=true)
-     */
-    private $skill1Level;
-
-    /**
-     * @var string
-     *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill")
-     */
-    private $skill2;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="skill2Level", type="smallint", nullable=true)
-     */
-    private $skill2Level;
-
-    /**
-     * @var string
-     *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill")
-     */
-    private $skill3;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="skill3Level", type="smallint", nullable=true)
-     */
-    private $skill3Level;
 
 
     /**
@@ -241,147 +207,46 @@ class Item
         return $this->itemGroup;
     }
 
+
     /**
-     * Set skill1Level
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->skills = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add skill
      *
-     * @param integer $skill1Level
+     * @param \AppBundle\Entity\SkillLevelItem $skill
      *
      * @return Item
      */
-    public function setSkill1Level($skill1Level)
+    public function addSkill(\AppBundle\Entity\SkillLevelItem $skill)
     {
-        $this->skill1Level = $skill1Level;
+        $this->skills[] = $skill;
     
         return $this;
     }
 
     /**
-     * Get skill1Level
+     * Remove skill
      *
-     * @return integer
+     * @param \AppBundle\Entity\SkillLevelItem $skill
      */
-    public function getSkill1Level()
+    public function removeSkill(\AppBundle\Entity\SkillLevelItem $skill)
     {
-        return $this->skill1Level;
+        $this->skills->removeElement($skill);
     }
 
     /**
-     * Set skill2Level
+     * Get skills
      *
-     * @param integer $skill2Level
-     *
-     * @return Item
+     * @return \Doctrine\Common\Collections\Collection
      */
-    public function setSkill2Level($skill2Level)
+    public function getSkills()
     {
-        $this->skill2Level = $skill2Level;
-    
-        return $this;
-    }
-
-    /**
-     * Get skill2Level
-     *
-     * @return integer
-     */
-    public function getSkill2Level()
-    {
-        return $this->skill2Level;
-    }
-
-    /**
-     * Set skill3Level
-     *
-     * @param integer $skill3Level
-     *
-     * @return Item
-     */
-    public function setSkill3Level($skill3Level)
-    {
-        $this->skill3Level = $skill3Level;
-    
-        return $this;
-    }
-
-    /**
-     * Get skill3Level
-     *
-     * @return integer
-     */
-    public function getSkill3Level()
-    {
-        return $this->skill3Level;
-    }
-
-    /**
-     * Set skill1
-     *
-     * @param \AppBundle\Entity\Skill $skill1
-     *
-     * @return Item
-     */
-    public function setSkill1(\AppBundle\Entity\Skill $skill1 = null)
-    {
-        $this->skill1 = $skill1;
-    
-        return $this;
-    }
-
-    /**
-     * Get skill1
-     *
-     * @return \AppBundle\Entity\Skill
-     */
-    public function getSkill1()
-    {
-        return $this->skill1;
-    }
-
-    /**
-     * Set skill2
-     *
-     * @param \AppBundle\Entity\Skill $skill2
-     *
-     * @return Item
-     */
-    public function setSkill2(\AppBundle\Entity\Skill $skill2 = null)
-    {
-        $this->skill2 = $skill2;
-    
-        return $this;
-    }
-
-    /**
-     * Get skill2
-     *
-     * @return \AppBundle\Entity\Skill
-     */
-    public function getSkill2()
-    {
-        return $this->skill2;
-    }
-
-    /**
-     * Set skill3
-     *
-     * @param \AppBundle\Entity\Skill $skill3
-     *
-     * @return Item
-     */
-    public function setSkill3(\AppBundle\Entity\Skill $skill3 = null)
-    {
-        $this->skill3 = $skill3;
-    
-        return $this;
-    }
-
-    /**
-     * Get skill3
-     *
-     * @return \AppBundle\Entity\Skill
-     */
-    public function getSkill3()
-    {
-        return $this->skill3;
+        return $this->skills;
     }
 }

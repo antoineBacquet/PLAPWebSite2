@@ -12,6 +12,13 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Skill
 {
+
+
+    const ATTRIBUTE_INTELLIGENCE = 'Intelligence';
+    const ATTRIBUTE_PERCEPTION = 'Perception';
+    const ATTRIBUTE_CHARISMA = 'Charisma';
+    const ATTRIBUTE_WILLPOWER = 'Willpower';
+    const ATTRIBUTE_MEMORY = 'Memory';
     /**
      * @var int
      *
@@ -27,51 +34,34 @@ class Skill
      */
     private $name;
 
-
     /**
-     * @var Skill
+     * @var string
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\Column(name="primary_attribute", type="string", length=64)
      */
-    private $skill1;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="skill1Level", type="smallint", nullable=true)
-     */
-    private $skill1Level;
+    private $primaryAttribute;
 
     /**
      * @var string
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\Column(name="secondary_attribute", type="string", length=64)
      */
-    private $skill2;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="skill2Level", type="smallint", nullable=true)
-     */
-    private $skill2Level;
+    private $secondaryAttribute;
 
     /**
      * @var string
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\Column(name="time_multiplier", type="smallint")
      */
-    private $skill3;
+    private $timeMultiplier;
+
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="skill3Level", type="smallint", nullable=true)
+     * @var SkillLevel
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\SkillLevel", mappedBy="parent")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    private $skill3Level;
+    private $skills;
 
     /**
      * @var ItemGroup
@@ -113,77 +103,6 @@ class Skill
         return $this->name;
     }
 
-    /**
-     * Set skill1
-     *
-     * @param \AppBundle\Entity\Skill $skill1
-     *
-     * @return Skill
-     */
-    public function setSkill1(\AppBundle\Entity\Skill $skill1 = null)
-    {
-        $this->skill1 = $skill1;
-    
-        return $this;
-    }
-
-    /**
-     * Get skill1
-     *
-     * @return \AppBundle\Entity\Skill
-     */
-    public function getSkill1()
-    {
-        return $this->skill1;
-    }
-
-    /**
-     * Set skill2
-     *
-     * @param \AppBundle\Entity\Skill $skill2
-     *
-     * @return Skill
-     */
-    public function setSkill2(\AppBundle\Entity\Skill $skill2 = null)
-    {
-        $this->skill2 = $skill2;
-    
-        return $this;
-    }
-
-    /**
-     * Get skill2
-     *
-     * @return \AppBundle\Entity\Skill
-     */
-    public function getSkill2()
-    {
-        return $this->skill2;
-    }
-
-    /**
-     * Set skill3
-     *
-     * @param \AppBundle\Entity\Skill $skill3
-     *
-     * @return Skill
-     */
-    public function setSkill3(\AppBundle\Entity\Skill $skill3 = null)
-    {
-        $this->skill3 = $skill3;
-    
-        return $this;
-    }
-
-    /**
-     * Get skill3
-     *
-     * @return \AppBundle\Entity\Skill
-     */
-    public function getSkill3()
-    {
-        return $this->skill3;
-    }
 
     /**
      * Set group
@@ -223,75 +142,119 @@ class Skill
         return $this;
     }
 
+
+
     /**
-     * Set skill1Level
+     * Set primaryAttribute
      *
-     * @param integer $skill1Level
+     * @param string $primaryAttribute
      *
      * @return Skill
      */
-    public function setSkill1Level($skill1Level)
+    public function setPrimaryAttribute($primaryAttribute)
     {
-        $this->skill1Level = $skill1Level;
+        $this->primaryAttribute = $primaryAttribute;
     
         return $this;
     }
 
     /**
-     * Get skill1Level
+     * Get primaryAttribute
      *
-     * @return integer
+     * @return string
      */
-    public function getSkill1Level()
+    public function getPrimaryAttribute()
     {
-        return $this->skill1Level;
+        return $this->primaryAttribute;
     }
 
     /**
-     * Set skill2Level
+     * Set secondaryAttribute
      *
-     * @param integer $skill2Level
+     * @param string $secondaryAttribute
      *
      * @return Skill
      */
-    public function setSkill2Level($skill2Level)
+    public function setSecondaryAttribute($secondaryAttribute)
     {
-        $this->skill2Level = $skill2Level;
+        $this->secondaryAttribute = $secondaryAttribute;
     
         return $this;
     }
 
     /**
-     * Get skill2Level
+     * Get secondaryAttribute
      *
-     * @return integer
+     * @return string
      */
-    public function getSkill2Level()
+    public function getSecondaryAttribute()
     {
-        return $this->skill2Level;
+        return $this->secondaryAttribute;
     }
 
+
     /**
-     * Set skill3Level
+     * Set timeMultiplier
      *
-     * @param integer $skill3Level
+     * @param integer $timeMultiplier
      *
      * @return Skill
      */
-    public function setSkill3Level($skill3Level)
+    public function setTimeMultiplier($timeMultiplier)
     {
-        $this->skill3Level = $skill3Level;
+        $this->timeMultiplier = $timeMultiplier;
     
         return $this;
     }
 
     /**
-     * Get skill3Level
+     * Get timeMultiplier
      *
      * @return integer
      */
-    public function getSkill3Level()
+    public function getTimeMultiplier()
     {
-        return $this->skill3Level;
+        return $this->timeMultiplier;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->skills = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add skill
+     *
+     * @param \AppBundle\Entity\SkillLevel $skill
+     *
+     * @return Skill
+     */
+    public function addSkill(\AppBundle\Entity\SkillLevel $skill)
+    {
+        $this->skills[] = $skill;
+    
+        return $this;
+    }
+
+    /**
+     * Remove skill
+     *
+     * @param \AppBundle\Entity\SkillLevel $skill
+     */
+    public function removeSkill(\AppBundle\Entity\SkillLevel $skill)
+    {
+        $this->skills->removeElement($skill);
+    }
+
+    /**
+     * Get skills
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getSkills()
+    {
+        return $this->skills;
     }
 }

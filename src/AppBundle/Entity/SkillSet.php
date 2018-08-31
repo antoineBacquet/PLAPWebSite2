@@ -29,7 +29,7 @@ class SkillSet
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\SkillSetData", mappedBy="id")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\SkillSetData", mappedBy="skillSet")
      * @ORM\JoinColumn(onDelete="CASCADE")
      *
      */

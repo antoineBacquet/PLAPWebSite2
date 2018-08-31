@@ -214,6 +214,7 @@ class MainController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         $result = curl_exec($ch);
+
         /*
         dump(curl_getinfo($ch));
         dump( curl_errno($ch));

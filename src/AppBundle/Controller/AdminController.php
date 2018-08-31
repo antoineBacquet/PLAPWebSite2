@@ -214,7 +214,7 @@ class AdminController extends Controller
             catch (\Exception $e){
                 $parameters['feedback'] = false;
                 $parameters['error'] = $e;
-                dump($e);
+                //dump($e);
             }
 
             /*

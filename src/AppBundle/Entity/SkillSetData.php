@@ -24,13 +24,20 @@ class SkillSetData
     /**
      * @var int
      *
+     * @ORM\Column(name="minimum_level", type="smallint")
+     */
+    private $minimumLevel;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="level", type="smallint")
      */
     private $level;
 
     /**
      * @var Skill
-     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Skill", mappedBy="id")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Skill", inversedBy="id")
      * @ORM\JoinColumn(onDelete="CASCADE")
      *
      */
@@ -78,47 +85,7 @@ class SkillSetData
     {
         return $this->level;
     }
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->skills = new \Doctrine\Common\Collections\ArrayCollection();
-    }
 
-    /**
-     * Add skill
-     *
-     * @param \AppBundle\Entity\Skill $skill
-     *
-     * @return SkillSetData
-     */
-    public function addSkill(\AppBundle\Entity\Skill $skill)
-    {
-        $this->skills[] = $skill;
-    
-        return $this;
-    }
-
-    /**
-     * Remove skill
-     *
-     * @param \AppBundle\Entity\Skill $skill
-     */
-    public function removeSkill(\AppBundle\Entity\Skill $skill)
-    {
-        $this->skills->removeElement($skill);
-    }
-
-    /**
-     * Get skills
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getSkills()
-    {
-        return $this->skills;
-    }
 
     /**
      * Set skillSet
@@ -145,20 +112,6 @@ class SkillSetData
     }
 
     /**
-     * Set skills
-     *
-     * @param \AppBundle\Entity\Skill $skills
-     *
-     * @return SkillSetData
-     */
-    public function setSkills(\AppBundle\Entity\Skill $skills = null)
-    {
-        $this->skills = $skills;
-    
-        return $this;
-    }
-
-    /**
      * Set skill
      *
      * @param \AppBundle\Entity\Skill $skill
@@ -180,5 +133,29 @@ class SkillSetData
     public function getSkill()
     {
         return $this->skill;
+    }
+
+    /**
+     * Set minimumLevel
+     *
+     * @param integer $minimumLevel
+     *
+     * @return SkillSetData
+     */
+    public function setMinimumLevel($minimumLevel)
+    {
+        $this->minimumLevel = $minimumLevel;
+    
+        return $this;
+    }
+
+    /**
+     * Get minimumLevel
+     *
+     * @return integer
+     */
+    public function getMinimumLevel()
+    {
+        return $this->minimumLevel;
     }
 }

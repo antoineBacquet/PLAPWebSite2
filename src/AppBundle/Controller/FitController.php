@@ -15,6 +15,9 @@ use AppBundle\Entity\Fit;
 use AppBundle\Entity\FitCategory;
 use AppBundle\Entity\FitData;
 use AppBundle\Entity\Item;
+use AppBundle\Entity\Skill;
+use AppBundle\Entity\SkillLevel;
+use AppBundle\Entity\SkillLevelItem;
 use AppBundle\Entity\SkillSet;
 use AppBundle\Entity\SkillSetData;
 use AppBundle\Util\ControllerUtil;
@@ -24,11 +27,18 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class FitController
+ * @package AppBundle\Controller
+ * @Security("has_role('ROLE_MEMBER')")
+ */
 class FitController extends Controller
 {
 
@@ -79,7 +89,7 @@ class FitController extends Controller
      * This route is the homepage
      *
      * @Route("/fit/add", name="fit-add")
-     * @Security("has_role('ROLE_ADMIN')")
+     * @Security("has_role('ROLE_FIT')")
      */
     public function addAction(Request $request){
         $parameters = ControllerUtil::before($this);
@@ -313,7 +323,7 @@ class FitController extends Controller
             throw $this->createNotFoundException('Api non trouvée dans la base de données');
         }
         if($api->getUser()->getId() ==! $user->getId()){
-            throw $this->createAccessDeniedException('Cette api ne t\'apartient pas.');
+            throw $this->createAccessDeniedException('Cette api ne t\'apartien-t pas.');
         }
 
         $auth = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
@@ -334,20 +344,28 @@ class FitController extends Controller
         foreach ($fit->getFitDatas() as $fitData){
             $item = $fitData->getItem();
 
-            if($item->getSkill1() != null and (!isset($apiSkills[$item->getSkill1()->getId()]) or $item->getSkill1Level() > $apiSkills[$item->getSkill1()->getId()])){
-                //Il n'as pas les skills
-                $fitData->hasSkill = false;
+            $fitData->hasSkill = true;
+            /**
+             * @var SkillSetData $skill
+             */
+
+            $itemSkills = $this->getSkillsFromItem($item);
+            //dump($item->getName());
+            //dump($item);
+            foreach ($itemSkills as $skill){
+                //dump($itemSkills);
+
+                if(!isset($apiSkills[$skill['skill']->getId()]) or $skill['level'] > $apiSkills[$skill['skill']->getId()]){
+                    //Il n'as pas les skills
+                    //dump('lel');
+                    $fitData->hasSkill = false;
+                    if(!isset($fitData->missingSkills)) $fitData->missingSkills = array();
+                    $fitData->missingSkills[] = array(
+                        'skill' => $skill['skill'],
+                        'levelNeeded' => $skill['level'],
+                        'actualLevel' => isset($apiSkills[$skill['skill']->getId()])?$apiSkills[$skill['skill']->getId()]:0);
+                }
             }
-            else if($item->getSkill2() != null and (!isset($apiSkills[$item->getSkill1()->getId()]) or $item->getSkill2Level() > $apiSkills[$item->getSkill2()->getId()])){
-                //Il n'as pas les skills
-                $fitData->hasSkill = false;
-            }
-            else if($item->getSkill3() != null and (!isset($apiSkills[$item->getSkill1()->getId()]) or $item->getSkill2Level() > $apiSkills[$item->getSkill3()->getId()])){
-                //Il n'as pas les skills
-                $fitData->hasSkill = false;
-            }
-            else
-                $fitData->hasSkill = true;
 
         }
 
@@ -362,6 +380,7 @@ class FitController extends Controller
      *
      * @Route("/fit/skillset/{id}", name="fit-skill-set")
      * @ParamConverter(name="fit")
+     * @Security("has_role('ROLE_FIT')")
      */
     public function fitSkillSetAction(Request $request, Fit $fit)
     {
@@ -369,74 +388,239 @@ class FitController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
+        $skillSetDataRep = $em->getRepository(SkillSetData::class);
+
         if($fit->getSkillsSet() == null){
 
             $skillSet = new SkillSet();
             $skillSet->setFit($fit);
 
-            $skills = array();
-
-            /**
-             * @var FitData $fitData
-             */
-            foreach ($fit->getFitDatas() as $fitData){
-
-                $item = $fitData->getItem();
-
-                if($fitData->getItem()->getSkill1() != null){
-                    if(!isset($skills[$item->getSkill1()->getId()])) {
-                        $skills[$item->getSkill1()->getId()] = array();
-                        $skills[$item->getSkill1()->getId()]['level'] = $item->getSkill1Level();
-                        $skills[$item->getSkill1()->getId()]['skill'] = $item->getSkill1();
-                    }
-                    if($skills[$item->getSkill1()->getId()]['level'] < $item->getSkill1Level())
-                        $skills[$item->getSkill1()->getId()]['level'] = $item->getSkill1Level();
-
-                }
-
-                if($fitData->getItem()->getSkill2() != null){
-                    if(!isset($skills[$item->getSkill2()->getId()])) {
-                        $skills[$item->getSkill2()->getId()] = array();
-                        $skills[$item->getSkill2()->getId()]['level'] = $item->getSkill2Level();
-                        $skills[$item->getSkill2()->getId()]['skill'] = $item->getSkill2();
-                    }
-                    if($skills[$item->getSkill2()->getId()]['level'] < $item->getSkill2Level())
-                        $skills[$item->getSkill2()->getId()]['level'] = $item->getSkill2Level();
-
-                }
-
-                if($fitData->getItem()->getSkill3() != null){
-                    if(!isset($skills[$item->getSkill3()->getId()])) {
-                        $skills[$item->getSkill3()->getId()] = array();
-                        $skills[$item->getSkill3()->getId()]['level'] = $item->getSkill3Level();
-                        $skills[$item->getSkill3()->getId()]['skill'] = $item->getSkill3();
-                    }
-                    if($skills[$item->getSkill3()->getId()]['level'] < $item->getSkill3level())
-                        $skills[$item->getSkill3()->getId()]['level'] = $item->getSkill3Level();
-
-                }
-            }
+            $skills = $this->getSkills($fit);
 
             foreach ($skills as $skill){
                 $skillSetData = new SkillSetData();
-                $skillSetData->setLevel($skill['level'])->setSkill($skill['skill'])->setSkillSet($skillSet);
+                $skillSetData->setLevel($skill['level'])->setMinimumLevel($skill['level'])->setSkill($skill['skill'])->setSkillSet($skillSet);
                 $em->persist($skillSetData);
             }
+
+            //dump($skills);
 
             $em->persist($skillSet);
             $fit->setSkillsSet($skillSet);
             $em->persist($fit);
             $em->flush();
         }
+        else{
+            $skillSet = $fit->getSkillsSet();
+        }
 
-        //$form = $this->createFormBuilder()
+        $form = $this->createFormBuilder()
+            ->add('levels', CollectionType::class, array('entry_type'   => HiddenType::class,
+                'allow_add' => true, 'label' => ''))
+            ->add('skills', CollectionType::class, array('entry_type'   => HiddenType::class,
+                'allow_add' => true, 'label' => ''))
+            ->add('save', SubmitType::class, array('label' => 'Enregistrer',  'attr' => array(
+                'class' => 'btn-admin')))
+            ->getForm();
 
-        foreach ($skillSet->getSkills() as $skillData){
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $data = $form->getData();
+
+            for( $i = 0 ; $i < count($data['skills']) ; $i++){
+                $tmp = $skillSetDataRep->find($data['skills'][$i]);
+                if($tmp != null){
+                    $tmp->setLevel($data['levels'][$i]);
+                    $em->persist($tmp);
+                    $em->flush();
+                    dump($data['skills'][$i] . ' - ' . $data['levels'][$i]);
+                }
+            }
+            //dump($data);
+        }
+
+        $groups = array();
+
+        /**
+         * @var SkillSetData $skill
+         */
+        foreach ($skillSet->getSkills() as $skill){
+
+            if(!isset($groups[$skill->getSkill()->getGroup()->getid()])){
+                $groups[$skill->getSkill()->getGroup()->getid()] = array();
+                $groups[$skill->getSkill()->getGroup()->getid()]['group'] = $skill->getSkill()->getGroup();
+                $groups[$skill->getSkill()->getGroup()->getid()]['skills'] = array();
+            }
+            $groups[$skill->getSkill()->getGroup()->getid()]['skills'][$skill->getSkill()->getId()] = $skill;
+
+            $skills[$skill->getSkill()->getId()] = $skill;
+
+            $parameters['groups'] = $groups;
 
         }
 
+        $parameters['form'] = $form->createView();
+
         $parameters['fit'] = $fit;
 
+        return $this->render('fit/fit-skill-set.html.twig', $parameters);
+
+    }
+
+    /**
+     *
+     * This route is the homepage
+     *
+     * @Route("/fit/skillbar/{id}", name="fit-skill-bar")
+     * @ParamConverter(name="fit")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function fitSkillBarAction(Request $request, Fit $fit)
+    {
+        $parameters = ControllerUtil::before($this);
+
+
+
+        $result = $this->getFitSkillState($fit, $this->getUser()->getApis()[0]);
+        dump($result);
+
+        $parameters['result'] = $result;
+
+
+        return $this->render('fit/fit-skillbar.html.twig', $parameters);
+
+    }
+
+    private function getSkills(Fit $fit){
+        $skills = array();
+
+        /**
+         * @var FitData $fitData
+         */
+        foreach ($fit->getFitDatas() as $fitData){
+
+            /**
+             * @var SkillLevelItem $skill
+             */
+            foreach ($fitData->getItem()->getSkills() as $skill){
+                if(!isset($skills[$skill->getSkill()->getId()])) {
+                    $skills[$skill->getSkill()->getId()] = array();
+                    $skills[$skill->getSkill()->getId()]['level'] = $skill->getLevel();
+                    $skills[$skill->getSkill()->getId()]['skill'] = $skill->getSkill();
+                }
+                if($skills[$skill->getSkill()->getId()]['level'] < $skill->getLevel())
+                    $skills[$$skill->getSkill()->getId()]['level'] = $skill->getLevel();
+
+                $this->addSkill($skill->getSkill(), $skills);
+            }
+        }
+
+        return $skills;
+    }
+
+    private function getSkillsFromItem(Item $item, &$skills = null){
+        if($skills == null) $skills = array();
+
+        /**
+         * @var SkillLevelItem $skill
+         */
+        foreach ($item->getSkills() as $skill){
+            if(!isset($skills[$skill->getSkill()->getId()])) {
+                $skills[$skill->getSkill()->getId()] = array();
+                $skills[$skill->getSkill()->getId()]['level'] = $skill->getLevel();
+                $skills[$skill->getSkill()->getId()]['skill'] = $skill->getSkill();
+            }
+            if($skills[$skill->getSkill()->getId()]['level'] < $skill->getLevel())
+                $skills[$skill->getSkill()->getId()]['level'] = $skill->getLevel();
+
+            $this->addSkill($skill->getSkill(), $skills);
+        }
+
+        return $skills;
+    }
+
+    private function addSkill(Skill $skill, &$skills){
+
+        /**
+         * @var SkillLevel $skillLevel
+         */
+        foreach ($skill->getSkills() as $skillLevel){
+            if(!isset($skills[$skillLevel->getSkill()->getId()])) {
+                $skills[$skillLevel->getSkill()->getId()] = array();
+                $skills[$skillLevel->getSkill()->getId()]['level'] = $skillLevel->getLevel();
+                $skills[$skillLevel->getSkill()->getId()]['skill'] = $skillLevel->getSkill();
+            }
+            if($skills[$skillLevel->getSkill()->getId()]['level'] < $skillLevel->getLevel())
+                $skills[$skillLevel->getSkill()->getId()]['level'] = $skillLevel->getLevel();
+
+            $this->addSkill($skillLevel->getSkill(), $skills);
+        }
+    }
+
+
+
+
+    private function getFitSkillState(Fit $fit, CharApi $api){
+
+        $auth = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
+        $esi = new Eseye($auth);
+
+        $apiSkillsData = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/skills/', array('character_id' => $api->getCharId()));
+
+        $apiSkills = array();
+
+        foreach ($apiSkillsData->getArrayCopy()['skills'] as $apiSkillData){
+            $apiSkills[$apiSkillData->skill_id] = array(
+                'level' => $apiSkillData->trained_skill_level,
+                'skillpoints' => $apiSkillData->skillpoints_in_skill
+            );
+        }
+
+        $result = array();
+
+
+        //Ship skills
+        $shipSkills = $this->getSkillsFromItem($fit->getShip());
+        dump($shipSkills);
+        $result['ship'] = $this->getMissingSP($shipSkills, $apiSkills);
+        $result['ship']['total-sp'] = $this->getSkillsSP($shipSkills);
+
+
+        return $result;
+
+    }
+
+    private function getSkillsSP($skills){
+        $sp = 0;
+
+        foreach ($skills as $skill){
+            $sp = $sp + (( 250 * $skill['skill']->getTimeMultiplier() * (pow(sqrt(32),$skill['level']-1))));
+        }
+
+        return $sp;
+    }
+
+    private function getMissingSP($skills, $apiSkills){
+        $result = array('pass' => true, 'missingSkillPoint' => 0, 'missingSkills' => array());
+
+        foreach ($skills as $skill){
+            $skillId = $skill['skill']->getId();
+            $skillLevel = $skill['level'];
+
+            if(!isset($apiSkills[$skillId]) or $skillLevel > $apiSkills[$skillId]['level']){
+                $result['pass'] = false;
+                $result['missingSkills'][] = $skill['skill'];
+                $skillpoints = isset($apiSkills[$skillId]) ? $apiSkills[$skillId]['skillpoints'] : 0 ;
+
+                $result['missingSkillPoint'] = $result['missingSkillPoint']
+                    + (( 250 * $skill['skill']->getTimeMultiplier() * (pow(sqrt(32),$skillLevel-1)))
+                        - $skillpoints);
+            }
+        }
+
+        return $result;
 
 
     }
