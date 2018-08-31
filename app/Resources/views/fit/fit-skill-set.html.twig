@@ -1,0 +1,91 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+
+    <h1> Skills </h1>
+
+
+    {% set i=0 %}
+    {% for group in groups %}
+
+        {% if i%2 == 0 %}
+            <div class="row">
+        {% endif %}
+
+        {{ form_start(form) }}
+
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse{{ group['group'].id }}"> {{ group['group'].name }}</a>
+                    </h4>
+                </div>
+                <div id="collapse{{ group['group'].id }}" class="panel-collapse collapse">
+                    <div class="panel-body" style="color: black">
+                        {% for skill in group['skills'] %}
+                            <div class="row">
+                                <div class="col-md-8">
+                                    {{ skill.skill.name }}
+                                </div>
+                                <div id="{{ skill.id }}" class="col-md-4">
+
+                                    {% for j in 1..5 %}
+                                        {% if j <= skill.minimumLevel %}
+                                            <img src="{{ asset('images/skill_level_nok.bmp') }}" width="8" height="8">
+                                        {% elseif j <= skill.level %}
+                                            <img id="{{ skill.id ~ '-' ~ j }}" class="pointer" src="{{ asset('images/skill_level_in_queue.bmp') }}"
+                                                 width="8" height="8" onclick="changeLevel({{ skill.id }} ,{{ j }})">
+                                        {% else %}
+                                            <img id="{{ skill.id ~ '-' ~ j }}" class="pointer" src="{{ asset('images/skill_level_ok.bmp') }}"
+                                                 width="8" height="8" onclick="changeLevel({{ skill.id }} ,{{ j }})">
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    <input type="hidden" id="form-skill-{{ skill.id }}" value="{{ skill.id }}" name="form[skills][]">
+                                    <input type="hidden" id="form-level-{{ skill.id }}" value="{{ skill.level }}" name="form[levels][]">
+                                </div>
+                            </div>
+
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if i%2 == 1 %}
+            </div>
+        {% endif %}
+
+        {% set i=i+1 %}
+
+    {% endfor %}
+
+
+    {{ form_row(form.save) }}
+
+    {{ form_end(form) }}
+
+
+    <script>
+        function changeLevel(id, level){
+            var input = document.getElementById('form-level-' + id);
+            input.value = level;
+
+
+            for(var i=1 ; i<=5 ; i++){
+                var img = document.getElementById(id + "-" + i);
+                if(img !== null){
+                    if(i<=level){
+                        img.src = '/images/skill_level_in_queue.bmp';
+                    }
+                    else{
+                        img.src = '/images/skill_level_ok.bmp';
+                    }
+                }
+            }
+        }
+    </script>
+
+{% endblock %}

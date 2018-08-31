@@ -45,17 +45,45 @@
                             {% set slot = fitData.slot %}
                         {% endif %}
 
-                        <tr>
+                        <tr >
                             <td><img src="https://image.eveonline.com/InventoryType/{{ fitData.item.id }}_32.png" class="img-responsive"></td>
                             <td> {{ fitData.quantity }}x {{ fitData.item.name }}
                         {% if fitData.hasSkill %}
                             <img src="{{ asset('images/fitOK.png') }}" class="pull-right img-responsive" height="32" width="32"/>
                         {% else %}
                             <img src="{{ asset('images/fitNOK.png') }}" class="pull-right img-responsive" height="32" width="32"/>
+                            <span class="spnTooltip">
+
+                                    <strong>Skills manquant</strong><br />
+                                    <div class="container">
+                                        <div class="row">
+                                    {% for skillMissing in fitData.missingSkills %}
+                                        <div class="col-md-8">{{ skillMissing['skill'].name }}</div>
+
+                                            <div class="col-md-4">
+                                            {% for j in 1..5 %}
+                                                {% if j <=  skillMissing['actualLevel'] %}
+                                                    <img src="{{ asset('images/skill_level_nok.bmp') }}" width="8" height="8">
+                                                {% elseif j <=  skillMissing['levelNeeded'] %}
+                                                    <img src="{{ asset('images/skill_level_red.bmp') }}" width="8" height="8" >
+                                                {% else %}
+                                                    <img src="{{ asset('images/skill_level_ok.bmp') }}" width="8" height="8" >
+                                                {% endif %}
+                                            {% endfor %}
+                                            </div>
+                                    {% endfor %}
+                                        </div>
+                                    </div>
+                            </span>
                         {% endif %}
 
-                            <br> </td>
+                            <br>
+
+                            </td>
+
+
                         </tr>
+
 
                     {% endfor %}
 
