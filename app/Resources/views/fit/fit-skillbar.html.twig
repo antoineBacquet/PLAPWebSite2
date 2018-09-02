@@ -2,24 +2,82 @@
 
 
 {% block body %}
-    <h2> azerty </h2>
+    <h2> Fits que {{ currentApi.charName }} peut piloter </h2>
 
-    {% if result['ship']['pass'] %}
-        <div class="progress">
-            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
-                 aria-valuemin="0" aria-valuemax="100" style="width:100%">
-                {{ result['ship']['total-sp']|number_format(0, '.', ',') }} / {{result['ship']['total-sp']|number_format(0, '.', ',') }} skillpoints
-            </div>
+    <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{ currentApi.charName }} <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                {% for api in apis %}
+                    <li><a  href="{{ path('fit-skill-bar', {'id': api.id}) }}" >{{ api.charName }}</a></li>
+                {% endfor %}
+            </ul>
         </div>
-    {% else %}
-        {% set percent =  (result['ship']['missingSkillPoint']  / result['ship']['total-sp']*100)|number_format(0, '.', ',') %}
-        <div class="progress">
-            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{ percent }}"
-                 aria-valuemin="0" aria-valuemax="100" style="width:{{ percent }}%">
-                {{(result['ship']['total-sp'] - result['ship']['missingSkillPoint'])|number_format(0, '.', ',')}} / {{result['ship']['total-sp']|number_format(0, '.', ',') }} skillpoints manquant
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <td></td>
+
+                <td>Fit</td>
+
+                <td>skill minimum</td>
+
+                <td>skill recomendé</td>
+
+            </tr>
+
+    {% for fitSkillBar in fitsSkillBar %}
+        {% set result = fitSkillBar['result'] %}
+        {% set fit = fitSkillBar['fit'] %}
+
+        <tr >
+            <td><img src="https://image.eveonline.com/render/{{ fit.ship.id }}_32.png" class="img-responsive"></td>
+            <td> <a href="{{ path('fit-details', {'id': fit.id}) }}"> {{ fit.name }}</a></td>
+
+            <td>
+        {% if result['items']['pass'] %}
+            <div class="progress">
+                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                     aria-valuemin="0" aria-valuemax="100" style="width:100%; color: black">
+                    {{ result['items']['total-sp']|number_format(0, '.', ',') }} / {{result['items']['total-sp']|number_format(0, '.', ',') }} skillpoints
+                </div>
             </div>
-        </div>
-    {%  endif %}
+        {% else %}
+            {% set percent =  ((result['items']['total-sp'] - result['items']['missingSkillPoint'])  / result['items']['total-sp']*100)|number_format(0, '.', ',') %}
+            <div class="progress">
+                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{ percent }}"
+                     aria-valuemin="0" aria-valuemax="100" style="width:{{ percent }}%; color: black">
+                    {{(result['items']['total-sp'] - result['items']['missingSkillPoint'])|number_format(0, '.', ',')}} / {{result['items']['total-sp']|number_format(0, '.', ',') }} skillpoints
+                </div>
+            </div>
+        {%  endif %}
+            </td>
+            <td>
+        {% if result['skill-set'] %}
+            {% if result['skill-set']['pass'] %}
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                         aria-valuemin="0" aria-valuemax="100" style="width:100%; color: black">
+                        {{ result['skill-set']['total-sp']|number_format(0, '.', ',') }} / {{result['skill-set']['total-sp']|number_format(0, '.', ',') }} skillpoints
+                    </div>
+                </div>
+            {% else %}
+                {% set percent =  (( result['skill-set']['total-sp']-result['skill-set']['missingSkillPoint'])  / result['skill-set']['total-sp']*100)|number_format(0, '.', ',') %}
+                <div class="progress">
+                    <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{ percent }}"
+                         aria-valuemin="0" aria-valuemax="100" style="width:{{ percent }}%; color: black">
+                        {{(result['skill-set']['total-sp'] - result['skill-set']['missingSkillPoint'])|number_format(0, '.', ',')}} / {{result['skill-set']['total-sp']|number_format(0, '.', ',') }} skillpoints
+                    </div>
+                </div>
+            {%  endif %}
+        {% else %}
+            pas de skill set
+        {%  endif %}
+            </td>
+        </tr>
+    {% endfor %}
+
+
 
 
 

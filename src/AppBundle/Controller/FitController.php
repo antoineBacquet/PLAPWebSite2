@@ -475,20 +475,31 @@ class FitController extends Controller
      * This route is the homepage
      *
      * @Route("/fit/skillbar/{id}", name="fit-skill-bar")
-     * @ParamConverter(name="fit")
+     * @ParamConverter(name="api")
      * @Security("has_role('ROLE_ADMIN')")
      */
-    public function fitSkillBarAction(Request $request, Fit $fit)
+    public function fitSkillBarAction(Request $request, CharApi $api)
     {
         $parameters = ControllerUtil::before($this);
 
+        $fitRep = $this->getDoctrine()->getRepository(Fit::class);
+
+        $fits = $fitRep->findAll();
+        $apis = $api->getUser()->getApis();
+
+        $fitsSkillBar = array();
+
+        foreach ($fits as $fit){
+            $result = $this->getFitSkillState($fit, $api); //TODO
+            $fitsSkillBar[] = array('fit' => $fit, 'result' => $result);
+        }
 
 
-        $result = $this->getFitSkillState($fit, $this->getUser()->getApis()[0]);
-        dump($result);
+        //dump($result);
 
-        $parameters['result'] = $result;
-
+        $parameters['fitsSkillBar'] = $fitsSkillBar;
+        $parameters['apis'] = $apis;
+        $parameters['currentApi'] = $api;
 
         return $this->render('fit/fit-skillbar.html.twig', $parameters);
 
@@ -512,7 +523,7 @@ class FitController extends Controller
                     $skills[$skill->getSkill()->getId()]['skill'] = $skill->getSkill();
                 }
                 if($skills[$skill->getSkill()->getId()]['level'] < $skill->getLevel())
-                    $skills[$$skill->getSkill()->getId()]['level'] = $skill->getLevel();
+                    $skills[$skill->getSkill()->getId()]['level'] = $skill->getLevel();
 
                 $this->addSkill($skill->getSkill(), $skills);
             }
@@ -537,6 +548,23 @@ class FitController extends Controller
                 $skills[$skill->getSkill()->getId()]['level'] = $skill->getLevel();
 
             $this->addSkill($skill->getSkill(), $skills);
+        }
+
+        return $skills;
+    }
+
+    private function getSkillsFromSkillSet(SkillSet $skillSet){
+
+        $skills = array();
+        /**
+         * @var SkillSetData $skillSetData
+         */
+        foreach ($skillSet->getSkills() as $skillSetData){
+            if(!isset($skills[$skillSetData->getSkill()->getId()])) {
+                $skills[$skillSetData->getSkill()->getId()] = array();
+                $skills[$skillSetData->getSkill()->getId()]['level'] = $skillSetData->getLevel();
+                $skills[$skillSetData->getSkill()->getId()]['skill'] = $skillSetData->getSkill();
+            }
         }
 
         return $skills;
@@ -582,11 +610,28 @@ class FitController extends Controller
         $result = array();
 
 
-        //Ship skills
-        $shipSkills = $this->getSkillsFromItem($fit->getShip());
-        dump($shipSkills);
+        //Ship skills ----------------------------------------------------------------
+        /*$shipSkills = $this->getSkillsFromItem($fit->getShip());
         $result['ship'] = $this->getMissingSP($shipSkills, $apiSkills);
-        $result['ship']['total-sp'] = $this->getSkillsSP($shipSkills);
+        $result['ship']['total-sp'] = $this->getSkillsSP($shipSkills);*/
+
+        //item skills ----------------------------------------------------------------
+        $itemsSkills = $this->getSkills($fit);
+        $itemsSkills = $this->getSkillsFromItem($fit->getShip(), $itemsSkills);
+        $result['items'] = $this->getMissingSP($itemsSkills, $apiSkills);
+        $result['items']['total-sp'] = $this->getSkillsSP($itemsSkills);
+
+        //item skills ----------------------------------------------------------------
+        if($fit->getSkillsSet() == null){
+            $result['skill-set'] = false;
+        }
+        else{
+            $skillSetSkills = $this->getSkillsFromSkillSet($fit->getSkillsSet()); //TODO if null
+            $result['skill-set'] = $this->getMissingSP($skillSetSkills, $apiSkills);
+            $result['skill-set']['total-sp'] = $this->getSkillsSP($skillSetSkills);
+        }
+
+
 
 
         return $result;
