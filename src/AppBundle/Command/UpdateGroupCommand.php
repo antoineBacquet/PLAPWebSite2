@@ -75,6 +75,19 @@ class UpdateGroupCommand extends ContainerAwareCommand
         $doctrine->getManager()->flush();
 
         //------------------------ ItemGroup
+        $page = 1;
+
+        $groupIds = array();
+
+        do{
+            $groupIdsResult =  EsiUtil::callESI($esi, 'get', '/universe/groups/',array(), array('page'=> $page));
+            //$groupIds = $groupIdsResult->getArrayCopy();
+            foreach ($groupIdsResult as $id)
+                $groupIds[] = $id;
+
+            $page = $page + 1 ;
+        }while(count($groupIdsResult) > 0);
+
         $groupIds =  EsiUtil::callESI($esi, 'get', '/universe/groups/');
 
         foreach ($groupIds as $groupId){
