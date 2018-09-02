@@ -59,6 +59,10 @@
 
         {% if i%2 == 1 %}
             </div>
+        {% elseif i == groups|length-1 %}
+            <div class="col-md-6">
+            </div>
+            </div>
         {% endif %}
 
         {% set i=i+1 %}

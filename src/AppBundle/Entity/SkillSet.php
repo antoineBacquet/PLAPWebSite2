@@ -85,30 +85,6 @@ class SkillSet
     }
 
     /**
-     * Add skill
-     *
-     * @param \AppBundle\Entity\Skill $skill
-     *
-     * @return SkillSet
-     */
-    public function addSkill(\AppBundle\Entity\Skill $skill)
-    {
-        $this->skills[] = $skill;
-    
-        return $this;
-    }
-
-    /**
-     * Remove skill
-     *
-     * @param \AppBundle\Entity\Skill $skill
-     */
-    public function removeSkill(\AppBundle\Entity\Skill $skill)
-    {
-        $this->skills->removeElement($skill);
-    }
-
-    /**
      * Get skills
      *
      * @return \Doctrine\Common\Collections\Collection
@@ -140,5 +116,29 @@ class SkillSet
     public function getFit()
     {
         return $this->fit;
+    }
+
+    /**
+     * Add skill
+     *
+     * @param \AppBundle\Entity\SkillSetData $skill
+     *
+     * @return SkillSet
+     */
+    public function addSkill(\AppBundle\Entity\SkillSetData $skill)
+    {
+        $this->skills[] = $skill;
+    
+        return $this;
+    }
+
+    /**
+     * Remove skill
+     *
+     * @param \AppBundle\Entity\SkillSetData $skill
+     */
+    public function removeSkill(\AppBundle\Entity\SkillSetData $skill)
+    {
+        $this->skills->removeElement($skill);
     }
 }

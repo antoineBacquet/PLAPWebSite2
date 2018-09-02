@@ -401,6 +401,7 @@ class FitController extends Controller
                 $skillSetData = new SkillSetData();
                 $skillSetData->setLevel($skill['level'])->setMinimumLevel($skill['level'])->setSkill($skill['skill'])->setSkillSet($skillSet);
                 $em->persist($skillSetData);
+                $skillSet->addSkill($skillSetData);
             }
 
             //dump($skills);
@@ -410,9 +411,10 @@ class FitController extends Controller
             $em->persist($fit);
             $em->flush();
         }
-        else{
-            $skillSet = $fit->getSkillsSet();
-        }
+
+
+        $skillSet = $fit->getSkillsSet();
+
 
         $form = $this->createFormBuilder()
             ->add('levels', CollectionType::class, array('entry_type'   => HiddenType::class,
@@ -457,9 +459,9 @@ class FitController extends Controller
 
             $skills[$skill->getSkill()->getId()] = $skill;
 
-            $parameters['groups'] = $groups;
-
         }
+
+        $parameters['groups'] = $groups;
 
         $parameters['form'] = $form->createView();
 
