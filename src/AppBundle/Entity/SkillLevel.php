@@ -82,11 +82,11 @@ class SkillLevel
     /**
      * Set skill
      *
-     * @param \AppBundle\Entity\Skill $skill
+     * @param $skill
      *
      * @return SkillLevel
      */
-    public function setSkill(\AppBundle\Entity\Skill $skill)
+    public function setSkill( $skill)
     {
         $this->skill = $skill;
     

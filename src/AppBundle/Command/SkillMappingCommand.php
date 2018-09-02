@@ -60,7 +60,21 @@ class SkillMappingCommand extends ContainerAwareCommand
 
         $skillItems = $itemRep->findByItemGroup($groups);
 
-        //dump($skills);
+        /**
+         * @var Item $skillItem
+         */
+        foreach ($skillItems as $skillItem){
+            $skill = $skillRep->find($skillItem->getId());
+            if($skill == null){
+                $skill = new Skill();
+                $skill->setId($skillItem->getId());
+                $skill->setName($skillItem->getName());
+                $skill->setGroup($skillItem->getItemGroup());
+                $em->persist($skill);
+            }
+        }
+
+        $em->flush();
 
         /**
          * @var Item $skillItem
@@ -74,6 +88,7 @@ class SkillMappingCommand extends ContainerAwareCommand
                 $skill->setId($skillItem->getId());
             }
             $skill->setName($skillItem->getName());
+            $skill->setGroup($skillItem->getItemGroup());
 
 
             $dogmas = $skillData->dogma_attributes;
@@ -157,7 +172,7 @@ class SkillMappingCommand extends ContainerAwareCommand
 
             //dump($dogma);
 
-            $skill->setGroup($skillItem->getItemGroup());
+
 
 
             $doctrine->getManager()->persist($skill);

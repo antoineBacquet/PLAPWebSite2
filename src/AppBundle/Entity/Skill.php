@@ -32,28 +32,28 @@ class Skill
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    private $name = "Unknown skill name";
 
     /**
      * @var string
      *
      * @ORM\Column(name="primary_attribute", type="string", length=64)
      */
-    private $primaryAttribute;
+    private $primaryAttribute = Skill::ATTRIBUTE_INTELLIGENCE;
 
     /**
      * @var string
      *
      * @ORM\Column(name="secondary_attribute", type="string", length=64)
      */
-    private $secondaryAttribute;
+    private $secondaryAttribute = Skill::ATTRIBUTE_INTELLIGENCE;
 
     /**
      * @var string
      *
      * @ORM\Column(name="time_multiplier", type="smallint")
      */
-    private $timeMultiplier;
+    private $timeMultiplier = 0;
 
 
     /**
@@ -67,7 +67,7 @@ class Skill
      * @var ItemGroup
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\ItemGroup")
      */
-    private $group;
+    private $group = 255;
 
     /**
      * Get id
