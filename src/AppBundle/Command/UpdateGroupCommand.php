@@ -88,8 +88,6 @@ class UpdateGroupCommand extends ContainerAwareCommand
             $page = $page + 1 ;
         }while(count($groupIdsResult) > 0);
 
-        $groupIds =  EsiUtil::callESI($esi, 'get', '/universe/groups/');
-
         foreach ($groupIds as $groupId){
             $groupData = EsiUtil::callESI($esi, 'get', '/universe/groups/{group_id}/', array('group_id' => $groupId));
 
