@@ -529,6 +529,8 @@ class FitController extends Controller
             }
         }
 
+        $skills = $this->getSkillsFromItem($fit->getShip(), $skills);
+
         return $skills;
     }
 

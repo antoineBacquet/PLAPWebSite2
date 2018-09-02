@@ -32,7 +32,10 @@
                                 <div id="{{ skill.id }}" class="col-md-4">
 
                                     {% for j in 1..5 %}
-                                        {% if j <= skill.minimumLevel %}
+                                        {% if j == skill.minimumLevel and j != 5%}
+                                            <img class="pointer" src="{{ asset('images/skill_level_nok.bmp') }}"
+                                                 width="8" height="8" onclick="changeLevel({{ skill.id }} ,{{ j }})">
+                                        {% elseif j <= skill.minimumLevel %}
                                             <img src="{{ asset('images/skill_level_nok.bmp') }}" width="8" height="8">
                                         {% elseif j <= skill.level %}
                                             <img id="{{ skill.id ~ '-' ~ j }}" class="pointer" src="{{ asset('images/skill_level_in_queue.bmp') }}"
@@ -72,7 +75,6 @@
         function changeLevel(id, level){
             var input = document.getElementById('form-level-' + id);
             input.value = level;
-
 
             for(var i=1 ; i<=5 ; i++){
                 var img = document.getElementById(id + "-" + i);
