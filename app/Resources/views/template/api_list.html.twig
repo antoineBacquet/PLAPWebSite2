@@ -16,6 +16,10 @@
                 <td>Skills</td>
             {% endif %}
 
+            {% if is_granted('ROLE_MEMBER') %}
+                <td>Fit</td>
+            {% endif %}
+
             <td>Toujour valable?</td>
             <td>Action</td>
         </tr>
@@ -38,6 +42,11 @@
                 {% if is_granted('ROLE_MEMBER') %}
                     <td><a href="{{ path('api-skills', { 'id' : api.id } ) }}">Voir les skills</a></td>
                 {% endif %}
+
+                {% if is_granted('ROLE_MEMBER') %}
+                    <td><a href="{{ path('fit-skill-bar', { 'id' : api.id } ) }}">Progression des fits</a></td>
+                {% endif %}
+
                 <td>  {% if api.isValid %} oui {% else %} non {% endif %}  </td>
 
                 <td> <a href="{{ path('removeapi', { 'id' : api.id } ) }} "> Supprimer </a> </td>
