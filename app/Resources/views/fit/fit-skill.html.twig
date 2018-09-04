@@ -6,7 +6,7 @@
 
 
 {% block body %}
-    <h2> Detail du fit {{ fit.name }}</h2>
+    <h2> Detail du fit {{ fit.name }} pour {{ api.charName }}</h2>
     {% set slot = -1 %}
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -18,7 +18,7 @@
                     <img src="https://image.eveonline.com/render/{{ fit.ship.id }}_128.png" class="img-responsive">
                 </div>
                 <div class="col-lg-9">
-                    <p>Hull: <b>TODO</b></p>
+                    <p>Hull: <b> {{ fit.ship.itemGroup.name }}</b></p>
                     <p>Ship: <b>{{ fit.ship.name }}</b></p>
 
                     <p>Estimated price: <b>TODO</b></p>
@@ -33,7 +33,36 @@
 
                     <tr>
                         <td><img src="https://image.eveonline.com/render/{{ fit.ship.id }}_32.png" class="img-responsive"></td>
-                        <td> 1x {{ fit.ship.name }}</td>
+                        <td> 1x {{ fit.ship.name }}
+                            {% if fit.hasSkill %}
+                                <img src="{{ asset('images/fitOK.png') }}" class="pull-right img-responsive" height="32" width="32"/>
+                            {% else %}
+                                <img src="{{ asset('images/fitNOK.png') }}" class="pull-right img-responsive" height="32" width="32"/>
+                                <span class="spnTooltip">
+
+                                        <strong>Skills manquant</strong><br />
+                                        <div class="container">
+                                            <div class="row">
+                                        {% for skillMissing in fit.missingSkills %}
+                                            <div class="col-md-8">{{ skillMissing['skill'].name }}</div>
+
+                                            <div class="col-md-4">
+                                                {% for j in 1..5 %}
+                                                    {% if j <=  skillMissing['actualLevel'] %}
+                                                        <img src="{{ asset('images/skill_level_nok.bmp') }}" width="8" height="8">
+                                                    {% elseif j <=  skillMissing['levelNeeded'] %}
+                                                        <img src="{{ asset('images/skill_level_red.bmp') }}" width="8" height="8" >
+                                                    {% else %}
+                                                        <img src="{{ asset('images/skill_level_ok.bmp') }}" width="8" height="8" >
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </div>
+                                        {% endfor %}
+                                            </div>
+                                        </div>
+                                </span>
+                            {% endif %}
+                            </td>
                     </tr>
 
                     {% for fitData in fit.fitDatas %}

@@ -355,6 +355,24 @@ class FitController extends Controller
             $apiSkills[$apiSkillData->skill_id] = $apiSkillData->trained_skill_level;
         }
 
+        $item = $fit->getShip();
+
+        $fit->hasSkill = true;
+
+        $itemSkills = $this->getSkillsFromItem($item);
+        foreach ($itemSkills as $skill){
+
+            if(!isset($apiSkills[$skill['skill']->getId()]) or $skill['level'] > $apiSkills[$skill['skill']->getId()]){
+                //Il n'as pas les skills
+                $fit->hasSkill = false;
+                if(!isset($fit->missingSkills)) $fit->missingSkills = array();
+                $fit->missingSkills[] = array(
+                    'skill' => $skill['skill'],
+                    'levelNeeded' => $skill['level'],
+                    'actualLevel' => isset($apiSkills[$skill['skill']->getId()])?$apiSkills[$skill['skill']->getId()]:0);
+            }
+        }
+
         /**
          * @var FitData $fitData
          */
@@ -382,6 +400,7 @@ class FitController extends Controller
         }
 
         $parameters['fit'] = $fit;
+        $parameters['api'] = $api;
 
         return $this->render('fit/fit-skill.html.twig', $parameters);
     }
