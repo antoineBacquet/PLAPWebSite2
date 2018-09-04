@@ -96,7 +96,7 @@
             {% for api in user.apis %}
                 <tr>
                     <td>{{ api.charName }}</td>
-                    <td><a href="{{ path('fit-skill-api', { 'id' : fit.getId(), 'api_id' : api.getId() } ) }}">{{ fit.name }}</a></td>
+                    <td><a href="{{ path('fit-skill-api', { 'id' : fit.getId(), 'api' : api.getId() } ) }}">{{ fit.name }}</a></td>
                 </tr>
             {% endfor%}
 
