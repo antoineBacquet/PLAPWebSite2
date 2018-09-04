@@ -86,18 +86,16 @@
 
                 {% else %}
                     <tr class="topic">
-                        <td class="tcenter">
-                            <img class="icon" src="{{ asset('img/note.png') }}">
-                        </td>
-                        <td class="center">
-                            aucun topics
-                        </td>
-                        <td>
-                        </td>
-                        <td>
+                        <td class="center" align="center" colspan="4">
+                            aucun topics <br>
                         </td>
                     </tr>
                 {% endfor %}
+                <tr class="topic">
+                    <td align="center" class="center" colspan="4">
+                        <h5><a href="{{ path('discutea_forum_topic', {'slug': forum.slug}) }}" title="{{ forum.name }}">{{ 'discutea.forum.topic.new'|trans }}</a></h5>
+                    </td>
+                </tr>
 
                 </tbody>
             </table>
