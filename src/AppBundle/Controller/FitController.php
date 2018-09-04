@@ -20,6 +20,7 @@ use AppBundle\Entity\SkillLevel;
 use AppBundle\Entity\SkillLevelItem;
 use AppBundle\Entity\SkillSet;
 use AppBundle\Entity\SkillSetData;
+use AppBundle\Entity\User;
 use AppBundle\Util\ControllerUtil;
 use Seat\Eseye\Eseye;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -41,9 +42,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class FitController extends Controller
 {
-
-
-
 
     /**
      *
@@ -259,8 +257,6 @@ class FitController extends Controller
 
 
         return $this->render('fit/admin.html.twig', $parameters);
-
-
     }
 
     /**
@@ -273,7 +269,7 @@ class FitController extends Controller
      */
     public function fitRemoveAction(Request $request, Fit $fit)
     {
-        $parameters = ControllerUtil::before($this);
+        ControllerUtil::before($this);
 
         $this->getDoctrine()->getManager()->remove($fit);
         $this->getDoctrine()->getManager()->flush();
@@ -287,7 +283,7 @@ class FitController extends Controller
      *
      * This route is the homepage
      *
-     * @Route("/fit/{id}", name="fit-details")
+     * @Route("/fit/detail/{id}", name="fit-details")
      * @ParamConverter(name="fit")
      */
     public function fitAction(Request $request, Fit $fit)
@@ -298,31 +294,52 @@ class FitController extends Controller
         return $this->render('fit/fit.html.twig', $parameters);
     }
 
+    /**
+     *
+     * This route is the homepage
+     *
+     * @Route("/fit/{id}/skill", name="fit-skill-api-index")
+     * @ParamConverter(name="fit")
+     */
+    public function fitSkillMappingIndexAction(Request $request, Fit $fit)
+    {
+
+        $parameters = ControllerUtil::before($this);
+
+        /**
+         * @var User $user
+         */
+        $user = $this->getUser();
+
+        $apis = $user->getApis();
+
+        if(count($apis) > 0 ){
+            if($user->getMainApi() != null)
+                $api = $user->getMainApi();
+            else
+                $api = $user->getApis()[0];
+
+            return $this->fitSkillMappingAction($request, $fit, $api);
+        }
+
+        return $this->render('fit/no-api.html.twig', $parameters);
+
+    }
 
     /**
      *
      * This route is the homepage
      *
-     * @Route("/fit/{id}/skill/{api_id}", name="fit-skill-api")
+     * @Route("/fit/{id}/skill/{api}", name="fit-skill-api")
      * @ParamConverter(name="fit")
+     * @ParamConverter(name="api")
      */
-    public function fitSkillMappingAction(Request $request, Fit $fit, $api_id)
+    public function fitSkillMappingAction(Request $request, Fit $fit, CharApi $api)
     {
         $parameters = ControllerUtil::before($this);
 
         $user = $this->getUser();
-
-        $repApi = $this->getDoctrine()->getRepository(CharApi::class);
-        /**
-         * @var CharApi $api
-         */
-        $api = $repApi->find($api_id);
-
-
-        if($api == null){
-            throw $this->createNotFoundException('Api non trouvée dans la base de données');
-        }
-        if($api->getUser()->getId() ==! $user->getId()){
+        if($api->getUser()->getId() ==! $user->getId() and !$this->isGranted('ROLE_ADMIN')){
             throw $this->createAccessDeniedException('Cette api ne t\'apartien-t pas.');
         }
 
@@ -350,14 +367,10 @@ class FitController extends Controller
              */
 
             $itemSkills = $this->getSkillsFromItem($item);
-            //dump($item->getName());
-            //dump($item);
             foreach ($itemSkills as $skill){
-                //dump($itemSkills);
 
                 if(!isset($apiSkills[$skill['skill']->getId()]) or $skill['level'] > $apiSkills[$skill['skill']->getId()]){
                     //Il n'as pas les skills
-                    //dump('lel');
                     $fitData->hasSkill = false;
                     if(!isset($fitData->missingSkills)) $fitData->missingSkills = array();
                     $fitData->missingSkills[] = array(
@@ -366,7 +379,6 @@ class FitController extends Controller
                         'actualLevel' => isset($apiSkills[$skill['skill']->getId()])?$apiSkills[$skill['skill']->getId()]:0);
                 }
             }
-
         }
 
         $parameters['fit'] = $fit;
@@ -476,15 +488,48 @@ class FitController extends Controller
      *
      * This route is the homepage
      *
+     * @Route("/fit/skillbar", name="fit-skill-bar-index")
+     */
+    public function fitSkillBarIndexAction(Request $request)
+    {
+        $parameters = ControllerUtil::before($this);
+
+        /**
+         * @var User $user
+         */
+        $user = $this->getUser();
+
+        $apis = $user->getApis();
+
+        if(count($apis) > 0 ){
+            if($user->getMainApi() != null)
+                $api = $user->getMainApi();
+            else
+                $api = $user->getApis()[0];
+
+            return $this->fitSkillBarAction($request, $api);
+        }
+
+        return $this->render('fit/no-api.html.twig', $parameters);
+    }
+
+    /**
+     *
+     * This route is the homepage
+     *
      * @Route("/fit/skillbar/{id}", name="fit-skill-bar")
      * @ParamConverter(name="api")
-     * @Security("has_role('ROLE_ADMIN')")
      */
     public function fitSkillBarAction(Request $request, CharApi $api)
     {
         $parameters = ControllerUtil::before($this);
 
         $fitRep = $this->getDoctrine()->getRepository(Fit::class);
+        $user = $this->getUser();
+
+        if($api->getUser()->getId() ==! $user->getId() and !$this->isGranted('ROLE_ADMIN')){
+            throw $this->createAccessDeniedException('Cette api ne t\'apartien-t pas.');
+        }
 
         $fits = $fitRep->findAll();
         $apis = $api->getUser()->getApis();
@@ -613,12 +658,6 @@ class FitController extends Controller
 
         $result = array();
 
-
-        //Ship skills ----------------------------------------------------------------
-        /*$shipSkills = $this->getSkillsFromItem($fit->getShip());
-        $result['ship'] = $this->getMissingSP($shipSkills, $apiSkills);
-        $result['ship']['total-sp'] = $this->getSkillsSP($shipSkills);*/
-
         //item skills ----------------------------------------------------------------
         $itemsSkills = $this->getSkills($fit);
         $itemsSkills = $this->getSkillsFromItem($fit->getShip(), $itemsSkills);
@@ -672,13 +711,6 @@ class FitController extends Controller
 
         return $result;
 
-
     }
-
-
-
-
-
-
 
 }
