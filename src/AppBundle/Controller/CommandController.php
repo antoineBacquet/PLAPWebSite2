@@ -228,7 +228,7 @@ class CommandController extends Controller
      */
     public function commandAcceptAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::before($this);
+        ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
         $commandRep = $doctrine->getRepository(Command::class);
@@ -237,6 +237,9 @@ class CommandController extends Controller
          * @var $command Command
          */
         $command = $commandRep->find($id);
+
+        if($command->getIssuer()->getId() != $this->getUser()->getId() )
+            throw new AccessDeniedException('Tu ne peux pas accepté les commandes des autres');
 
         if($command!= null){
             $command->setState('accepted');
@@ -257,7 +260,7 @@ class CommandController extends Controller
      */
     public function commandRefuseAction(Request $request, $id)
     {
-        $parameters = ControllerUtil::before($this);
+        ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
         $commandRep = $doctrine->getRepository(Command::class);
@@ -266,6 +269,9 @@ class CommandController extends Controller
          * @var $command Command
          */
         $command = $commandRep->find($id);
+
+        if($command->getIssuer()->getId() != $this->getUser()->getId() )
+            throw new AccessDeniedException('Tu ne peux pas refusé les commandes des autres');
 
         if($command!= null){
 
@@ -295,7 +301,7 @@ class CommandController extends Controller
         $doctrine = $this->getDoctrine();
         $user = $this->getUser();
 
-        if($id->getIssuer()->getId() != $user->getId() and !$this->isGranted('ROLE_ADMINs'))
+        if($id->getIssuer()->getId() != $user->getId() and !$this->isGranted('ROLE_ADMIN'))
             throw new AccessDeniedException('Tu doit étre admin pour supprimer le command des autres');
 
 
