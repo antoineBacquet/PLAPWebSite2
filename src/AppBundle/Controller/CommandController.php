@@ -17,6 +17,7 @@ use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\DiscordUtil;
 use AppBundle\Util\GroupUtil;
 use AppBundle\Util\Util;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -30,7 +31,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 
 class CommandController extends Controller
@@ -285,27 +286,22 @@ class CommandController extends Controller
      *
      * @Route("/commands/remove/{id}", name="removecommand")
      * @Security("has_role('ROLE_MEMBER')")
+     * @ParamConverter(name="idn")
      */
-    public function removeMyCommandAction(Request $request, $id)
+    public function removeMyCommandAction(Request $request, Command $id)
     {
-        $parameters = ControllerUtil::before($this);
+        ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
-        $commandRep = $doctrine->getRepository(Command::class);
+        $user = $this->getUser();
 
-        /**
-         * @var Command $commands
-         */
-        $command = $commandRep->find($id);
-
-        if($command!= null){
-            if($command->getIssuer()->getId() != $parameters['user']->getId() and !$parameters['user']->isAdmin)
-                die("You need to be admin to remove other people command"); //TODO better
+        if($id->getIssuer()->getId() != $user->getId() and !$this->isGranted('ROLE_ADMINs'))
+            throw new AccessDeniedException('Tu doit étre admin pour supprimer le command des autres');
 
 
-            $doctrine->getManager()->remove($command);
-            $doctrine->getManager()->flush();
-        }
+        $doctrine->getManager()->remove($id);
+        $doctrine->getManager()->flush();
+
 
         return $this->redirect($this->generateUrl('commandlist'));
 

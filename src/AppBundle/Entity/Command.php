@@ -128,7 +128,7 @@ class Command
     /**
      * Get issuer
      *
-     * @return integer
+     * @return User
      */
     public function getIssuer()
     {
