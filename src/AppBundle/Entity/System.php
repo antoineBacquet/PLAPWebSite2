@@ -17,7 +17,6 @@ class System
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
@@ -62,5 +61,18 @@ class System
     {
         return $this->name;
     }
-}
 
+    /**
+     * Set id
+     *
+     * @param integer $id
+     *
+     * @return System
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    
+        return $this;
+    }
+}
