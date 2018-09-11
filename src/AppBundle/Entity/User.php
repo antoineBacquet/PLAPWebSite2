@@ -89,9 +89,11 @@ class User implements UserInterface, \Serializable
      * @var int
      *
      * @ORM\OneToOne(targetEntity="CharApi")
-     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $mainApi;
+
+
 
     public function __construct()
     {
