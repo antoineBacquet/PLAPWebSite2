@@ -12,6 +12,7 @@ namespace AppBundle\Util;
 use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\Command;
 use AppBundle\Entity\CommandItem;
+use AppBundle\Entity\Route;
 use AppBundle\Entity\User;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
@@ -68,7 +69,25 @@ class DiscordUtil
 
         $webhook->send();
 
+    }
 
+    public static function sendNewLogi(Route $route,User $user, $reward, $size, $colat){
+
+
+        $webhook = new Client(DiscordConfig::$webhook_logi);
+        $webhook->username('Logi bot');
+
+        $webhook->message('<@&' . DiscordConfig::$role_logi . '>'); //TODO global<@&475727462064586756>
+
+        $embed = new Embed();
+        $embed->title('Noueaux contrat de ' . $user->getName() . ': ' . $route->getStart()->getName() . ' -> ' . $route->getEnd()->getName() . '.'); //TODO
+        $embed->description('Reward: ' . number_format ($reward,0, '.', ' ')
+            . ' isk, taille: ' . number_format ($size ,0, '.', ' ')
+            . ' m3, colateral: ' . number_format ($colat,0, '.', ' ') . ' isk.');
+
+        $webhook->embed($embed);
+
+        $webhook->send();
 
     }
 
