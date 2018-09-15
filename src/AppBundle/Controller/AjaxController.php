@@ -17,6 +17,7 @@ use AppBundle\Discord\DiscordConfig;
 use AppBundle\Entity\Asset;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Item;
+use AppBundle\Entity\System;
 use AppBundle\Util\UserUtil;
 use DiscordWebhooks\Client;
 use DiscordWebhooks\Embed;
@@ -427,6 +428,58 @@ class AjaxController extends Controller
         return $results;
     }
 
+
+    /**
+     * Get item information
+     *
+     * @Route("/search/system", name="search-system")
+     */
+    public function searchSystemAction(Request $request)
+    {
+        $doctrine = $this->getDoctrine();
+        $systemRep = $doctrine->getRepository(System::class);
+
+        $systemName = '%' . $request->get('system'). '%';
+
+        $query = $systemRep->createQueryBuilder('s');
+        $systemsResult = $query->where($query->expr()->like('s.name', ':system'))->setParameter('system', $systemName)->getQuery()->execute();
+
+        $systems = array();
+
+        foreach ($systemsResult as $result){
+            $systems[] = array('id' => $result->getId(), 'name' => $result->getName());
+    }
+
+        return $this->json(array('systems' => $systems));
+
+
+    }
+
+    /**
+     * Get item information
+     *
+     * @Route("/ajax/route", name="get-route-ajax")
+     */
+    public function getRouteAction(Request $request)
+    {
+        $doctrine = $this->getDoctrine();
+        $routeRep = $doctrine->getRepository(\AppBundle\Entity\Route::class);
+
+        $route = $routeRep->find($request->get('id'));
+
+
+        return $this->json(array(
+            'id' => $route->getId(),
+            'price' => $route->getPrice(),
+            'maxColat' => $route->getMaxColat(),
+            'maxSize' => $route->getMaxSize(),
+            'danger1b' => $route->getDanger1b(),
+            'danger5b' => $route->getDanger5b(),
+            'danger10b' => $route->getDanger10b(),
+            'dangerMax' => $route->getDangerMax()
+        ));
+
+    }
 
 
 

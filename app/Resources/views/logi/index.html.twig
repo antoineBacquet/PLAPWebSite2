@@ -1,0 +1,208 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% form_theme form _self %}
+{% block form_errors %}
+    {% spaceless %}
+        {% if errors|length > 0 %}
+            {% if compound %}
+                {% for error in errors %}
+                    <div class="alert alert-danger">
+                        <strong> Erreur! </strong> {{ error.message }}
+                    </div>
+                {% endfor %}
+
+            {% endif %}
+        {% endif %}
+    {% endspaceless %}
+{% endblock form_errors %}
+
+{% block body %}
+
+
+
+
+    {{ form_errors(form) }}
+
+	<h2> Calcul du prix</h2>
+
+
+
+
+    {{ form_start(form) }}
+    <div class="container">
+        <div class="row">
+            {{ form_row(form.routes) }}
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                {{ form_row(form.size) }}
+            </div>
+            <div class="col-sm-6">
+                {{ form_row(form.colat) }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4">
+            </div>
+            <div class="col-sm-4">
+                <h3>Prix total</h3>
+                <textarea id ="total" class="form-control" rows="1" spellcheck="false" onclick="this.focus();this.select()" readonly="">
+                    </textarea>
+            </div>
+            <div class="col-sm-4">
+            </div>
+        </div>
+        {{ form_end(form) }}
+    </div>
+
+    <h3> Information sur la route</h3>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-4">
+                <h5>Taille maximum</h5>
+                <p id="maxSize"> - m3</p>
+            </div>
+            <div class="col-sm-4">
+                <h5>Colateral maximum</h5>
+                <p id="maxColat"> - isk</p>
+            </div>
+            <div class="col-sm-4">
+                <h5>Prix</h5>
+                <p id="price"> - isk/m3</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-3">
+                <h5>Prime de danger inferieur a 1b</h5>
+                <p id="danger1b"> - isk</p>
+            </div>
+            <div class="col-sm-3">
+                <h5>Prime de danger entre 1b et 5b</h5>
+                <p id="danger5b"> - isk</p>
+            </div>
+            <div class="col-sm-3">
+                <h5>Prime de danger entre 5b et 10b</h5>
+                <p id="danger10b"> - isk</p>
+            </div>
+
+            <div class="col-sm-3">
+                <h5>Prime de danger superieur a 10b</h5>
+                <p id="dangerMax"> - isk</p>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+
+        var route;
+
+        function update(e) {
+
+            var value = e.options[e.selectedIndex].value;
+            $.ajax({
+                url: '{{ (path('get-route-ajax')) }}',
+                type: "GET",
+                dataType: "json",
+                data: {
+                    id : value
+                },
+                //async: true,
+                success: function (data) {
+                    //alert(JSON.stringify(data));
+                    route = data;
+                    if(data.id === -1){
+                        document.getElementById('maxSize').innerText =  "- m3";
+                        document.getElementById('maxColat').innerText =  "- m3";
+                        document.getElementById('price').innerText =  "- m3";
+
+
+                        document.getElementById('danger1b').innerText = "- isk";
+                        document.getElementById('danger5b').innerText = "- isk";
+                        document.getElementById('danger10b').innerText = "- isk";
+                        document.getElementById('dangerMax').innerText = "- isk";
+
+
+                        document.getElementById('form_size').disabled = true;
+                        document.getElementById('form_colat').disabled = true;
+                    }
+                    else{
+                        document.getElementById('maxSize').innerText = data.maxSize + " m3";
+                        document.getElementById('maxColat').innerText = data.maxColat + " m3";
+                        document.getElementById('price').innerText = data.price + " m3";
+
+
+                        document.getElementById('danger1b').innerText = data.danger1b + " isk";
+                        document.getElementById('danger5b').innerText = data.danger5b + " isk";
+                        document.getElementById('danger10b').innerText = data.danger10b + " isk";
+                        document.getElementById('dangerMax').innerText = data.dangerMax + " isk";
+
+                        var sizeForm = document.getElementById('form_size');
+                        sizeForm.disabled = false;
+                        sizeForm.max = data.maxSize;
+
+                        var colatForm = document.getElementById('form_colat');
+                        colatForm.disabled = false;
+                        colatForm.max = data.maxColat;
+
+                        updatePrice();
+                    }
+
+                }
+            }).fail(function (msg) {
+                alert('error');
+            });
+        }
+
+        function updatePrice(){
+            var size = parseFloat(document.getElementById('form_size').value);
+            var colat = parseFloat(document.getElementById('form_colat').value);
+
+            var danger = 0;
+            if(colat === "" || isNaN(colat)){
+                danger = parseFloat(route.danger1b);
+            }
+            else if(colat >= 10000000000){
+                danger = parseFloat(route.dangerMax);
+            }
+            else if(colat < 10000000000 && colat >= 5000000000){
+                danger = parseFloat(route.danger10b);
+            }
+            else if(colat < 5000000000 && colat > 1000000000){
+                danger = parseFloat(route.danger5b);
+            }
+            else{
+                danger = parseFloat(route.danger1b);
+            }
+
+            price = danger + (size * route.price);
+
+            document.getElementById('total').value = price;
+            //alert(price);
+        }
+
+        $( document ).ready(function() {
+            var e = document.getElementById('form_routes');
+            if(e.value !== -1){
+                update(e);
+            }
+            else{
+                updatePrice();
+                document.getElementById('form_size').disabled = true;
+                document.getElementById('form_colat').disabled = true;
+            }
+        });
+
+    </script>
+{% endblock %}
