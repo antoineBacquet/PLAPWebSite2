@@ -40,6 +40,7 @@ class UserUtil
         'Membre  ' => 'ROLE_MEMBER',
         'Responsable de prod  ' =>'ROLE_PROD',
         'Gestion des fits  ' => 'ROLE_FIT',
+        'Responsable logistic ' => 'ROLE_LOGI',
         'Role Supercaps  ' => 'ROLE_SUPER',
         'Admin  ' => 'ROLE_ADMIN'
     );
