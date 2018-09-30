@@ -11,11 +11,11 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\System;
 use AppBundle\Util\ControllerUtil;
 use AppBundle\Util\DiscordUtil;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -34,20 +34,25 @@ class LogisticController extends Controller
      *
      * This route is the homepage
      *
-     * @Route("/logi/add", name="logi-add")
+     * @Route("/logi/route/add", name="logi-add")
      */
-    public function logiAddAction(Request $request)
+    public function logiAddAction(Request $request, \AppBundle\Entity\Route $route = null)
     {
         $parameters = ControllerUtil::before($this);
 
         $doctrine = $this->getDoctrine();
         $systemRep = $doctrine->getRepository(System::class);
 
-        $route = new \AppBundle\Entity\Route();
+        if($route === null)
+            $route = new \AppBundle\Entity\Route();
+        else{
+            $parameters['start'] = $route->getStart();
+            $parameters['end'] = $route->getEnd();
+        }
 
         $form = $this->createFormBuilder($route)
-            ->add('start', HiddenType::class )
-            ->add('end', HiddenType::class )
+            ->add('start', HiddenType::class, array('required' => true))
+            ->add('end', HiddenType::class, array('required' => true) )
             ->add('maxSize', NumberType::class, array('attr' => array('style' => 'color:black')) )
             ->add('maxColat', NumberType::class, array('attr' => array('style' => 'color:black')) )
             ->add('price', NumberType::class, array('attr' => array('style' => 'color:black')) )
@@ -66,19 +71,79 @@ class LogisticController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $route = $form->getData();
-            //dump($route);
+            dump($route);
+            if($route->getStart() == null)
+                $form->addError(new FormError('Tu doit ajouter un systeme de depart'));
+            else  if($route->getEnd() == null)
+                $form->addError(new FormError('Tu doit ajouter un systeme d\'arrivée'));
+            else{
+                $route->setStart($systemRep->find($route->getStart()));
+                $route->setEnd($systemRep->find($route->getEnd()));
+                $doctrine->getManager()->persist($route);
+                $doctrine->getManager()->flush();
 
-            $route->setStart($systemRep->find($route->getStart()));
-            $route->setEnd($systemRep->find($route->getEnd()));
-            $doctrine->getManager()->persist($route);
-            $doctrine->getManager()->flush();
+                return $this->redirect($this->generateUrl('logi-routes'));
+            }
+
+
+
         }
 
 
         $parameters['form'] = $form->createView();
 
         return $this->render('logi/add.html.twig', $parameters);
+    }
 
+    /**
+     *
+     * This route is the homepage
+     *
+     * @Route("/logi/route/edit/{route}", name="logi-edit")
+     * @ParamConverter(name="route")
+     */
+    public function logiEditAction(Request $request, \AppBundle\Entity\Route $route)
+    {
+        return $this->logiAddAction($request, $route);
+    }
+
+    /**
+     *
+     * This route is the homepage
+     *
+     * @Route("/logi/route/remove/{route}", name="logi-remove")
+     * @ParamConverter(name="route")
+     */
+    public function logiRemoveAction(Request $request, \AppBundle\Entity\Route $route)
+    {
+
+        $parameters = ControllerUtil::before($this);
+
+        $doctrine = $this->getDoctrine();
+
+        $doctrine->getManager()->remove($route);
+        $doctrine->getManager()->flush();
+
+        return $this->redirect($this->generateUrl('logi-routes'));
+    }
+
+    /**
+     *
+     * This route is the homepage
+     *
+     * @Route("/logi/routes", name="logi-routes")
+     */
+    public function logiRoutesAction(Request $request)
+    {
+        $parameters = ControllerUtil::before($this);
+
+        $doctrine = $this->getDoctrine();
+        $routeRep = $doctrine->getRepository(\AppBundle\Entity\Route::class);
+
+        $routes = $routeRep->findAll();
+        $parameters['routes'] = $routes;
+
+        return $this->render('logi/routes.html.twig', $parameters);
 
     }
 

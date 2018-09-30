@@ -1,0 +1,64 @@
+
+
+{% extends 'template/base.html.twig' %}
+
+
+
+
+{% block body %}
+    <h2> Liste des routes</h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <td> Depart </td>
+                <td> Fin </td>
+                <td> Prix </td>
+                <td> Colateral maximum </td>
+                <td> Taille maximum </td>
+                <td> Prime de danger </td>
+                <td> Action</td>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for route in routes %}
+                <tr>
+                    <td>{{ route.start.name }}  </td>
+
+                    <td>{{ route.end.name }}  </td>
+
+                    <td>{{ route.price }} </td>
+
+                    <td>{{ route.maxColat }}  </td>
+
+                    <td>{{ route.maxSize }}</td>
+
+                    <td>
+                        moins de 1b : {{ route.danger1b|number_format(0, ' ',  ' ') }} isk <br>
+                        de 1b a 5b : {{ route.danger5b|number_format(0, ' ',  ' ') }} isk <br>
+                        de 5b a 10b : {{ route.danger10b|number_format(0, ' ',  ' ') }} isk <br>
+                        plus de 10b : {{ route.dangerMax|number_format(0, ' ',  ' ') }} isk <br>
+                    </td>
+
+                    <td>
+                        {% if route.id != -1 %}
+                            <a href="{{ path('logi-edit', {'route': route.id}) }}"> Editer </a><br>
+                            <a href="{{ path('logi-remove', {'route': route.id}) }}"> Supprimer </a>
+                        {% endif %}
+                            </td>
+
+                </tr>
+            {% else %}
+                Pas de routes.
+            {% endfor %}
+            </tbody>
+        </table>
+
+    {% if is_granted('ROLE_MEMBER')%}
+        <h5><a href="{{ path('logi-add') }}">Ajouter un route</a></h5>
+    {% endif %}
+    </div>
+
+{% endblock %}

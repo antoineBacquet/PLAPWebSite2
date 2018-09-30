@@ -1,5 +1,20 @@
 {% extends 'template/base.html.twig' %}
 
+{% form_theme form _self %}
+{% block form_errors %}
+    {% spaceless %}
+        {% if errors|length > 0 %}
+            {% if compound %}
+                {% for error in errors %}
+                    <div class="alert alert-danger">
+                        <strong> Erreur! </strong> {{ error.message }}
+                    </div>
+                {% endfor %}
+
+            {% endif %}
+        {% endif %}
+    {% endspaceless %}
+{% endblock form_errors %}
 
 {% block body %}
 
@@ -11,13 +26,17 @@
 
     {{ form_start(form) }}
 
+
+    {{ form_errors(form) }}
+
     <div class="container">
         <div class="row">
             <div class="col-sm-6">
                 <h6>System de depart</h6>
                 <input id="search-start" type="text" name="search" placeholder="Search.." autocomplete="off" onkeyup="searchSystem('start')" class="auto-suggest" style="color: black"
                        onfocus="document.getElementById('search-start-list').style.cssText = 'display:block;'"
-                       onblur="document.getElementById('search-start-list').style.cssText = 'display:none;'">
+                       onblur="document.getElementById('search-start-list').style.cssText = 'display:none;'"
+                {% if start is defined %} value="{{ start.name }}" {% endif %}>
                 <ul style="display: none;" id="search-start-list" class="suggestions"></ul>
             </div>
 
@@ -25,10 +44,12 @@
             <div class="col-sm-6">
                 <input id="search-end" type="text" name="search" placeholder="Search.." autocomplete="off" onkeyup="searchSystem('end')" class="auto-suggest" style="color: black"
                        onfocus="document.getElementById('search-end-list').style.cssText = 'display:block;'"
-                       onblur="document.getElementById('search-end-list').style.cssText = 'display:none;'">
+                       onblur="document.getElementById('search-end-list').style.cssText = 'display:none;'"
+                        {% if end is defined %} value="{{ end.name }}" {% endif %}>
                 <ul style="display: none;" id="search-end-list" class="suggestions"></ul>
             </div>
         </div>
+        <br>
         <div class="row">
             <div class="col-sm-4">
                 {{ form_row(form.maxSize) }}
