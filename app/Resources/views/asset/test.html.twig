@@ -8,6 +8,8 @@
 
 {% block body %}
 
+    <h3>Asset de <a href="{{ path('myapi', {'id': api.id}) }}"> {{ api.charName }}</a></h3>
+
     <h5>
         Derniére MAJ : {% if api.lastAssetUpdate is null %} jamais {% else %} {{ api.lastAssetUpdate|date("d/m/Y H:i") }} {% endif %}
         <br>

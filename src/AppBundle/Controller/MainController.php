@@ -311,75 +311,27 @@ class MainController extends Controller
      * Test stuff here
      *
      * @Route("/test", name="test")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function testAction(Request $request)
     {
 
-
-
-        die('What are you looking for???');
+        //die('What are you looking for???');
         $parameters = ControllerUtil::before($this);
-
-        $skillRep = $this->getDoctrine()->getRepository(Skill::class);
 
         $api = $this->getUser()->getApis()[0];
 
-        $qb = $skillRep->createQueryBuilder('s');
-        $skillsData = $qb->where($qb->expr()->isNotNull('s.group'))->orderBy('s.name')->getQuery()->execute();
-
-        $groups = array();
-        $skills = array();
-
-        foreach ($skillsData as $skill){
-
-            if(!isset($groups[$skill->getGroup()->getid()])){
-                $groups[$skill->getGroup()->getid()] = array();
-                $groups[$skill->getGroup()->getid()]['group'] = $skill->getGroup();
-                $groups[$skill->getGroup()->getid()]['skills'] = array();
-            }
-            $groups[$skill->getGroup()->getid()]['skills'][] = $skill;
-
-            $skills[$skill->getId()] = $skill;
-
-            $skill->level = 0;
-
-        }
-
-        dump($skills);
-
         $auth = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
+
         $esi = new Eseye($auth);
 
-        try{
-            $apiSkills = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/skills/', array('character_id' => $api->getCharId()))->getArrayCopy();
-            dump($apiSkills);
-        }
-        catch (EsiException $e){
-            die($e);
-        }
+        $not = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/notifications/', array('character_id' => $api->getCharId()));
 
-        foreach ($apiSkills['skills'] as $apiSkill){
+        dump($not);
 
-            if(isset($skills[$apiSkill->skill_id]))
-                $skills[$apiSkill->skill_id]->level = $apiSkill->trained_skill_level;
-        }
+        return $this->render('template/default.html.twig', $parameters);
 
 
-
-        //dump($groups);
-
-        $parameters['groups'] = $groups;
-
-        return $this->render('profile/skills.html.twig',$parameters);
-
-
-        $webhook = new Client(DiscordConfig::$webhook_command);
-        $webhook->username('Command bot');
-        $webhook->message('test @here');
-
-        //$webhook->send();
-
-        die($request->getHttpHost() . $this->generateUrl('commandinfo', array('id' => 1)));
 
     }
 
