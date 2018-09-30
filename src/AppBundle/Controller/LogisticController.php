@@ -35,6 +35,7 @@ class LogisticController extends Controller
      * This route is the homepage
      *
      * @Route("/logi/route/add", name="logi-add")
+     * @Security("has_role('ROLE_LOGI')")
      */
     public function logiAddAction(Request $request, \AppBundle\Entity\Route $route = null)
     {
@@ -101,6 +102,7 @@ class LogisticController extends Controller
      *
      * @Route("/logi/route/edit/{route}", name="logi-edit")
      * @ParamConverter(name="route")
+     * @Security("has_role('ROLE_LOGI')")
      */
     public function logiEditAction(Request $request, \AppBundle\Entity\Route $route)
     {
@@ -113,6 +115,7 @@ class LogisticController extends Controller
      *
      * @Route("/logi/route/remove/{route}", name="logi-remove")
      * @ParamConverter(name="route")
+     * @Security("has_role('ROLE_LOGI')")
      */
     public function logiRemoveAction(Request $request, \AppBundle\Entity\Route $route)
     {

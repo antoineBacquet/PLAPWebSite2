@@ -18,7 +18,9 @@
                 <td> Colateral maximum </td>
                 <td> Taille maximum </td>
                 <td> Prime de danger </td>
-                <td> Action</td>
+                {% if is_granted('ROLE_LOGI')%}
+                    <td> Action</td>
+                {% endif %}
             </tr>
             </thead>
 
@@ -41,14 +43,14 @@
                         de 5b a 10b : {{ route.danger10b|number_format(0, ' ',  ' ') }} isk <br>
                         plus de 10b : {{ route.dangerMax|number_format(0, ' ',  ' ') }} isk <br>
                     </td>
-
+                {% if is_granted('ROLE_LOGI')%}
                     <td>
                         {% if route.id != -1 %}
                             <a href="{{ path('logi-edit', {'route': route.id}) }}"> Editer </a><br>
                             <a href="{{ path('logi-remove', {'route': route.id}) }}"> Supprimer </a>
                         {% endif %}
-                            </td>
-
+                    </td>
+                {% endif %}
                 </tr>
             {% else %}
                 Pas de routes.
@@ -56,7 +58,7 @@
             </tbody>
         </table>
 
-    {% if is_granted('ROLE_MEMBER')%}
+    {% if is_granted('ROLE_LOGI')%}
         <h5><a href="{{ path('logi-add') }}">Ajouter un route</a></h5>
     {% endif %}
     </div>
