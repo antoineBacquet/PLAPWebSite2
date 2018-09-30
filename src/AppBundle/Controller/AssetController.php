@@ -107,7 +107,7 @@ class AssetController extends Controller
 
 
         foreach ($assetData as $asset){
-            $assetDB = $assetRep->findAll($asset->item_id);
+            $assetDB = $assetRep->find($asset->item_id);
             if($assetDB == null)
                 $assetDB = new Asset();
 
