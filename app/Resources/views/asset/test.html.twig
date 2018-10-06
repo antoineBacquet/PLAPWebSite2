@@ -1,6 +1,8 @@
 {% extends 'template/base.html.twig' %}
 {% import _self as lel %}
 
+{% block title %}PLAP - Asset de {{ api.charName }}{% endblock %}
+
 {% block css %}
     <link rel="stylesheet" href="{{ asset('js/dist/themes/default/style.min.css') }}" />
 
