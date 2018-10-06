@@ -108,6 +108,18 @@
 
         var route;
 
+        function formatNumber(n, c, d, t) {
+             c = isNaN(c = Math.abs(c)) ? 2 : c,
+                d = d === undefined ? "." : d,
+                t = t === undefined ? "," : t,
+                s = n < 0 ? "-" : "",
+                i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
+                j = (j = i.length) > 3 ? j % 3 : 0;
+
+            return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+        }
+
+
         function update(e) {
 
             var value = e.options[e.selectedIndex].value;
@@ -124,8 +136,8 @@
                     route = data;
                     if(data.id === -1){
                         document.getElementById('maxSize').innerText =  "- m3";
-                        document.getElementById('maxColat').innerText =  "- m3";
-                        document.getElementById('price').innerText =  "- m3";
+                        document.getElementById('maxColat').innerText =  "- isk";
+                        document.getElementById('price').innerText =  "- isk/m3";
 
 
                         document.getElementById('danger1b').innerText = "- isk";
@@ -138,15 +150,15 @@
                         document.getElementById('form_colat').disabled = true;
                     }
                     else{
-                        document.getElementById('maxSize').innerText = data.maxSize + " m3";
-                        document.getElementById('maxColat').innerText = data.maxColat + " m3";
-                        document.getElementById('price').innerText = data.price + " m3";
+                        document.getElementById('maxSize').innerText = formatNumber(data.maxSize, 2, ",", " ") + " m3";
+                        document.getElementById('maxColat').innerText = formatNumber(data.maxColat, 2, ",", " ")  + " isk";
+                        document.getElementById('price').innerText = formatNumber(data.price, 2, ",", " ") + " isk/m3";
 
 
-                        document.getElementById('danger1b').innerText = data.danger1b + " isk";
-                        document.getElementById('danger5b').innerText = data.danger5b + " isk";
-                        document.getElementById('danger10b').innerText = data.danger10b + " isk";
-                        document.getElementById('dangerMax').innerText = data.dangerMax + " isk";
+                        document.getElementById('danger1b').innerText = formatNumber(data.danger1b, 2, ",", " ") + " isk";
+                        document.getElementById('danger5b').innerText = formatNumber(data.danger5b, 2, ",", " ") + " isk";
+                        document.getElementById('danger10b').innerText = formatNumber(data.danger10b, 2, ",", " ") + " isk";
+                        document.getElementById('dangerMax').innerText = formatNumber(data.dangerMax, 2, ",", " ") + " isk";
 
                         var sizeForm = document.getElementById('form_size');
                         sizeForm.disabled = false;
@@ -188,7 +200,7 @@
 
             price = danger + (size * route.price);
 
-            document.getElementById('total').value = price;
+            document.getElementById('total').value = formatNumber(price, 2, ",", " ") ;
             //alert(price);
         }
 
