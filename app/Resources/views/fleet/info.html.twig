@@ -1,0 +1,41 @@
+{% extends 'template/base.html.twig' %}
+
+{% block title %}PLAP - Fleet {% endblock %}
+
+{% block body %}
+
+<h4> Fleet du {{ fleet.date|date("d/m/Y h:i")  }}</h4> <br>
+
+<h4> {{ fleet.description }}</h4><br>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <tr>
+            <td> - </td>
+
+            <td> Ship </td>
+
+            <td>User</td>
+
+        </tr>
+
+
+        {% for member in fleet.members %}
+            <tr>
+
+                <td><img src="https://image.eveonline.com/render/{{ member.ship.id }}_32.png" class="img-responsive"></td>
+
+                <td> {{ member.ship.name }} </td>
+
+                <td> {{ member.api.charName  }} ({{ member.api.user.name }}) </td>
+
+            </tr>
+
+        {% else %}
+            IL n'y a aucune fleet.
+        {% endfor %}
+
+
+
+
+        {% endblock %}

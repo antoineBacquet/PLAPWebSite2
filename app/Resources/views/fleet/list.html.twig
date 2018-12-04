@@ -1,0 +1,41 @@
+{% extends 'template/base.html.twig' %}
+
+{% block title %}PLAP - Fleet {% endblock %}
+
+{% block body %}
+
+<h4> Liste des fleets </h4>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <tr>
+            <td> Date </td>
+
+            <td>Description</td>
+
+            <td>Nombre de membre</td>
+
+        </tr>
+
+
+        {% for fleet in fleets %}
+            <tr class="'cl">
+
+                <td> {{ fleet.date|date("d/m/Y h:i")  }} </td>
+
+                <td><a href="{{ path('fleet-info', {'id': fleet.id}) }}">{{ fleet.description }}</a></td>
+
+                <td> {{ fleet.members|length }} </td>
+
+            </tr>
+
+        {% else %}
+            IL n'y a aucune fleet.
+        {% endfor %}
+
+
+
+
+{% endblock %}
+
+
+
