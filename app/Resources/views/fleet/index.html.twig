@@ -1,11 +1,47 @@
 {% extends 'template/base.html.twig' %}
 
+{% form_theme form _self %}
+{% block form_errors %}
+    {% spaceless %}
+        {% if errors|length > 0 %}
+            {% if compound %}
+                {% for error in errors %}
+                    <div class="alert alert-danger">
+                        <strong> Erreur! </strong> {{ error.message }}
+                    </div>
+                {% endfor %}
+
+            {% endif %}
+        {% endif %}
+    {% endspaceless %}
+{% endblock form_errors %}
+
+
+
 {% block title %}PLAP - Fleet {% endblock %}
 
 {% block body %}
 
+    <h4>Creer un FAT link</h4>
+
     {{ form_start(form) }}
-    {{ form_widget(form) }}
+
+    {{ form_errors((form)) }}
+
+<div class="container">
+
+    {{ form_row(form.api) }}
+    <div class="row">
+        <div class="col-sm-6">
+            {{ form_row(form.link) }}
+        </div>
+        <div class="col-sm-6">
+            {{ form_row(form.description) }}
+        </div>
+
+        {{ form_row(form.description) }}
+    </div>
+</div>
     {{ form_end(form) }}
 
 

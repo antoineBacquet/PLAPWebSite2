@@ -25,14 +25,38 @@ class FleetMember
      * @var
      *
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\CharApi")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $api;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="char_id", type="bigint")
+     */
+    private $charId;
+
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="char_name", type="text", length=255, nullable=true)
+     */
+    private $charName;
+
     /**
      * @var
      *
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Item")
      */
     private $ship;
+
+    /**
+     * @var
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\System")
+     */
+    private $system;
 
 
     /**
@@ -124,5 +148,77 @@ class FleetMember
     public function getFleet()
     {
         return $this->fleet;
+    }
+
+    /**
+     * Set charId
+     *
+     * @param integer $charId
+     *
+     * @return FleetMember
+     */
+    public function setCharId($charId)
+    {
+        $this->charId = $charId;
+    
+        return $this;
+    }
+
+    /**
+     * Get charId
+     *
+     * @return integer
+     */
+    public function getCharId()
+    {
+        return $this->charId;
+    }
+
+    /**
+     * Set charName
+     *
+     * @param string $charName
+     *
+     * @return FleetMember
+     */
+    public function setCharName($charName)
+    {
+        $this->charName = $charName;
+    
+        return $this;
+    }
+
+    /**
+     * Get charName
+     *
+     * @return string
+     */
+    public function getCharName()
+    {
+        return $this->charName;
+    }
+
+    /**
+     * Set system
+     *
+     * @param \AppBundle\Entity\System $system
+     *
+     * @return FleetMember
+     */
+    public function setSystem(\AppBundle\Entity\System $system = null)
+    {
+        $this->system = $system;
+    
+        return $this;
+    }
+
+    /**
+     * Get system
+     *
+     * @return \AppBundle\Entity\System
+     */
+    public function getSystem()
+    {
+        return $this->system;
     }
 }

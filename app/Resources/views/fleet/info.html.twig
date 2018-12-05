@@ -15,7 +15,9 @@
 
             <td> Ship </td>
 
-            <td>User</td>
+            <td>Personnage (User)</td>
+
+            <td>System</td>
 
         </tr>
 
@@ -23,11 +25,28 @@
         {% for member in fleet.members %}
             <tr>
 
-                <td><img src="https://image.eveonline.com/render/{{ member.ship.id }}_32.png" class="img-responsive"></td>
 
-                <td> {{ member.ship.name }} </td>
 
-                <td> {{ member.api.charName  }} ({{ member.api.user.name }}) </td>
+                {% if member.ship is null %}
+                    <td><img src="https://image.eveonline.com/render/1_32.png" class="img-responsive"></td>
+                    <td> Vaisseau inconnue </td>
+                {% else %}
+                    <td><img src="https://image.eveonline.com/render/{{ member.ship.id }}_32.png" class="img-responsive"></td>
+                    <td> {{ member.ship.name }} </td>
+                {% endif %}
+
+
+                {% if member.api is null %}
+                    <td> {{ member.charName  }} (Membre non enregistré) </td>
+                {% else %}
+                    <td> {{ member.api.charName  }} ({{ member.api.user.name }}) </td>
+                {% endif %}
+
+                {% if member.system is null %}
+                    <td> System inconnue</td>
+                {% else %}
+                    <td> {{ member.system.name  }}  </td>
+                {% endif %}
 
             </tr>
 
