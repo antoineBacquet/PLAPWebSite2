@@ -306,6 +306,9 @@ class FitController extends Controller
             catch (EsiException $e){
                 //TODO error management
             }
+            catch (\Exception $e){
+
+            }
         }
 
 
