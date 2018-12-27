@@ -8,6 +8,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\CCP\EsiException;
 use AppBundle\CCP\EsiUtil;
 use AppBundle\Entity\CharApi;
 use AppBundle\Entity\Doctrine;
@@ -298,8 +299,13 @@ class FitController extends Controller
         $results = array();
 
         foreach ($apis as $api){
-            $result = $this->getFitSkillState($fit, $api); //TODO
-            $results[] = array('api' => $api, 'skillBar' => $result);
+            try{
+                $result = $this->getFitSkillState($fit, $api); //TODO
+                $results[] = array('api' => $api, 'skillBar' => $result);
+            }
+            catch (EsiException $e){
+                //TODO error management
+            }
         }
 
 
