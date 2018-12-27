@@ -1,0 +1,81 @@
+{% extends 'template/base.html.twig' %}
+
+
+{% block body %}
+    <h2> Qui peux fly? </h2>
+
+    <br>
+    <div class="table-responsive">
+    <table class="table table-striped">
+    <tr>
+        <td style="width: 5%"></td>
+
+        <td style="width: 15%">Fit</td>
+
+        <td>skill minimum</td>
+
+        <td>skill recommendé</td>
+
+    </tr>
+
+    {% for result in results %}
+        {% set skillBar = result['skillBar'] %}
+        {% set api = result['api'] %}
+
+        <tr >
+            <td><img src="https://image.eveonline.com/Character/{{ api.charId }}_32.jpg" class="img-responsive"></td>
+            <td> <a href="#"> {{ api.charName }}</a></td>
+
+            <td>
+                {% if skillBar['items']['pass'] %}
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                             aria-valuemin="0" aria-valuemax="100" style="width:100%; color: black">
+                            {{ skillBar['items']['total-sp']|number_format(0, '.', ',') }} / {{skillBar['items']['total-sp']|number_format(0, '.', ',') }} skillpoints
+                        </div>
+                    </div>
+                {% else %}
+                    {% set percent =  ((skillBar['items']['total-sp'] - skillBar['items']['missingSkillPoint'])  / skillBar['items']['total-sp']*100)|number_format(0, '.', ',') %}
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{ percent }}"
+                             aria-valuemin="0" aria-valuemax="100" style="width:{{ percent }}%; color: black">
+                    <span>
+                        {{(skillBar['items']['total-sp'] - skillBar['items']['missingSkillPoint'])|number_format(0, '.', ',')}} / {{skillBar['items']['total-sp']|number_format(0, '.', ',') }} skillpoints
+                    </span>
+                        </div>
+                    </div>
+                {%  endif %}
+            </td>
+            <td>
+                {% if skillBar['skill-set'] %}
+                    {% if skillBar['skill-set']['pass'] %}
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                                 aria-valuemin="0" aria-valuemax="100" style="width:100%; color: black">
+                                {{ skillBar['skill-set']['total-sp']|number_format(0, '.', ',') }} / {{skillBar['skill-set']['total-sp']|number_format(0, '.', ',') }} skillpoints
+                            </div>
+                        </div>
+                    {% else %}
+                        {% set percent =  (( skillBar['skill-set']['total-sp']-skillBar['skill-set']['missingSkillPoint'])  / skillBar['skill-set']['total-sp']*100)|number_format(0, '.', ',') %}
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{ percent }}"
+                                 aria-valuemin="0" aria-valuemax="100" style="width:{{ percent }}%; color: black">
+                        <span>
+                            {{(skillBar['skill-set']['total-sp'] - skillBar['skill-set']['missingSkillPoint'])|number_format(0, '.', ',')}} / {{skillBar['skill-set']['total-sp']|number_format(0, '.', ',') }} skillpoints
+                        </span>
+                            </div>
+                        </div>
+                    {%  endif %}
+                {% else %}
+                    pas de skill set
+                {%  endif %}
+            </td>
+        </tr>
+    {% endfor %}
+
+
+
+
+
+
+{% endblock %}

@@ -278,6 +278,45 @@ class FitController extends Controller
 
     }
 
+    /**
+     *
+     * Show who can fly a fit
+     *
+     * @Route("/fit/canfly/{id}", name="fit-can-fly")
+     * @ParamConverter(name="fit")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function fitCanFlyAction(Request $request, Fit $fit)
+    {
+        $parameters = ControllerUtil::before($this);
+
+        $apiRep = $this->getDoctrine()->getRepository(CharApi::class);
+
+
+        $apis = $apiRep->findAll();
+
+        $results = array();
+
+        foreach ($apis as $api){
+            $result = $this->getFitSkillState($fit, $api); //TODO
+            $results[] = array('api' => $api, 'skillBar' => $result);
+        }
+
+
+
+        usort($results,  array("AppBundle\Controller\FitController", "sortResult"));
+
+        $parameters['results'] = $results;
+        $parameters['fit'] = $fit;
+
+        return $this->render('fit/can-fly.html.twig', $parameters);
+
+    }
+
+    static function sortResult($a, $b){
+        return $a['skillBar']['items']['missingSkillPoint'] > $b['skillBar']['items']['missingSkillPoint'];
+    }
+
 
     /**
      *
