@@ -299,16 +299,10 @@ class FitController extends Controller
         $results = array();
 
         foreach ($apis as $api){
-            try{
-                $result = $this->getFitSkillState($fit, $api); //TODO
-                $results[] = array('api' => $api, 'skillBar' => $result);
-            }
-            catch (EsiException $e){
-                //TODO error management
-            }
-            catch (\Exception $e){
 
-            }
+            $result = $this->getFitSkillState($fit, $api, false); //TODO
+            if($result)
+                $results[] = array('api' => $api, 'skillBar' => $result);
         }
 
 
@@ -707,20 +701,28 @@ class FitController extends Controller
 
 
 
-    private function getFitSkillState(Fit $fit, CharApi $api){
+    private function getFitSkillState(Fit $fit, CharApi $api, bool $callApi = true){
 
-        $auth = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
-        $esi = new Eseye($auth);
 
-        $apiSkillsData = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/skills/', array('character_id' => $api->getCharId()));
+        if($callApi){
+            $auth = EsiUtil::getDefaultAuthentication($api->getRefreshToken());
+            $esi = new Eseye($auth);
 
-        $apiSkills = array();
+            $apiSkillsData = EsiUtil::callESI($esi, 'get', '/characters/{character_id}/skills/', array('character_id' => $api->getCharId()));
 
-        foreach ($apiSkillsData->getArrayCopy()['skills'] as $apiSkillData){
-            $apiSkills[$apiSkillData->skill_id] = array(
-                'level' => $apiSkillData->trained_skill_level,
-                'skillpoints' => $apiSkillData->skillpoints_in_skill
-            );
+            $apiSkills = array();
+
+            foreach ($apiSkillsData->getArrayCopy()['skills'] as $apiSkillData){
+                $apiSkills[$apiSkillData->skill_id] = array(
+                    'level' => $apiSkillData->trained_skill_level,
+                    'skillpoints' => $apiSkillData->skillpoints_in_skill
+                );
+            }
+        }
+        else{
+
+            if($api->getSkills() == null) return false;
+            $apiSkills = $api->getSkills()['skills'];
         }
 
         $result = array();
