@@ -2,7 +2,7 @@
 
 
 {% block body %}
-    <h2> Qui peux fly? </h2>
+    <h2> Qui peux fly <a href="{{ path('fit-details', { 'id' : fit.getId() } ) }}">{{ fit.name }}</a></h2>
 
     <br>
     <div class="table-responsive">

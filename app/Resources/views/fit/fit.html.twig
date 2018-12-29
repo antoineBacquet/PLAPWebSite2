@@ -7,6 +7,11 @@
 
 {% block body %}
     <h2> Detail du fit {{ fit.name }}</h2>
+    {% if is_granted('ROLE_ADMIN') %}
+        <h3> <a href="{{ path('fit-can-fly', {'id' : fit.getId()} ) }}">Voir qui peux piloter</a></h3>
+    {% endif %}
+
+
     {% set slot = -1 %}
     <div class="col-lg-8">
     <div class="panel panel-default">

@@ -30,7 +30,11 @@
                     <td> {{ fit.ship.name }} </td>
 
                     {% if is_granted('ROLE_ADMIN') %}
-                        <td> <a href="{{ path('fit-remove', {'id' : fit.getId()} ) }}">Supprimer</a></td>
+                        <td>
+                            <a href="{{ path('fit-remove', {'id' : fit.getId()} ) }}">Supprimer</a>
+                            <br>
+                            <a href="{{ path('fit-can-fly', {'id' : fit.getId()} ) }}">Voir qui peux piloter</a>
+                        </td>
                     {% endif %}
 
                 </tr>
