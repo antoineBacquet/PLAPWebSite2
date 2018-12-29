@@ -13,7 +13,7 @@
 
                 <td>Ship</td>
 
-                {% if is_granted('ROLE_ADMIN') %}
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_FIT') %}
                     <td> Action</td>
                 {% endif %}
 
@@ -29,11 +29,17 @@
 
                     <td> {{ fit.ship.name }} </td>
 
-                    {% if is_granted('ROLE_ADMIN') %}
+                    {% if  is_granted('ROLE_ADMIN') or is_granted('ROLE_FIT') %}
                         <td>
-                            <a href="{{ path('fit-remove', {'id' : fit.getId()} ) }}">Supprimer</a>
-                            <br>
-                            <a href="{{ path('fit-can-fly', {'id' : fit.getId()} ) }}">Voir qui peux piloter</a>
+                            {% if  is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('fit-remove', {'id' : fit.getId()} ) }}">Supprimer</a>
+                                <br>
+                                <a href="{{ path('fit-can-fly', {'id' : fit.getId()} ) }}">Voir qui peux piloter</a>
+                                <br>
+                            {% endif %}
+                            {% if  is_granted('ROLE_FIT') %}
+                                <a href="{{ path('fit-skill-set', {'id' : fit.getId()} ) }}">Editer le skill set</a>
+                            {% endif %}
                         </td>
                     {% endif %}
 
