@@ -73,7 +73,7 @@ class UpdateApiSkillCommand extends ContainerAwareCommand
                 $output->writeln('Success');
             }
             catch (EsiException $e){
-                $output->writeln('Error : ' . $e->getMessage());
+                $output->writeln('Error : ' . $e->getDetail());
             }
             catch (\Exception $e){
                 $output->writeln('Error : ' . $e->getMessage());
