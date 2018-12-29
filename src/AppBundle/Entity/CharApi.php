@@ -79,6 +79,13 @@ class CharApi
     private $lastAssetUpdate;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="json", nullable=true, options={"default":null})
+     */
+    public $skills = null;
+
+    /**
      * @var boolean
      *
      */
@@ -347,4 +354,28 @@ class CharApi
     }
 
 
+
+    /**
+     * Set skills
+     *
+     * @param json $skills
+     *
+     * @return CharApi
+     */
+    public function setSkills($skills)
+    {
+        $this->skills = $skills;
+    
+        return $this;
+    }
+
+    /**
+     * Get skills
+     *
+     * @return json
+     */
+    public function getSkills()
+    {
+        return $this->skills;
+    }
 }
