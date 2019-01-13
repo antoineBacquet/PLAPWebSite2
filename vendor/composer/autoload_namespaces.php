@@ -7,16 +7,12 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Twig_' => array($vendorDir . '/twig/twig/lib'),
-    'SensioLabs\\Security' => array($vendorDir . '/sensiolabs/security-checker'),
     'SecurityLib' => array($vendorDir . '/ircmaxell/security-lib/lib'),
     'RandomLib' => array($vendorDir . '/ircmaxell/random-lib/lib'),
     'Less' => array($vendorDir . '/oyejorge/less.php/lib'),
     'Knp\\Component' => array($vendorDir . '/knplabs/knp-components/src'),
-    'Doctrine\\ORM\\' => array($vendorDir . '/doctrine/orm/lib'),
-    'Doctrine\\DBAL\\' => array($vendorDir . '/doctrine/dbal/lib'),
     'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib'),
     'Doctrine\\Common\\Collections\\' => array($vendorDir . '/doctrine/collections/lib'),
-    'Doctrine\\Common\\Annotations\\' => array($vendorDir . '/doctrine/annotations/lib'),
     'Discutea\\DForumBundle' => array($vendorDir . '/discutea/forum-bundle'),
     'Behat\\Transliterator' => array($vendorDir . '/behat/transliterator/src'),
     'Assetic' => array($vendorDir . '/kriswallsmith/assetic/src'),

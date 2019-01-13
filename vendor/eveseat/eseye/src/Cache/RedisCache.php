@@ -3,7 +3,7 @@
 /*
  * This file is part of SeAT
  *
- * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ * Copyright (C) 2015, 2016, 2017, 2018  Leon Jacobs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,11 +44,13 @@ class RedisCache implements CacheInterface
      * RedisCache constructor.
      *
      * @param \Predis\Client $redis
+     *
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
      */
     public function __construct(Client $redis = null)
     {
 
-        // If we didnt get a Redis instance in the constructor,
+        // If we didn't get a Redis instance in the constructor,
         // build a new one.
         if (is_null($redis)) {
 
@@ -69,7 +71,7 @@ class RedisCache implements CacheInterface
      * @param string                             $query
      * @param \Seat\Eseye\Containers\EsiResponse $data
      *
-     * @return mixed
+     * @return void
      */
     public function set(string $uri, string $query, EsiResponse $data)
     {

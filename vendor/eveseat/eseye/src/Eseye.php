@@ -3,7 +3,7 @@
 /*
  * This file is part of SeAT
  *
- * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ * Copyright (C) 2015, 2016, 2017, 2018  Leon Jacobs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ use Seat\Eseye\Cache\CacheInterface;
 use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Containers\EsiResponse;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
-use Seat\Eseye\Exceptions\InvalidAuthencationException;
+use Seat\Eseye\Exceptions\InvalidAuthenticationException;
 use Seat\Eseye\Exceptions\InvalidContainerDataException;
 use Seat\Eseye\Exceptions\UriDataMissingException;
 use Seat\Eseye\Fetchers\FetcherInterface;
@@ -45,7 +45,7 @@ class Eseye
     /**
      * The Eseye Version.
      */
-    const VERSION = '0.0.10';
+    const VERSION = '1.1.6';
 
     /**
      * @var \Seat\Eseye\Containers\EsiAuthentication
@@ -61,6 +61,11 @@ class Eseye
      * @var
      */
     protected $cache;
+
+    /**
+     * @var \Seat\Eseye\Log\LogInterface
+     */
+    protected $logger;
 
     /**
      * @var
@@ -82,7 +87,7 @@ class Eseye
      */
     protected $esi = [
         'scheme' => 'https',
-        'host'   => 'esi.tech.ccp.is',
+        'host'   => 'esi.evetech.net',
     ];
 
     /**
@@ -91,9 +96,18 @@ class Eseye
     protected $version = '/latest';
 
     /**
+     * HTTP verbs that could have their responses cached.
+     *
+     * @var array
+     */
+    protected $cachable_verb = ['get'];
+
+    /**
      * Eseye constructor.
      *
      * @param \Seat\Eseye\Containers\EsiAuthentication $authentication
+     *
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
      */
     public function __construct(
         EsiAuthentication $authentication = null)
@@ -102,18 +116,41 @@ class Eseye
         if (! is_null($authentication))
             $this->authentication = $authentication;
 
+        // Setup the logger
+        $this->logger = $this->getLogger();
+
         return $this;
     }
 
     /**
+     * @return \Seat\Eseye\Log\LogInterface
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
+     */
+    public function getLogger(): LogInterface
+    {
+
+        return $this->getConfiguration()->getLogger();
+    }
+
+    /**
+     * @return \Seat\Eseye\Configuration
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
+     */
+    public function getConfiguration(): Configuration
+    {
+
+        return Configuration::getInstance();
+    }
+
+    /**
      * @return \Seat\Eseye\Containers\EsiAuthentication
-     * @throws \Seat\Eseye\Exceptions\InvalidAuthencationException
+     * @throws \Seat\Eseye\Exceptions\InvalidAuthenticationException
      */
     public function getAuthentication(): EsiAuthentication
     {
 
         if (is_null($this->authentication))
-            throw new InvalidAuthencationException('Authentication data not set.');
+            throw new InvalidAuthenticationException('Authentication data not set.');
 
         return $this->authentication;
     }
@@ -136,25 +173,25 @@ class Eseye
     }
 
     /**
+     * @param string $refreshToken
+     *
+     * @return \Seat\Eseye\Eseye
+     */
+    public function setRefreshToken(String $refreshToken): self
+    {
+
+        $this->authentication = $this->authentication->setRefreshToken($refreshToken);
+
+        return $this;
+    }
+
+    /**
      * @param \Seat\Eseye\Fetchers\FetcherInterface $fetcher
      */
     public function setFetcher(FetcherInterface $fetcher)
     {
 
         $this->fetcher = $fetcher;
-    }
-
-    /**
-     * @param \Seat\Eseye\Access\AccessInterface $checker
-     *
-     * @return \Seat\Eseye\Eseye
-     */
-    public function setAccessChecker(AccessInterface $checker): self
-    {
-
-        $this->access_checker = $checker;
-
-        return $this;
     }
 
     /**
@@ -177,12 +214,14 @@ class Eseye
      *
      * @return \Seat\Eseye\Containers\EsiResponse
      * @throws \Seat\Eseye\Exceptions\EsiScopeAccessDeniedException
+     * @throws \Seat\Eseye\Exceptions\UriDataMissingException
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
      */
     public function invoke(string $method, string $uri, array $uri_data = []): EsiResponse
     {
 
         // Check the Access Requirement
-        if (! $this->getAccesChecker()->can(
+        if (! $this->getAccessChecker()->can(
             $method, $uri, $this->getFetcher()->getAuthenticationScopes())
         ) {
 
@@ -190,7 +229,7 @@ class Eseye
             $uri = $this->buildDataUri($uri, $uri_data);
 
             // Log the deny.
-            $this->getLogger()->warning('Access denied to ' . $uri . ' due to ' .
+            $this->logger->warning('Access denied to ' . $uri . ' due to ' .
                 'missing scopes.');
 
             throw new EsiScopeAccessDeniedException('Access denied to ' . $uri);
@@ -200,17 +239,30 @@ class Eseye
         $uri = $this->buildDataUri($uri, $uri_data);
 
         // Check if there is a cached response we can return
-        if (strtolower($method) == 'get' &&
+        if (in_array(strtolower($method), $this->cachable_verb) &&
             $cached = $this->getCache()->get($uri->getPath(), $uri->getQuery())
-        )
+        ) {
+
+            // Mark the response as one that was loaded from the cache
+            $cached->setIsCachedload();
+
+            // Perform some debug logging
+            $this->getLogger()->debug('Loaded cached response for ' . $method . ' -> ' . $uri);
+
             return $cached;
+        }
 
         // Call ESI itself and get the EsiResponse
         $result = $this->rawFetch($method, $uri, $this->getBody());
 
         // Cache the response if it was a get and is not already expired
-        if (strtolower($method) == 'get' && ! $result->expired())
+        if (in_array(strtolower($method), $this->cachable_verb) && ! $result->expired())
             $this->getCache()->set($uri->getPath(), $uri->getQuery(), $result);
+
+        // In preparation for the next request, perform some
+        // self cleanups of this objects request data such as
+        // query string parameters and post bodies.
+        $this->cleanupRequestData();
 
         return $result;
     }
@@ -218,7 +270,7 @@ class Eseye
     /**
      * @return \Seat\Eseye\Access\CheckAccess
      */
-    public function getAccesChecker()
+    public function getAccessChecker()
     {
 
         if (! $this->access_checker)
@@ -228,7 +280,21 @@ class Eseye
     }
 
     /**
+     * @param \Seat\Eseye\Access\AccessInterface $checker
+     *
+     * @return \Seat\Eseye\Eseye
+     */
+    public function setAccessChecker(AccessInterface $checker): self
+    {
+
+        $this->access_checker = $checker;
+
+        return $this;
+    }
+
+    /**
      * @return \Seat\Eseye\Fetchers\FetcherInterface
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
      */
     private function getFetcher(): FetcherInterface
     {
@@ -244,19 +310,12 @@ class Eseye
     }
 
     /**
-     * @return \Seat\Eseye\Configuration
-     */
-    public function getConfiguration(): Configuration
-    {
-
-        return Configuration::getInstance();
-    }
-
-    /**
      * @param string $uri
      * @param array  $data
      *
      * @return \GuzzleHttp\Psr7\Uri
+     * @throws \Seat\Eseye\Exceptions\UriDataMissingException
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
      */
     public function buildDataUri(string $uri, array $data): Uri
     {
@@ -293,7 +352,13 @@ class Eseye
     public function setQueryString(array $query): self
     {
 
-        $this->query_string = $query;
+        foreach ($query as $key => $value) {
+            if (is_array($value)) {
+                $query[$key] = implode(',', $value);
+            }
+        }
+
+        $this->query_string = array_merge($this->query_string, $query);
 
         return $this;
     }
@@ -360,16 +425,8 @@ class Eseye
     }
 
     /**
-     * @return \Seat\Eseye\Log\LogInterface
-     */
-    public function getLogger(): LogInterface
-    {
-
-        return $this->getConfiguration()->getLogger();
-    }
-
-    /**
      * @return \Seat\Eseye\Cache\CacheInterface
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
      */
     private function getCache(): CacheInterface
     {
@@ -383,6 +440,7 @@ class Eseye
      * @param array  $body
      *
      * @return mixed
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
      */
     public function rawFetch(string $method, string $uri, array $body)
     {
@@ -397,5 +455,54 @@ class Eseye
     {
 
         return $this->request_body;
+    }
+
+    /**
+     * @return \Seat\Eseye\Eseye
+     */
+    public function cleanupRequestData(): self
+    {
+
+        $this->unsetBody();
+        $this->unsetQueryString();
+
+        return $this;
+    }
+
+    /**
+     * @return \Seat\Eseye\Eseye
+     */
+    public function unsetBody(): self
+    {
+
+        $this->request_body = [];
+
+        return $this;
+    }
+
+    /**
+     * @return \Seat\Eseye\Eseye
+     */
+    public function unsetQueryString(): self
+    {
+
+        $this->query_string = [];
+
+        return $this;
+    }
+
+    /**
+     * A helper method to specify the page to retrieve.
+     *
+     * @param int $page
+     *
+     * @return \Seat\Eseye\Eseye
+     */
+    public function page(int $page): self
+    {
+
+        $this->setQueryString(['page' => $page]);
+
+        return $this;
     }
 }

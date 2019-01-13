@@ -3,7 +3,7 @@
 /*
  * This file is part of SeAT
  *
- * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ * Copyright (C) 2015, 2016, 2017, 2018  Leon Jacobs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ class FileLogger implements LogInterface
 
     /**
      * FileLogger constructor.
+     * @throws \Exception
      */
     public function __construct()
     {
@@ -50,7 +51,7 @@ class FileLogger implements LogInterface
 
         $formatter = new LineFormatter("[%datetime%] %channel%.%level_name%: %message%\n");
         $stream = new StreamHandler(
-            $configuration->logfile_location,
+            rtrim($configuration->logfile_location, '/') . '/eseye.log',
             $configuration->logger_level
         );
         $stream->setFormatter($formatter);

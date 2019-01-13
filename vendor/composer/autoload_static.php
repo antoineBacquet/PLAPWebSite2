@@ -8,12 +8,13 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
 {
     public static $files = array (
         '92c8763cd6170fce6fcfe7e26b4e8c10' => __DIR__ . '/..' . '/symfony/phpunit-bridge/bootstrap.php',
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
+        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
-        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
         'ce89ac35a6c330c55f4710717db9ff78' => __DIR__ . '/..' . '/kriswallsmith/assetic/src/functions.php',
         '32dcc8afd4335739640db7d200c1971d' => __DIR__ . '/..' . '/symfony/polyfill-apcu/bootstrap.php',
@@ -25,10 +26,6 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
     );
 
     public static $prefixLengthsPsr4 = array (
-        'n' => 
-        array (
-            'nullx27\\ESI\\' => 12,
-        ),
         'T' => 
         array (
             'Twig\\' => 5,
@@ -40,6 +37,7 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
             'Symfony\\Polyfill\\Php70\\' => 23,
             'Symfony\\Polyfill\\Php56\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
+            'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Polyfill\\Apcu\\' => 22,
             'Symfony\\Component\\' => 18,
             'Symfony\\Bundle\\SwiftmailerBundle\\' => 33,
@@ -55,6 +53,7 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
             'Sensio\\Bundle\\GeneratorBundle\\' => 30,
             'Sensio\\Bundle\\FrameworkExtraBundle\\' => 35,
             'Sensio\\Bundle\\DistributionBundle\\' => 33,
+            'SensioLabs\\Security\\' => 20,
             'Seat\\Eseye\\' => 11,
         ),
         'P' => 
@@ -98,9 +97,12 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
         ),
         'D' => 
         array (
+            'Doctrine\\ORM\\' => 13,
             'Doctrine\\Instantiator\\' => 22,
+            'Doctrine\\DBAL\\' => 14,
             'Doctrine\\Common\\Inflector\\' => 26,
             'Doctrine\\Common\\Cache\\' => 22,
+            'Doctrine\\Common\\Annotations\\' => 28,
             'Doctrine\\Common\\' => 16,
             'Doctrine\\Bundle\\DoctrineCacheBundle\\' => 36,
             'Doctrine\\Bundle\\DoctrineBundle\\' => 31,
@@ -118,10 +120,6 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
     );
 
     public static $prefixDirsPsr4 = array (
-        'nullx27\\ESI\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/nullx27/esi-php/src',
-        ),
         'Twig\\' => 
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
@@ -145,6 +143,10 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
         'Symfony\\Polyfill\\Mbstring\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+        ),
+        'Symfony\\Polyfill\\Ctype\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
         'Symfony\\Polyfill\\Apcu\\' => 
         array (
@@ -205,6 +207,10 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
         'Sensio\\Bundle\\DistributionBundle\\' => 
         array (
             0 => __DIR__ . '/..' . '/sensio/distribution-bundle',
+        ),
+        'SensioLabs\\Security\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sensiolabs/security-checker/SensioLabs/Security',
         ),
         'Seat\\Eseye\\' => 
         array (
@@ -282,9 +288,17 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
         array (
             0 => __DIR__ . '/..' . '/fig/link-util/src',
         ),
+        'Doctrine\\ORM\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/orm/lib/Doctrine/ORM',
+        ),
         'Doctrine\\Instantiator\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/instantiator/src/Doctrine/Instantiator',
+        ),
+        'Doctrine\\DBAL\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/dbal/lib/Doctrine/DBAL',
         ),
         'Doctrine\\Common\\Inflector\\' => 
         array (
@@ -294,9 +308,16 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
         array (
             0 => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache',
         ),
+        'Doctrine\\Common\\Annotations\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/annotations/lib/Doctrine/Common/Annotations',
+        ),
         'Doctrine\\Common\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/common/lib/Doctrine/Common',
+            1 => __DIR__ . '/..' . '/doctrine/event-manager/lib/Doctrine/Common',
+            2 => __DIR__ . '/..' . '/doctrine/persistence/lib/Doctrine/Common',
+            3 => __DIR__ . '/..' . '/doctrine/reflection/lib/Doctrine/Common',
         ),
         'Doctrine\\Bundle\\DoctrineCacheBundle\\' => 
         array (
@@ -338,10 +359,6 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
         ),
         'S' => 
         array (
-            'SensioLabs\\Security' => 
-            array (
-                0 => __DIR__ . '/..' . '/sensiolabs/security-checker',
-            ),
             'SecurityLib' => 
             array (
                 0 => __DIR__ . '/..' . '/ircmaxell/security-lib/lib',
@@ -370,14 +387,6 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
         ),
         'D' => 
         array (
-            'Doctrine\\ORM\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/doctrine/orm/lib',
-            ),
-            'Doctrine\\DBAL\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/doctrine/dbal/lib',
-            ),
             'Doctrine\\Common\\Lexer\\' => 
             array (
                 0 => __DIR__ . '/..' . '/doctrine/lexer/lib',
@@ -385,10 +394,6 @@ class ComposerStaticInit374429f4ab4935127e2d36a0613c8d3a
             'Doctrine\\Common\\Collections\\' => 
             array (
                 0 => __DIR__ . '/..' . '/doctrine/collections/lib',
-            ),
-            'Doctrine\\Common\\Annotations\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/doctrine/annotations/lib',
             ),
             'Discutea\\DForumBundle' => 
             array (

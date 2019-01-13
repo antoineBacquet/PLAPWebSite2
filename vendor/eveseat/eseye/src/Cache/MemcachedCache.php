@@ -3,7 +3,7 @@
 /*
  * This file is part of SeAT
  *
- * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ * Copyright (C) 2015, 2016, 2017, 2018  Leon Jacobs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,14 +33,33 @@ class MemcachedCache implements CacheInterface
 {
     use HashesStrings;
 
+    /**
+     * @var mixed
+     */
     protected $prefix;
 
+    /**
+     * @var bool
+     */
     protected $is_memcached;
 
+    /**
+     * @var \Memcache
+     */
     protected $memcached;
 
+    /**
+     * @var int
+     */
     protected $flags;
 
+    /**
+     * MemcachedCache constructor.
+     *
+     * @param null $instance
+     *
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
+     */
     public function __construct($instance = null)
     {
 
@@ -73,7 +92,7 @@ class MemcachedCache implements CacheInterface
      * @param string                             $query
      * @param \Seat\Eseye\Containers\EsiResponse $data
      *
-     * @return mixed
+     * @return void
      */
     public function set(string $uri, string $query, EsiResponse $data)
     {

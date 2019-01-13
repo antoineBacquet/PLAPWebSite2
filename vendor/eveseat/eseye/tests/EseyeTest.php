@@ -32,7 +32,7 @@ use Seat\Eseye\Containers\EsiAuthentication;
 use Seat\Eseye\Eseye;
 use Seat\Eseye\EseyeFetcher;
 use Seat\Eseye\Exceptions\EsiScopeAccessDeniedException;
-use Seat\Eseye\Exceptions\InvalidAuthencationException;
+use Seat\Eseye\Exceptions\InvalidAuthenticationException;
 use Seat\Eseye\Exceptions\InvalidContainerDataException;
 use Seat\Eseye\Exceptions\UriDataMissingException;
 use Seat\Eseye\Fetchers\FetcherInterface;
@@ -117,7 +117,7 @@ class EseyeTest extends PHPUnit_Framework_TestCase
     public function testEseyeGetAuthenticationBeforeSet()
     {
 
-        $this->expectException(InvalidAuthencationException::class);
+        $this->expectException(InvalidAuthenticationException::class);
 
         $this->esi->getAuthentication();
     }
@@ -161,7 +161,7 @@ class EseyeTest extends PHPUnit_Framework_TestCase
     public function testEseyeGetAccessChecker()
     {
 
-        $this->assertInstanceOf(CheckAccess::class, $this->esi->getAccesChecker());
+        $this->assertInstanceOf(CheckAccess::class, $this->esi->getAccessChecker());
     }
 
     public function testEseyeGetsFetcher()
@@ -202,10 +202,16 @@ class EseyeTest extends PHPUnit_Framework_TestCase
     public function testEseyeGetAndSetQueryString()
     {
 
-        $object = $this->esi->setQueryString(['foo' => 'bar']);
+        $object = $this->esi->setQueryString([
+            'foo'    => 'bar',
+            'foobar' => ['foo', 'bar'],
+        ]);
 
         $this->assertInstanceOf(Eseye::class, $object);
-        $this->assertEquals(['foo' => 'bar'], $this->esi->getQueryString());
+        $this->assertEquals([
+            'foo'    => 'bar',
+            'foobar' => 'foo,bar',
+        ], $this->esi->getQueryString());
     }
 
     public function testEseyeGetAndSetBody()
@@ -246,7 +252,7 @@ class EseyeTest extends PHPUnit_Framework_TestCase
 
         $uri = $this->esi->buildDataUri('/{foo}/', ['foo' => 'bar']);
 
-        $this->assertEquals('https://esi.tech.ccp.is/latest/bar/?datasource=test',
+        $this->assertEquals('https://esi.evetech.net/latest/bar/?datasource=test',
             $uri->__toString());
     }
 
@@ -325,6 +331,24 @@ class EseyeTest extends PHPUnit_Framework_TestCase
         $this->esi->invoke('get', '/characters/{character_id}/assets/', [
             'character_id' => 123,
         ]);
+    }
+
+    public function testEseyeSetRefreshToken()
+    {
+
+        $authentication = new EsiAuthentication([
+            'client_id'     => 'SSO_CLIENT_ID',
+            'secret'        => 'SSO_SECRET',
+            'access_token'  => 'ACCESS_TOKEN',
+            'refresh_token' => 'CHARACTER_REFRESH_TOKEN',
+            'token_expires' => '1970-01-01 00:00:00',
+            'scopes'        => ['public'],
+        ]);
+        $this->esi->setAuthentication($authentication);
+
+        $this->esi->setRefreshToken('ALTERNATE_REFRESH_TOKEN');
+
+        $this->assertEquals('ALTERNATE_REFRESH_TOKEN', $this->esi->getAuthentication()->refresh_token);
     }
 
 }

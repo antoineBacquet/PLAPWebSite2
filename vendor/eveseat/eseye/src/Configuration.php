@@ -3,7 +3,7 @@
 /*
  * This file is part of SeAT
  *
- * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ * Copyright (C) 2015, 2016, 2017, 2018  Leon Jacobs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ class Configuration
 
     /**
      * Configuration constructor.
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
      */
     public function __construct()
     {
@@ -65,8 +66,9 @@ class Configuration
 
     /**
      * @return \Seat\Eseye\Configuration
+     * @throws \Seat\Eseye\Exceptions\InvalidContainerDataException
      */
-    public static function getInstance(): Configuration
+    public static function getInstance(): self
     {
 
         if (is_null(self::$instance))
